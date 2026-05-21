@@ -37,3 +37,11 @@ scratch
 
 # misc
 .DS_Store
+
+# backup/temp
+*.bak
+*.new
+
+# screenshots/docs
+Screenshot*
+EDIT-MODE-STRUCTUR
