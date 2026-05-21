@@ -10030,35 +10030,130 @@ className="w-4 h-4 object-contain"
                                         </div>
                                       </div>
 
-                                      {/* Gap Slider */}
-                                      <div className="space-y-2 py-1">
+                                      {/* Jarak (Gap) - 2 input Kolom/Baris + link icon */}
+                                      <div className="space-y-1.5 py-1">
                                         <div className="flex justify-between items-center">
-                                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-wide">
-                                            <span>Jarak (Gap)</span>
-
-                                          </div>
                                           <div className="flex items-center gap-1.5">
-                                            <span className="text-[10px] font-bold text-zinc-300">{editingSection.config.gap ?? 16}</span>
-                                            <span className="text-[9px] text-zinc-500 font-bold">px</span>
+                                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">Jarak</span>
+                                            {/* Monitor icon */}
+                                            <Monitor className="w-3 h-3 text-zinc-500 shrink-0" />
+                                          </div>
+                                          <div className="flex items-center gap-0.5 text-[9px] text-zinc-500 font-bold cursor-pointer hover:text-zinc-300 transition-colors">
+                                            <span>px</span>
+                                            <ChevronDown className="w-3 h-3" />
                                           </div>
                                         </div>
-                                        <div className="flex gap-3 items-center">
-                                          <input
-                                            type="range"
-                                            min="0"
-                                            max="80"
-                                            value={editingSection.config.gap ?? 16}
-                                            onChange={(e) => updateLocalSection({ ...editingSection, config: { ...editingSection.config, gap: Number(e.target.value) } })}
-                                            className="flex-1 accent-zinc-100 bg-zinc-950 h-1 rounded-lg cursor-pointer"
-                                          />
-                                          <input
-                                            type="number"
-                                            value={editingSection.config.gap ?? 16}
-                                            onChange={(e) => updateLocalSection({ ...editingSection, config: { ...editingSection.config, gap: Number(e.target.value) } })}
-                                            className="w-16 h-7 text-center text-xs font-bold bg-zinc-950 text-zinc-100 border border-zinc-800 rounded focus:border-zinc-700 outline-none"
-                                          />
+                                        <div className="flex gap-1.5 items-start">
+                                          <div className="flex-1 flex flex-col">
+                                            <div className="bg-zinc-950 rounded border border-zinc-800 flex items-center overflow-hidden h-8">
+                                              {/* Input Kolom */}
+                                              <input
+                                                type="number"
+                                                value={editingSection.config.columnGap ?? editingSection.config.gap ?? 16}
+                                                onChange={(e) => {
+                                                  const val = Number(e.target.value);
+                                                  const updates: any = { columnGap: val };
+                                                  if (editingSection.config.gapLinked !== false) {
+                                                    updates.rowGap = val;
+                                                    updates.gap = val;
+                                                  }
+                                                  updateLocalSection({ ...editingSection, config: { ...editingSection.config, ...updates } });
+                                                  console.log('[Editor] columnGap SECTION diubah ke:', val);
+                                                }}
+                                                className="w-full h-full text-center text-xs font-bold bg-transparent text-zinc-100 outline-none border-r border-zinc-800"
+                                              />
+                                              {/* Input Baris */}
+                                              <input
+                                                type="number"
+                                                value={editingSection.config.rowGap ?? editingSection.config.gap ?? 16}
+                                                onChange={(e) => {
+                                                  const val = Number(e.target.value);
+                                                  const updates: any = { rowGap: val };
+                                                  if (editingSection.config.gapLinked !== false) {
+                                                    updates.columnGap = val;
+                                                    updates.gap = val;
+                                                  }
+                                                  updateLocalSection({ ...editingSection, config: { ...editingSection.config, ...updates } });
+                                                  console.log('[Editor] rowGap SECTION diubah ke:', val);
+                                                }}
+                                                className="w-full h-full text-center text-xs font-bold bg-transparent text-zinc-100 outline-none"
+                                              />
+                                            </div>
+                                            <div className="grid grid-cols-2 mt-1 text-center text-[9px] font-semibold text-zinc-500 tracking-tight">
+                                              <span>Kolom</span>
+                                              <span>Baris</span>
+                                            </div>
+                                          </div>
+                                          {/* Tombol Link/Unlink */}
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              const newVal = editingSection.config.gapLinked === false ? true : false;
+                                              updateLocalSection({ ...editingSection, config: { ...editingSection.config, gapLinked: newVal } });
+                                              console.log('[Editor] gapLinked SECTION diubah ke:', newVal);
+                                            }}
+                                            className={`h-8 w-8 rounded flex items-center justify-center border transition-all shrink-0 ${editingSection.config.gapLinked !== false
+                                              ? 'bg-zinc-800 text-white border-zinc-700 shadow-sm'
+                                              : 'bg-zinc-950 text-zinc-500 border border-zinc-800 hover:bg-zinc-900'
+                                              }`}
+                                          >
+                                            <LinkIcon className="w-3.5 h-3.5" />
+                                          </button>
                                         </div>
                                       </div>
+
+                                      {/* Bungkus (Flex Wrap) */}
+                                      <div className="flex justify-between items-center py-1.5">
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">Bungkus</span>
+                                          <Monitor className="w-3 h-3 text-zinc-500 shrink-0" />
+                                        </div>
+                                        <div className="flex gap-0.5 bg-zinc-950 p-0.5 rounded border border-zinc-800 shrink-0">
+                                          {/* Tombol No Wrap */}
+                                          <button
+                                            type="button"
+                                            title="No Wrap — elemen tetap satu baris"
+                                            onClick={() => {
+                                              updateLocalSection({ ...editingSection, config: { ...editingSection.config, flexWrap: 'nowrap' } });
+                                              console.log('[Editor] flexWrap SECTION diubah ke: nowrap');
+                                            }}
+                                            className={`h-7 w-8 flex items-center justify-center rounded transition-all ${(editingSection.config.flexWrap || 'nowrap') === 'nowrap'
+                                              ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm'
+                                              : 'text-zinc-500 hover:bg-zinc-900/40 hover:text-zinc-300'
+                                              }`}
+                                          >
+                                            {/* Ikon No Wrap: panah ke kanan menyentuh batas */}
+                                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                              <path d="M3 6h18M3 12h14l3 0M3 18h18" />
+                                              <path d="M17 9l4 3-4 3" />
+                                            </svg>
+                                          </button>
+                                          {/* Tombol Wrap */}
+                                          <button
+                                            type="button"
+                                            title="Wrap — elemen turun ke baris berikutnya jika penuh"
+                                            onClick={() => {
+                                              updateLocalSection({ ...editingSection, config: { ...editingSection.config, flexWrap: 'wrap' } });
+                                              console.log('[Editor] flexWrap SECTION diubah ke: wrap');
+                                            }}
+                                            className={`h-7 w-8 flex items-center justify-center rounded transition-all ${(editingSection.config.flexWrap || 'nowrap') === 'wrap'
+                                              ? 'bg-zinc-800 text-white border border-zinc-700 shadow-sm'
+                                              : 'text-zinc-500 hover:bg-zinc-900/40 hover:text-zinc-300'
+                                              }`}
+                                          >
+                                            {/* Ikon Wrap: garis turun ke baris baru */}
+                                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                              <path d="M3 6h18M3 12h11" />
+                                              <path d="M14 9l4 3-4 3" />
+                                              <path d="M3 18h9" />
+                                            </svg>
+                                          </button>
+                                        </div>
+                                      </div>
+                                      {/* Deskripsi Bungkus */}
+                                      <p className="text-[10px] text-zinc-500 italic leading-snug -mt-1 pb-1">
+                                        Items within the container can stay in a single line (No wrap), or break into multiple lines (Wrap).
+                                      </p>
                                     </div>
                                   )}
                                 </div>
