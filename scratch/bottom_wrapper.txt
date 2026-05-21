@@ -1,0 +1,14 @@
+export default function VisualPageBuilder() {
+  return (
+    <Suspense fallback={
+      <div className="fixed inset-0 bg-black flex flex-col items-center justify-center space-y-8 z-[200]">
+        <div className="w-20 h-20 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="text-center space-y-2">
+          <h2 className="text-xl font-black text-white uppercase tracking-[0.4em] animate-pulse">Initializing Canvas</h2>
+        </div>
+      </div>
+    }>
+      <BuilderContent />
+    </Suspense>
+  );
+}

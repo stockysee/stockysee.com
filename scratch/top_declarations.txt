@@ -1,0 +1,897 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useCacheFetch } from "@/hooks/useCacheFetch";
+import { Plus, Trash2, Settings2, Sliders, Eye, Save, X, Layers, Box, LayoutTemplate, Palette, Settings, Link as LinkIcon, ArrowLeft, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Smartphone, Monitor, Type, Image as ImageIcon, Paintbrush, Globe, Upload, Loader2, ShoppingBag, ShieldCheck, Copy, Clipboard, CopyPlus, PlusCircle, Columns, Undo2, Redo2, LayoutGrid, AlignLeft, AlignCenter, AlignRight, AlignJustify, MousePointerClick, SeparatorHorizontal, Award, Pencil, Folder, Sparkles, Link2, RotateCcw, Bold, Italic, Underline, List, ListOrdered, Maximize2, Table, Strikethrough, HelpCircle, Eraser, Quote, Minus } from "lucide-react";
+import { motion, Reorder, AnimatePresence, useDragControls } from "framer-motion";
+import { useUI } from "@/components/ui/UIProvider";
+import { useRouter, useSearchParams } from "next/navigation";
+import { HeaderSection } from "@/components/storefront/sections/DynamicSections";
+import { StorefrontProvider } from "@/components/storefront/StorefrontProvider";
+import { BuilderSection, SectionElement, BuilderSectionConfig, ELEMENT_TYPE_MAP } from "@/components/storefront/sections/BuilderSection";
+import { MediaLibraryModal } from "@/components/MediaLibraryModal";
+
+interface RichTextEditorProps {
+  value: string;
+  onChange: (val: string) => void;
+}
+
+const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
+  const editorRef = useRef<HTMLDivElement>(null);
+  const isUpdatingRef = useRef(false);
+
+  // Sinkronisasi value dari luar hanya jika kontennya benar-benar berbeda
+  useEffect(() => {
+    if (editorRef.current) {
+      if (editorRef.current.innerHTML !== value) {
+        isUpdatingRef.current = true;
+        editorRef.current.innerHTML = value || "";
+        isUpdatingRef.current = false;
+      }
+    }
+  }, [value]);
+
+  const executeCommand = (command: string, ui: boolean = false, val: any = null) => {
+    document.execCommand(command, ui, val);
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleInput = () => {
+    if (editorRef.current && !isUpdatingRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handlePromptLink = () => {
+    const url = prompt("Masukkan URL tautan:");
+    if (url) {
+      executeCommand("createLink", false, url);
+    }
+  };
+
+  const handlePromptColor = () => {
+    const color = prompt("Masukkan kode warna HEX (misal: #ef4444 atau red):");
+    if (color) {
+      executeCommand("foreColor", false, color);
+    }
+  };
+
+  return (
+    <div className="border border-zinc-800 rounded-xl overflow-hidden bg-[#1e1e1e] flex flex-col">
+      {/* Toolbar */}
+      <div className="p-2 border-b border-zinc-800 bg-[#16161a] space-y-1 select-none">
+        {/* Row 1 */}
+        <div className="flex flex-wrap items-center gap-1">
+          {/* Dropdown gaya */}
+          <div className="relative">
+            <select
+              className="text-[11px] bg-zinc-900 border border-zinc-800 text-zinc-200 rounded px-1.5 py-1 outline-none font-bold cursor-pointer"
+              value="p"
+              onChange={(e) => {
+                executeCommand("formatBlock", false, `<${e.target.value}>`);
+              }}
+            >
+              <option value="p">Paragraf</option>
+              <option value="h1">Judul 1</option>
+              <option value="h2">Judul 2</option>
+              <option value="h3">Judul 3</option>
+            </select>
+          </div>
+
+          <div className="w-px h-4 bg-zinc-800 mx-0.5" />
+
+          {/* Bold, Italic, Underline, Bullet List */}
+          {[
+            { cmd: "bold", icon: Bold, title: "Bold" },
+            { cmd: "italic", icon: Italic, title: "Italic" },
+            { cmd: "underline", icon: Underline, title: "Underline" },
+            { cmd: "insertUnorderedList", icon: List, title: "Bullet List" },
+          ].map((btn) => {
+            const Icon = btn.icon;
+            return (
+              <button
+                key={btn.cmd}
+                type="button"
+                onClick={() => executeCommand(btn.cmd)}
+                className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+                title={btn.title}
+              >
+                <Icon className="w-3.5 h-3.5" />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Row 2 */}
+        <div className="flex flex-wrap items-center gap-1">
+          {[
+            { cmd: "insertOrderedList", icon: ListOrdered, title: "Numbered List" },
+          ].map((btn) => {
+            const Icon = btn.icon;
+            return (
+              <button
+                key={btn.cmd}
+                type="button"
+                onClick={() => executeCommand(btn.cmd)}
+                className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+                title={btn.title}
+              >
+                <Icon className="w-3.5 h-3.5" />
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={handlePromptLink}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Tautan (Link)"
+          >
+            <Link2 className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (editorRef.current) {
+                if (document.fullscreenElement) {
+                  document.exitFullscreen();
+                } else {
+                  editorRef.current.requestFullscreen();
+                }
+              }
+            }}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Fullscreen"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              const rows = prompt("Masukkan jumlah baris (default: 2):", "2");
+              const cols = prompt("Masukkan jumlah kolom (default: 2):", "2");
+              if (rows && cols) {
+                let html = "<table class='border-collapse border border-zinc-300 my-2 w-full'>";
+                for (let r = 0; r < Number(rows); r++) {
+                  html += "<tr>";
+                  for (let c = 0; c < Number(cols); c++) {
+                    html += "<td class='border border-zinc-300 p-1.5 text-xs'>Sel</td>";
+                  }
+                  html += "</tr>";
+                }
+                html += "</table>";
+                executeCommand("insertHTML", false, html);
+              }
+            }}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Tabel (Table)"
+          >
+            <Table className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Row 3 */}
+        <div className="flex flex-wrap items-center gap-1">
+          <button
+            type="button"
+            onClick={() => executeCommand("strikeThrough")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Coret (Strikethrough)"
+          >
+            <Strikethrough className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("insertHorizontalRule")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Garis Horizontal"
+          >
+            <Minus className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handlePromptColor}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Warna Teks"
+          >
+            <span className="font-extrabold text-xs border-b-2 border-red-500 pb-px text-zinc-300">A</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const text = await navigator.clipboard.readText();
+                executeCommand("insertText", false, text);
+              } catch (e) {
+                const text = prompt("Tempel teks di sini:");
+                if (text) executeCommand("insertText", false, text);
+              }
+            }}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Tempel sebagai teks polos"
+          >
+            <Clipboard className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("removeFormat")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Hapus Pemformatan"
+          >
+            <Eraser className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("formatBlock", false, "<blockquote>")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Kutipan (Blockquote)"
+          >
+            <Quote className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("justifyLeft")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Rata Kiri"
+          >
+            <AlignLeft className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Row 4 */}
+        <div className="flex flex-wrap items-center gap-1">
+          <button
+            type="button"
+            onClick={() => executeCommand("justifyCenter")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Rata Tengah"
+          >
+            <AlignCenter className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("justifyRight")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Rata Kanan"
+          >
+            <AlignRight className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("insertText", false, "Ω")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer font-bold text-xs"
+            title="Karakter Khusus (Ω)"
+          >
+            Ω
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("outdent")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Kurangi Indentasi"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("indent")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Tambah Indentasi"
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("undo")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Urungkan (Undo)"
+          >
+            <Undo2 className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => executeCommand("redo")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Ulangi (Redo)"
+          >
+            <Redo2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Row 5 */}
+        <div className="flex flex-wrap items-center gap-1">
+          <button
+            type="button"
+            onClick={() => alert("Petunjuk: Gunakan toolbar di atas untuk memformat teks paragraf Anda secara visual.")}
+            className="p-1 rounded text-zinc-400 hover:text-zinc-100 hover:bg-zinc-850 cursor-pointer"
+            title="Bantuan (Help)"
+          >
+            <HelpCircle className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Editor Content Area */}
+      <div 
+        ref={editorRef}
+        contentEditable={true}
+        onInput={handleInput}
+        className="p-4 bg-white text-zinc-800 text-sm outline-none overflow-y-auto leading-relaxed text-left min-h-[160px] max-h-[300px] border-b border-zinc-200"
+        style={{
+          fontFamily: 'serif',
+          color: '#2d3748'
+        }}
+      />
+
+      {/* Status Bar / Footer */}
+      <div className="px-3 py-1 bg-zinc-100 border-t border-zinc-200 flex items-center justify-between text-[10px] text-zinc-500 font-semibold select-none">
+        <span>p</span>
+        <div className="cursor-se-resize flex flex-col gap-0.5 items-end justify-end w-3 h-3">
+          <span className="w-2 h-0.5 bg-zinc-300" />
+          <span className="w-1.5 h-0.5 bg-zinc-300" />
+          <span className="w-1.5 h-0.5 bg-zinc-300" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const POPULAR_FONTS = [
+  {
+    category: "Modern Sans Serif (Premium UI)",
+    fonts: [
+      { label: "Inter", value: "Inter" },
+      { label: "Outfit", value: "Outfit" },
+      { label: "Plus Jakarta Sans", value: "Plus Jakarta Sans" },
+      { label: "Montserrat", value: "Montserrat" },
+      { label: "Manrope", value: "Manrope" },
+      { label: "Sora", value: "Sora" },
+      { label: "Space Grotesk", value: "Space Grotesk" },
+      { label: "Syncopate", value: "Syncopate" },
+      { label: "Lexend Deca", value: "Lexend Deca" },
+      { label: "Clash Display", value: "Clash Display" }
+    ]
+  },
+  {
+    category: "Classic Serif & Cinematic Elegant",
+    fonts: [
+      { label: "Playfair Display", value: "Playfair Display" },
+      { label: "Cinzel", value: "Cinzel" },
+      { label: "Cormorant Garamond", value: "Cormorant Garamond" },
+      { label: "Fraunces", value: "Fraunces" },
+      { label: "DM Serif Display", value: "DM Serif Display" },
+      { label: "Bricolage Grotesque", value: "Bricolage Grotesque" }
+    ]
+  },
+  {
+    category: "Futuristic & Digital (Cyberpunk / Tech)",
+    fonts: [
+      { label: "Orbitron", value: "Orbitron" },
+      { label: "Share Tech Mono", value: "Share Tech Mono" },
+      { label: "JetBrains Mono", value: "JetBrains Mono" },
+      { label: "Space Mono", value: "Space Mono" },
+      { label: "Fira Code", value: "Fira Code" }
+    ]
+  },
+  {
+    category: "Unique Script & Decorative Display",
+    fonts: [
+      { label: "Pacifico", value: "Pacifico" },
+      { label: "Satisfy", value: "Satisfy" },
+      { label: "Cabinet Grotesk", value: "Cabinet Grotesk" }
+    ]
+  }
+];
+
+interface Section {
+  id: string;
+  type: string; // 'SECTION' for new modular sections, 'HEADER' for header
+  config: any;
+  elements?: SectionElement[];
+  order: number;
+  isActive: boolean;
+}
+
+export const SECTION_STRUCTURE_TEMPLATES = [
+  {
+    name: "1 Kolom Vertikal",
+    desc: "Satu kolom penuh dengan arah susunan ke bawah (vertical flex)",
+    iconHtml: (
+      <div className="w-full h-11 flex items-center justify-center bg-[#DDE2E5] text-zinc-500 font-bold text-base transition-colors duration-200">
+        ↓
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'vertical', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '100%', sizing: 'full', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "1 Kolom Horizontal",
+    desc: "Satu kolom penuh dengan arah susunan ke samping (horizontal flex)",
+    iconHtml: (
+      <div className="w-full h-11 flex items-center justify-center bg-[#DDE2E5] text-zinc-500 font-bold text-base transition-colors duration-200">
+        →
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'vertical', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '100%', sizing: 'full', layout: 'horizontal' }
+    ]
+  },
+  {
+    name: "2 Kolom Sama Rata (50/50)",
+    desc: "Dua kolom terbagi rata 50% berdampingan",
+    iconHtml: (
+      <div className="w-full h-11 grid grid-cols-2 divide-x divide-white bg-[#DDE2E5]">
+        <div className="h-full"></div>
+        <div className="h-full"></div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '50%', sizing: 'default', layout: 'vertical' },
+      { width: '50%', sizing: 'default', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "3 Kolom Sama Rata (33/33/33)",
+    desc: "Tiga kolom terbagi rata 33% berdampingan",
+    iconHtml: (
+      <div className="w-full h-11 grid grid-cols-3 divide-x divide-white bg-[#DDE2E5]">
+        <div className="h-full"></div>
+        <div className="h-full"></div>
+        <div className="h-full"></div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '33.33%', sizing: 'default', layout: 'vertical' },
+      { width: '33.33%', sizing: 'default', layout: 'vertical' },
+      { width: '33.33%', sizing: 'default', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "4 Kolom Sama Rata (25/25/25/25)",
+    desc: "Empat kolom terbagi rata 25% berdampingan",
+    iconHtml: (
+      <div className="w-full h-11 grid grid-cols-4 divide-x divide-white bg-[#DDE2E5]">
+        <div className="h-full"></div>
+        <div className="h-full"></div>
+        <div className="h-full"></div>
+        <div className="h-full"></div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '25%', sizing: 'default', layout: 'vertical' },
+      { width: '25%', sizing: 'default', layout: 'vertical' },
+      { width: '25%', sizing: 'default', layout: 'vertical' },
+      { width: '25%', sizing: 'default', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "3 Kolom (25/50/25)",
+    desc: "Tiga kolom dengan kolom tengah dua kali lebih lebar",
+    iconHtml: (
+      <div className="w-full h-11 flex divide-x divide-white bg-[#DDE2E5]">
+        <div className="w-[25%] h-full"></div>
+        <div className="w-[50%] h-full"></div>
+        <div className="w-[25%] h-full"></div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '25%', sizing: 'default', layout: 'vertical' },
+      { width: '50%', sizing: 'default', layout: 'vertical' },
+      { width: '25%', sizing: 'default', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "Grid 2x2 (4 Kolom)",
+    desc: "Struktur grid simetris 2 baris dengan masing-masing 2 kolom",
+    iconHtml: (
+      <div className="w-full h-11 flex flex-col divide-y divide-white bg-[#DDE2E5]">
+        <div className="flex-1 grid grid-cols-2 divide-x divide-white">
+          <div className="h-full"></div>
+          <div className="h-full"></div>
+        </div>
+        <div className="flex-1 grid grid-cols-2 divide-x divide-white">
+          <div className="h-full"></div>
+          <div className="h-full"></div>
+        </div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '50%', sizing: 'default', layout: 'vertical' },
+      { width: '50%', sizing: 'default', layout: 'vertical' },
+      { width: '50%', sizing: 'default', layout: 'vertical' },
+      { width: '50%', sizing: 'default', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "2 Kolom (33/67)",
+    desc: "Dua kolom dengan kolom kiri lebih sempit (seperti sidebar)",
+    iconHtml: (
+      <div className="w-full h-11 flex divide-x divide-white bg-[#DDE2E5]">
+        <div className="w-[33.3%] h-full"></div>
+        <div className="w-[66.7%] h-full"></div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '33.33%', sizing: 'default', layout: 'vertical' },
+      { width: '66.67%', sizing: 'default', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "2 Kolom (67/33)",
+    desc: "Dua kolom dengan kolom kanan lebih sempit (seperti sidebar)",
+    iconHtml: (
+      <div className="w-full h-11 flex divide-x divide-white bg-[#DDE2E5]">
+        <div className="w-[66.7%] h-full"></div>
+        <div className="w-[33.3%] h-full"></div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '66.67%', sizing: 'default', layout: 'vertical' },
+      { width: '33.33%', sizing: 'default', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "Grid 3x2 (6 Kolom)",
+    desc: "Struktur grid 2 baris dengan masing-masing 3 kolom",
+    iconHtml: (
+      <div className="w-full h-11 flex flex-col divide-y divide-white bg-[#DDE2E5]">
+        <div className="flex-1 grid grid-cols-3 divide-x divide-white">
+          <div className="h-full"></div>
+          <div className="h-full"></div>
+          <div className="h-full"></div>
+        </div>
+        <div className="flex-1 grid grid-cols-3 divide-x divide-white">
+          <div className="h-full"></div>
+          <div className="h-full"></div>
+          <div className="h-full"></div>
+        </div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '33.33%', sizing: 'default', layout: 'vertical' },
+      { width: '33.33%', sizing: 'default', layout: 'vertical' },
+      { width: '33.33%', sizing: 'default', layout: 'vertical' },
+      { width: '33.33%', sizing: 'default', layout: 'vertical' },
+      { width: '33.33%', sizing: 'default', layout: 'vertical' },
+      { width: '33.33%', sizing: 'default', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "Row (50/50) + Row (100%)",
+    desc: "Dua kolom di atas dan satu baris penuh di bawah",
+    iconHtml: (
+      <div className="w-full h-11 flex flex-col divide-y divide-white bg-[#DDE2E5]">
+        <div className="flex-1 grid grid-cols-2 divide-x divide-white">
+          <div className="h-full"></div>
+          <div className="h-full"></div>
+        </div>
+        <div className="flex-1 h-full"></div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '50%', sizing: 'default', layout: 'vertical' },
+      { width: '50%', sizing: 'default', layout: 'vertical' },
+      { width: '100%', sizing: 'full', layout: 'vertical' }
+    ]
+  },
+  {
+    name: "Row (100%) + Row (50/50)",
+    desc: "Satu baris penuh di atas dan dua kolom di bawah",
+    iconHtml: (
+      <div className="w-full h-11 flex flex-col divide-y divide-white bg-[#DDE2E5]">
+        <div className="flex-1 h-full"></div>
+        <div className="flex-1 grid grid-cols-2 divide-x divide-white">
+          <div className="h-full"></div>
+          <div className="h-full"></div>
+        </div>
+      </div>
+    ),
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
+    columns: [
+      { width: '100%', sizing: 'full', layout: 'vertical' },
+      { width: '50%', sizing: 'default', layout: 'vertical' },
+      { width: '50%', sizing: 'default', layout: 'vertical' }
+    ]
+  }
+];
+
+const sanitizeSections = (secs: Section[]): Section[] => {
+  console.log("[Builder Debug] Memulai sanitasi data sections. Jumlah input:", secs.length);
+  let sorted = [...secs].sort((a, b) => a.order - b.order);
+  let headerIdx = sorted.findIndex(s => s.type === 'HEADER');
+
+  let headerSection: Section;
+  if (headerIdx === -1) {
+    headerSection = {
+      id: 'global-header',
+      type: 'HEADER',
+      config: {
+        bgColor: 'rgba(255, 255, 255, 0.9)',
+        textColor: '#18181B',
+        layout: 'horizontal',
+        gap: 16,
+        align: 'center',
+        paddingTop: 16,
+        paddingBottom: 16,
+        paddingLeft: 40,
+        paddingRight: 40
+      },
+      elements: [],
+      order: -1,
+      isActive: true
+    };
+    console.log("[Builder Debug] Header tidak ditemukan, menginjeksi header bawaan baru.");
+  } else {
+    headerSection = { ...sorted[headerIdx] };
+    sorted.splice(headerIdx, 1);
+  }
+
+  // Pastikan BRANDING, MENU, CART ada dalam urutan kaku (branding, menu, cart)
+  const elements = headerSection.elements || [];
+  const branding = elements.find(el => el.type === 'BRANDING') || {
+    id: 'h-el-branding',
+    type: 'BRANDING',
+    config: { fontSize: 16, textColor: '#18181B', align: 'left' },
+    order: 0
+  };
+  const menu = elements.find(el => el.type === 'MENU') || {
+    id: 'h-el-menu',
+    type: 'MENU',
+    config: { fontSize: 13, textColor: '#18181B', align: 'center', fontFamily: 'Inter', hiddenMenus: [] },
+    order: 1
+  };
+  const cart = elements.find(el => el.type === 'CART') || {
+    id: 'h-el-cart',
+    type: 'CART',
+    config: { text: 'Keranjang', bgColor: '#18181B', textColor: '#FFFFFF', borderRadius: 8, align: 'right' },
+    order: 2
+  };
+
+  // Kunci field order & id
+  branding.order = 0;
+  menu.order = 1;
+  cart.order = 2;
+
+  headerSection.elements = [branding, menu, cart];
+  headerSection.order = -1;
+
+  console.log("[Builder Debug] Selesai melakukan sanitasi data sections. Header dikunci dengan 3 elemen kaku.");
+  return [headerSection, ...sorted];
+}
+
+
+interface DraggableReorderItemProps {
+  value: any;
+  onDragStart?: (itemId: string) => void;
+  onDragEnd?: () => void;
+  className?: string;
+  onClick?: (e: React.MouseEvent) => void;
+  children: (dragControls: ReturnType<typeof useDragControls>) => React.ReactNode;
+}
+
+function DraggableReorderItem({ value, onDragStart, onDragEnd, className, onClick, children }: DraggableReorderItemProps) {
+  const dragControls = useDragControls();
+  return (
+    <Reorder.Item
+      value={value}
+      drag="y"
+      dragListener={false}
+      dragControls={dragControls}
+      onDragStart={() => {
+        console.log('[Builder Drag] Drag started for item:', value?.id || value);
+        if (onDragStart) onDragStart(value?.id || String(value));
+      }}
+      onDragEnd={() => {
+        console.log('[Builder Drag] Drag ended for item:', value?.id || value);
+        if (onDragEnd) onDragEnd();
+      }}
+      className={className}
+      onClick={onClick}
+    >
+      {children(dragControls)}
+    </Reorder.Item>
+  );
+}
+
+interface MoveControlsProps {
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onMoveUp: (e: React.MouseEvent) => void;
+  onMoveDown: (e: React.MouseEvent) => void;
+}
+
+function MoveControls({ canMoveUp, canMoveDown, onMoveUp, onMoveDown }: MoveControlsProps) {
+  return (
+    <div className="flex flex-col shrink-0 leading-none opacity-0 group-hover:opacity-100 transition-opacity">
+      <button
+        type="button"
+        onClick={onMoveUp}
+        disabled={!canMoveUp}
+        className={`p-0 rounded ${canMoveUp ? "text-slate-300 hover:text-slate-100" : "text-slate-700 cursor-not-allowed"}`}
+      >
+        <ChevronUp className="w-3 h-3" strokeWidth={2.25} />
+      </button>
+      <button
+        type="button"
+        onClick={onMoveDown}
+        disabled={!canMoveDown}
+        className={`p-0 rounded ${canMoveDown ? "text-slate-300 hover:text-slate-100" : "text-slate-700 cursor-not-allowed"}`}
+      >
+        <ChevronDown className="w-3 h-3" strokeWidth={2.25} />
+      </button>
+    </div>
+  );
+}
+
+const parseUnitAndValue = (rawVal: any) => {
+  if (rawVal === undefined || rawVal === null || rawVal === '') {
+    return { val: 0, unit: 'px' as const, customStr: '', isCustom: false };
+  }
+  if (typeof rawVal === 'number') {
+    return { val: rawVal, unit: 'px' as const, customStr: '', isCustom: false };
+  }
+  const str = String(rawVal).trim();
+
+  const match = str.match(/^([\d.-]+)(px|vw|%|rem|em|vh)$/);
+  if (match) {
+    const num = parseFloat(match[1]);
+    const unit = match[2];
+    if (unit === 'px' || unit === 'vw' || unit === '%' || unit === 'em' || unit === 'rem' || unit === 'vh') {
+      return { val: num, unit: unit as 'px' | 'vw' | '%' | 'em' | 'rem' | 'vh', customStr: '', isCustom: false };
+    }
+  }
+
+  if (/^[\d.-]+$/.test(str)) {
+    return { val: parseFloat(str), unit: 'px' as const, customStr: '', isCustom: false };
+  }
+
+  return { val: 0, unit: 'custom' as const, customStr: str, isCustom: true };
+};
+
+interface UnitControlProps {
+  label: string;
+  value: any;
+  onChange: (val: any) => void;
+  min?: number;
+  max?: number;
+  fieldKey: string;
+  activeDropdown: { field: string; elementId?: string } | null;
+  setActiveDropdown: (state: { field: string; elementId?: string } | null) => void;
+  elementId?: string;
+}
+
+function UnitControl({
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 1000,
+  fieldKey,
+  activeDropdown,
+  setActiveDropdown,
+  elementId
+}: UnitControlProps) {
+  const parsed = parseUnitAndValue(value);
+  const dropdownOpen = activeDropdown?.field === fieldKey && activeDropdown?.elementId === elementId;
+
+  const handleUnitSelect = (newUnit: 'px' | 'vw' | '%' | 'custom') => {
+    setActiveDropdown(null);
+    console.log(`[UnitControl] Unit diubah ke: ${newUnit} untuk field: ${fieldKey}`);
+    if (newUnit === 'custom') {
+      onChange(parsed.unit === 'custom' ? parsed.customStr : `${parsed.val}${parsed.unit === 'px' ? '' : parsed.unit}`);
+    } else {
+      onChange(newUnit === 'px' ? parsed.val : `${parsed.val}${newUnit}`);
+    }
+  };
+
+  return (
+    <div className="space-y-2 py-1">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">{label}</span>
+
+        <div className="relative">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (dropdownOpen) {
+                setActiveDropdown(null);
+              } else {
+                setActiveDropdown({ field: fieldKey, elementId });
+              }
+            }}
+            className="flex items-center gap-1 text-[9px] text-zinc-500 hover:text-white font-black bg-zinc-900 border border-zinc-800 rounded px-1.5 py-0.5 transition-all select-none cursor-pointer"
+          >
+            <span>{parsed.unit === 'custom' ? '✏️ Custom' : parsed.unit}</span>
+            <ChevronDown className="w-2.5 h-2.5 opacity-60" />
+          </button>
+
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-1 w-28 bg-zinc-900 border border-zinc-800 rounded-lg shadow-2xl overflow-hidden py-1 z-[1000] animate-in fade-in slide-in-from-top-1 duration-150">
+              {(['px', 'vw', '%', 'custom'] as const).map((u) => (
+                <button
+                  key={u}
+                  type="button"
+                  onClick={() => handleUnitSelect(u)}
+                  className={`w-full text-left text-[10px] font-bold px-3 py-1.5 hover:bg-zinc-800 hover:text-white transition-all flex items-center justify-between ${parsed.unit === u ? 'text-blue-400 bg-zinc-850' : 'text-zinc-400'}`}
+                >
+                  <span>{u === 'custom' ? '✏️ Custom' : u}</span>
+                  {parsed.unit === u && <span className="w-1 h-1 rounded-full bg-blue-400" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {parsed.unit === 'custom' ? (
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={parsed.customStr}
+            placeholder="Contoh: calc(100vh - 40px), auto"
+            onChange={(e) => {
+              onChange(e.target.value);
+              console.log(`[UnitControl] Custom value diubah ke: ${e.target.value} untuk field: ${fieldKey}`);
+            }}
+            className="flex-1 h-8 text-xs px-2.5 bg-zinc-950 text-zinc-100 border border-zinc-800 rounded focus:border-zinc-700 outline-none placeholder:text-zinc-700 font-bold"
+          />
+        </div>
+      ) : (
+        <div className="flex items-center gap-3">
+          <input
+            type="range"
+            min={min}
+            max={max}
+            value={parsed.val}
+            onChange={(e) => {
+              const num = Number(e.target.value);
+              onChange(parsed.unit === 'px' ? num : `${num}${parsed.unit}`);
+              console.log(`[UnitControl] Slider diubah ke: ${num} dengan unit: ${parsed.unit} untuk field: ${fieldKey}`);
+            }}
+            className="flex-1 accent-white bg-zinc-800 h-1 rounded-lg appearance-none cursor-pointer"
+          />
+          <input
+            type="number"
+            value={parsed.val || 0}
+            onChange={(e) => {
+              const num = Number(e.target.value);
+              onChange(parsed.unit === 'px' ? num : `${num}${parsed.unit}`);
+              console.log(`[UnitControl] Input number diubah ke: ${num} dengan unit: ${parsed.unit} untuk field: ${fieldKey}`);
+            }}
+            className="w-14 h-7 text-center text-xs font-bold bg-zinc-950 text-zinc-100 border border-zinc-800 rounded focus:border-zinc-700 outline-none"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+

@@ -1,0 +1,17 @@
+0 verbose cli C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js
+1 info using npm@10.8.2
+2 info using node@v20.20.0
+3 silly config load:file:C:\Program Files\nodejs\node_modules\npm\npmrc
+4 silly config load:file:C:\Users\HYPE\project\villa-engine\engine\BACKUP-ENGINE\BUILD\stockysee\.npmrc
+5 silly config load:file:C:\Users\HYPE\.npmrc
+6 silly config load:file:C:\Users\HYPE\AppData\Roaming\npm\etc\npmrc
+7 verbose title npm config get registry
+8 verbose argv "config" "get" "registry"
+9 verbose logfile logs-max:10 dir:C:\Users\HYPE\project\villa-engine\engine\BACKUP-ENGINE\BUILD\stockysee\.npm-cache\_logs\2026-05-21T02_17_05_998Z-
+10 verbose logfile C:\Users\HYPE\project\villa-engine\engine\BACKUP-ENGINE\BUILD\stockysee\.npm-cache\_logs\2026-05-21T02_17_05_998Z-debug-0.log
+11 verbose cwd C:\Users\HYPE\project\villa-engine\engine\BACKUP-ENGINE\BUILD\stockysee
+12 verbose os Windows_NT 10.0.26200
+13 verbose node v20.20.0
+14 verbose npm  v10.8.2
+15 verbose exit 0
+16 info ok

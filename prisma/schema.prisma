@@ -1,0 +1,302 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ClientStatus {
+  PENDING
+  PAID
+  ACTIVE
+  DISABLED
+}
+
+model Client {
+  id            String    @id @default(cuid())
+  name          String
+  slug          String    @unique
+  plan          String    @default("BASIC") // BASIC, STANDARD, PREMIUM, CUSTOM
+  status        String    @default("PENDING") // PENDING, ACTIVE, SUSPENDED
+  themeId       String    @default("1")     // 1, 2, 3
+  paymentInfo   String?   // JSON string untuk info pembayaran (Bank, No Rek, dsb)
+  referralCode  String?   @unique
+  referralLimit Int       @default(0)
+  logoUrl       String?   @db.Text
+  customDomain  String?
+  socialLinks   Json?     // Objek JSON untuk link sosmed (IG, FB, WA, dll)
+  
+  // Profil Akun
+  ownerName     String?
+  email         String?
+  username      String?   @unique // Username rahasia (Ghost Auth)
+  phone         String?
+  password      String?
+  referralCodes Json?     // Array of strings atau objects
+  bankAccounts  Json?     // Array of objects (Bank Name, Acc Number, dsb)
+  
+  // Activation System
+  activationToken String?  @unique
+  activatedAt     DateTime?
+  
+  // AI Chatbot Features
+  hasChatbot     Boolean   @default(false)
+  chatbotConfig  Json?     // Menyimpan instruksi AI atau setting chat
+
+  // WhatsApp CRM Features
+  hasWhatsapp    Boolean   @default(false)
+  whatsappConfig Json?     // Menyimpan template notifikasi WA
+  
+  lastVerificationAt DateTime? // Tanggal pengajuan bank terakhir (untuk lock 14 hari)
+  qrisVerifiedAt     DateTime? // Tanggal pengajuan QRIS terakhir (untuk lock 14 hari)
+  ktpUrl             String?   // Foto KTP Permanen
+  qrisUrl            String?   // Foto QRIS Permanen
+  isIdentityVerified Boolean   @default(false)
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  domains         Domain[]
+  products        Product[]
+  categories      Category[]
+  orders          Order[]
+  shippingMethods ShippingMethod[]
+  visitors        Visitor[]
+  invoices        Invoice[]
+  sections        StorefrontSection[]
+  verificationRequests VerificationRequest[]
+  customerInvoices CustomerInvoice[]
+  pushSubscriptions PushSubscription[]
+  storePages      StorePage[]
+}
+
+model VerificationRequest {
+  id            String   @id @default(cuid())
+  type          String   // IDENTITY, BANK, or QRIS
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  data          Json?    // Data baru yang diajukan (optional jika hanya verif IDENTITY)
+  ktpUrl        String?  // URL foto KTP (untuk pengajuan IDENTITY)
+  qrisUrl       String?  // URL foto QRIS (untuk pengajuan QRIS)
+  message       String?  // Alasan penolakan dari admin
+  
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Invoice {
+  id            String   @id @default(cuid())
+  amount        Float
+  uniqueCode    Int      // 3 digit terakhir untuk verifikasi
+  totalAmount   Float    // amount + uniqueCode
+  status        String   @default("PENDING") // PENDING, PAID, EXPIRED
+  paymentMethod String?  // Bank Transfer, QRIS Manual, dsb
+  receiptUrl    String?  // Bukti transfer jika diupload
+  pHash         String?  @unique // Sidik jari gambar untuk deteksi duplikat
+  
+  clientId      String
+  client        Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Visitor {
+  id        String   @id @default(cuid())
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  ip        String?
+  createdAt DateTime @default(now())
+}
+
+model Domain {
+  id        String   @id @default(cuid())
+  domain    String   @unique
+  type      String   // SUBDOMAIN or CUSTOM
+  status    String   @default("PENDING")
+  verifiedAt DateTime? // Track approval date
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  name            String
+  price           Float
+  discountPrice   Float?
+  promoEnd        DateTime?
+  stock           Int      @default(0)
+  
+  // Extra Info (Optional)
+  description     String?  @db.Text
+  specifications  Json?    // Array/Object spesifikasi
+  isUsed          Boolean  @default(false)
+  condition       String?  // misal: "Mulus 99%"
+  isActive        Boolean  @default(true)
+  images          Json?    // Array URL foto
+  
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id])
+
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  orderItems OrderItem[]
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  imageUrl  String?  @db.Text
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  products  Product[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, clientId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  status          String   @default("PENDING") // PENDING, PAID, PROCESSED, CANCELLED
+  totalPrice      Float
+  paymentProof    String?  // URL foto bukti transfer
+  
+  // Detail Pengiriman/Kontak
+  customerName    String?
+  customerPhone   String?
+  shippingAddress String?
+  shippingMethod  String?
+  shippingCost    Float?   @default(0)
+
+  clientId        String
+  client          Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  items           OrderItem[]
+  customerInvoice CustomerInvoice?
+}
+
+model CustomerInvoice {
+  id             String   @id @default(cuid())
+  invoiceNumber  String   @unique // Format: INV/[SLUG]/2026/001
+  pdfUrl         String?  // URL Supabase Storage
+  status         String   @default("PAID")
+  
+  // Snapshot data (untuk keamanan historis)
+  snapshotData   Json?    // Menyimpan detail produk, harga, dan info toko saat invoice dibuat
+  
+  orderId        String   @unique
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  clientId       String
+  client         Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int
+  price     Float   // Harga saat dibeli
+}
+
+model ShippingMethod {
+  id          String   @id @default(cuid())
+  name        String   // misal: "JNE Reguler"
+  price       Float
+  description String?
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StorefrontSection {
+  id        String   @id @default(cuid())
+  type      String   // HERO, FEATURES, CATEGORIES, PRODUCT_GRID, BANNER, TEXT
+  config    Json     // Konten: teks, URL gambar, categoryId, dll.
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PlatformAccount {
+  id            String   @id @default(cuid())
+  name          String
+  accountNumber String
+  accountOwner  String
+  logoUrl       String?
+  type          String   @default("bank") // bank or wallet
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  
+  clientId  String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StorePage {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String
+  content     String   @db.Text
+  isPublished Boolean  @default(true)
+  
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([clientId, slug])
+}
