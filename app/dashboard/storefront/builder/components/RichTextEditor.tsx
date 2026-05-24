@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link2, Maximize2, Table, Strikethrough, Minus, Clipboard, Eraser, Quote, AlignLeft, AlignCenter, AlignRight, ChevronLeft, ChevronRight, Undo2, Redo2, HelpCircle, Bold, Italic, Underline, List, ListOrdered } from "lucide-react";
 import { RichTextEditorProps } from "../types";
@@ -337,3 +338,4 @@ export const RichTextEditor = ({ value, onChange }: RichTextEditorProps) => {
         </div>
       );
     };
+

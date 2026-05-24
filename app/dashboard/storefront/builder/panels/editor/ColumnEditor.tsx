@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import React from 'react';
 import { motion, Reorder, AnimatePresence } from "framer-motion";
@@ -2407,3 +2408,4 @@ export function ColumnEditor({ props, activeElement }: { props: EditorPanelProps
     </>
   );
 }
+

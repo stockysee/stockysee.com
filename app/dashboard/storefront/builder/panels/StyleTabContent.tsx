@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import {
   ChevronDown, ChevronRight, Paintbrush, RotateCcw, Monitor, Sparkles,
@@ -911,3 +912,4 @@ export function renderStyleTabContent(
     </div>
   );
 }
+

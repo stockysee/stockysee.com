@@ -7,6 +7,7 @@ interface SectionRendererProps {
     id: string;
     type: string;
     config: any;
+    elements?: any[];
   };
 }
 
@@ -15,7 +16,7 @@ export default function SectionRenderer({ section }: SectionRendererProps) {
     <BuilderSection
       id={section.id}
       config={section.config}
-      elements={section.config?.elements || []}
+      elements={section.elements || section.config?.elements || []}
       activeElementId={null}
       isActive={false}
       readOnly={true}

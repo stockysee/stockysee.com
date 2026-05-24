@@ -172,85 +172,99 @@ export default function EcommerceModel() {
       )}
 
       {/* ── FOOTER ── */}
-      <footer className="bg-white border-t border-zinc-100 mt-8">
-        <div className="max-w-screen-xl mx-auto px-5 md:px-10 py-12">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 pb-10 border-b border-zinc-100">
-            {/* Brand */}
-            <div className="space-y-4 max-w-xs">
-              <div className="flex items-center gap-3">
-                {client.logoUrl ? (
-                  <img src={client.logoUrl} alt={client.name} className="w-9 h-9 object-contain" />
-                ) : (
-                  <div className="w-9 h-9 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-bold text-base uppercase">
-                    {client.name.substring(0, 1)}
+      {(() => {
+        const footerSection = (sections || []).find((s: any) => s.type === "FOOTER");
+        if (footerSection) {
+          console.log("[EcommerceModel Debug] Rendering dynamic footer section:", footerSection.id);
+          return (
+            <div className="mt-8">
+              <SectionRenderer section={footerSection} />
+            </div>
+          );
+        }
+        console.log("[EcommerceModel Debug] Rendering fallback hardcoded footer");
+        return (
+          <footer className="bg-white border-t border-zinc-100 mt-8">
+            <div className="max-w-screen-xl mx-auto px-5 md:px-10 py-12">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-10 pb-10 border-b border-zinc-100">
+                {/* Brand */}
+                <div className="space-y-4 max-w-xs">
+                  <div className="flex items-center gap-3">
+                    {client.logoUrl ? (
+                      <img src={client.logoUrl} alt={client.name} className="w-9 h-9 object-contain" />
+                    ) : (
+                      <div className="w-9 h-9 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-bold text-base uppercase">
+                        {client.name.substring(0, 1)}
+                      </div>
+                    )}
+                    <span className="font-bold text-base tracking-tight">{client.name}</span>
                   </div>
-                )}
-                <span className="font-bold text-base tracking-tight">{client.name}</span>
-              </div>
-              <p className="text-zinc-400 text-[13px] leading-relaxed">
-                Belanja online mudah, aman dan terpercaya. Kami menghadirkan produk kurasi terbaik hanya untuk Anda.
-              </p>
-            </div>
-
-            {/* Social Links Dynamic */}
-            <div className="flex items-center gap-2.5">
-              {(client.socialLinks?.whatsapp || client.phone) && (
-                <a href={`https://wa.me/${client.socialLinks?.whatsapp || client.phone}`} target="_blank"
-                  className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#25D366] hover:border-transparent transition-all group shadow-sm p-2">
-                  <img src="/whatsapp.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
-                </a>
-              )}
-              {client.socialLinks?.instagram && (
-                <a href={client.socialLinks.instagram.startsWith('http') ? client.socialLinks.instagram : `https://instagram.com/${client.socialLinks.instagram}`} target="_blank"
-                  className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#E4405F] hover:border-transparent transition-all group shadow-sm p-2">
-                  <img src="/instagram.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
-                </a>
-              )}
-              {client.socialLinks?.facebook && (
-                <a href={client.socialLinks.facebook.startsWith('http') ? client.socialLinks.facebook : `https://facebook.com/${client.socialLinks.facebook}`} target="_blank"
-                  className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#1877F2] hover:border-transparent transition-all group shadow-sm p-2">
-                  <img src="/facebook.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
-                </a>
-              )}
-              {client.socialLinks?.tiktok && (
-                <a href={client.socialLinks.tiktok.startsWith('http') ? client.socialLinks.tiktok : `https://tiktok.com/@${client.socialLinks.tiktok.replace('@', '')}`} target="_blank"
-                  className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-black hover:border-transparent transition-all group shadow-sm p-2">
-                  <img src="/tiktok.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
-                </a>
-              )}
-              {client.socialLinks?.twitter && (
-                <a href={client.socialLinks.twitter.startsWith('http') ? client.socialLinks.twitter : `https://twitter.com/${client.socialLinks.twitter}`} target="_blank"
-                  className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#1DA1F2] hover:border-transparent transition-all group shadow-sm p-2">
-                  <img src="/twitter.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
-                </a>
-              )}
-              {client.socialLinks?.youtube && (
-                <a href={client.socialLinks.youtube.startsWith('http') ? client.socialLinks.youtube : `https://youtube.com/@${client.socialLinks.youtube.replace('@', '')}`} target="_blank"
-                  className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#FF0000] hover:border-transparent transition-all group shadow-sm p-2">
-                  <img src="/youtube.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
-                </a>
-              )}
-              {(!client.socialLinks || Object.keys(client.socialLinks).length === 0) && !client.phone && (
-                <span className="text-[11px] text-zinc-300 italic font-medium">Sosial media akan segera hadir</span>
-              )}
-            </div>
-          </div>
-
-          <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-zinc-100">
-            <p className="text-[12px] text-zinc-400">© 2026 {client.name}. All rights reserved.</p>
-            {(() => {
-              const config = getPlanConfig(client.plan);
-              if (!config.showWatermark) return null;
-              return (
-                <div className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
-                  <img src="/logo2.png" alt="Stockysee Logo" className="w-3.5 h-3.5 object-contain" />
-                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Powered by Stockysee Engine</p>
+                  <p className="text-zinc-400 text-[13px] leading-relaxed">
+                    Belanja online mudah, aman dan terpercaya. Kami menghadirkan produk kurasi terbaik hanya untuk Anda.
+                  </p>
                 </div>
-              );
-            })()}
-          </div>
-        </div>
-      </footer>
+
+                {/* Social Links Dynamic */}
+                <div className="flex items-center gap-2.5">
+                  {(client.socialLinks?.whatsapp || client.phone) && (
+                    <a href={`https://wa.me/${client.socialLinks?.whatsapp || client.phone}`} target="_blank"
+                      className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#25D366] hover:border-transparent transition-all group shadow-sm p-2">
+                      <img src="/whatsapp.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
+                    </a>
+                  )}
+                  {client.socialLinks?.instagram && (
+                    <a href={client.socialLinks.instagram.startsWith('http') ? client.socialLinks.instagram : `https://instagram.com/${client.socialLinks.instagram}`} target="_blank"
+                      className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#E4405F] hover:border-transparent transition-all group shadow-sm p-2">
+                      <img src="/instagram.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
+                    </a>
+                  )}
+                  {client.socialLinks?.facebook && (
+                    <a href={client.socialLinks.facebook.startsWith('http') ? client.socialLinks.facebook : `https://facebook.com/${client.socialLinks.facebook}`} target="_blank"
+                      className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#1877F2] hover:border-transparent transition-all group shadow-sm p-2">
+                      <img src="/facebook.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
+                    </a>
+                  )}
+                  {client.socialLinks?.tiktok && (
+                    <a href={client.socialLinks.tiktok.startsWith('http') ? client.socialLinks.tiktok : `https://tiktok.com/@${client.socialLinks.tiktok.replace('@', '')}`} target="_blank"
+                      className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-black hover:border-transparent transition-all group shadow-sm p-2">
+                      <img src="/tiktok.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
+                    </a>
+                  )}
+                  {client.socialLinks?.twitter && (
+                    <a href={client.socialLinks.twitter.startsWith('http') ? client.socialLinks.twitter : `https://twitter.com/${client.socialLinks.twitter}`} target="_blank"
+                      className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#1DA1F2] hover:border-transparent transition-all group shadow-sm p-2">
+                      <img src="/twitter.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
+                    </a>
+                  )}
+                  {client.socialLinks?.youtube && (
+                    <a href={client.socialLinks.youtube.startsWith('http') ? client.socialLinks.youtube : `https://youtube.com/@${client.socialLinks.youtube.replace('@', '')}`} target="_blank"
+                      className="w-10 h-10 bg-zinc-50 border border-zinc-100 rounded-xl flex items-center justify-center hover:bg-[#FF0000] hover:border-transparent transition-all group shadow-sm p-2">
+                      <img src="/youtube.png" className="w-full h-full object-contain group-hover:brightness-0 group-hover:invert transition-all" />
+                    </a>
+                  )}
+                  {(!client.socialLinks || Object.keys(client.socialLinks).length === 0) && !client.phone && (
+                    <span className="text-[11px] text-zinc-300 italic font-medium">Sosial media akan segera hadir</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-zinc-100">
+                <p className="text-[12px] text-zinc-400">© 2026 {client.name}. All rights reserved.</p>
+                {(() => {
+                  const config = getPlanConfig(client.plan);
+                  if (!config.showWatermark) return null;
+                  return (
+                    <div className="flex items-center gap-2 opacity-50 hover:opacity-100 transition-opacity">
+                      <img src="/logo2.png" alt="Stockysee Logo" className="w-3.5 h-3.5 object-contain" />
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">Powered by Stockysee Engine</p>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </footer>
+        );
+      })()}
     </div>
   );
 }

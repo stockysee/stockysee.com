@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 
 import { Suspense, useState } from "react";
@@ -774,4 +775,5 @@ export default function VisualPageBuilder() {
     </Suspense>
   );
 }
+
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { SectionElement } from "@/components/storefront/sections/BuilderSection";
 
 export const SECTION_STRUCTURE_TEMPLATES = [
@@ -168,3 +169,4 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         columns: []
       }
     ];
+

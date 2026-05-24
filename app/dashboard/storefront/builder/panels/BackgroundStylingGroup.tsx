@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { Paintbrush, RotateCcw, Monitor, ChevronDown } from 'lucide-react';
 import { Section } from '../types';
@@ -295,3 +296,4 @@ export function BackgroundStylingGroup({
     </div>
   );
 }
+

@@ -7,12 +7,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CartDrawer from "@/components/storefront/CartDrawer";
 import { motion, AnimatePresence } from "framer-motion";
+import { BuilderSection } from "./sections/BuilderSection";
 
 export default function StorefrontHeader({ backLink = "/", showBack = false }: { backLink?: string; showBack?: boolean }) {
-  const { client, cartCount, isCartOpen, setIsCartOpen, sections, categories, hasAbout } = useStorefront();
+  const { client, cartCount, isCartOpen, setIsCartOpen, isMobileMenuOpen, setIsMobileMenuOpen, sections, categories, hasAbout } = useStorefront();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // LOGIKA PATH DINAMIS (PENTING!)
   // Jika diakses via stockysee.com/storefront/[slug], link harus diawali /storefront/[slug]
@@ -33,11 +33,19 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
   const isKatalogLabel = categories && categories.length > 0;
 
   // Dynamic configurations from the visual builder header elements
-  const headerSection = (sections || []).find((s: any) => s.type === "HEADER");
+  const resolvedSections = (sections && sections.length > 0) ? sections : (client?.sections || []);
+  const headerSection = resolvedSections.find((s: any) => s.type === "HEADER");
   const headerElements = headerSection?.elements || headerSection?.config?.elements || [];
   const brandingElement = headerElements.find((el: any) => el.type === "BRANDING");
   const menuElement = headerElements.find((el: any) => el.type === "MENU");
   const cartElement = headerElements.find((el: any) => el.type === "CART");
+
+  // Section-level config from visual builder header
+  const headerConfig = headerSection?.config || {};
+  const headerBgColor = headerConfig.bgColor || (isScrolled ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.8)');
+  const headerTextColor = headerConfig.textColor || '#18181B';
+  const headerPaddingTop = headerConfig.paddingTop ?? 16;
+  const headerPaddingBottom = headerConfig.paddingBottom ?? 16;
 
   // Determine hidden menus
   const hiddenMenus = menuElement?.config?.hiddenMenus || [];
@@ -57,146 +65,178 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
 
   return (
     <>
-      <nav className={`sticky top-0 z-[100] transition-all duration-500 ${
-        isScrolled
-          ? "bg-white/95 backdrop-blur-xl shadow-[0_1px_0_0_#e4e4e7] py-3"
-          : "bg-white/80 backdrop-blur-md py-3 md:py-4"
-      }`}>
-        <div className="max-w-screen-xl mx-auto px-5 md:px-10 flex items-center justify-between gap-4">
-          
-          {/* 1. LEFT: Logo & Branding */}
-          <div className="flex items-center gap-6 justify-start flex-1 min-w-0">
-            {(showBack || backLink !== "/") && (
-              <Link href={backLink.startsWith('http') ? backLink : (backLink === "/" && !baseLink ? "/" : `${baseLink}${backLink === "/" ? "" : backLink}`)} className="md:hidden flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors group">
-                <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
-                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Kembali</span>
-              </Link>
-            )}
+      {headerSection ? (
+        /* ── DYNAMIC SECTIONS HEADER ── */
+        <div
+          className={`w-full transition-all duration-300 ${
+            headerSection.config?.sticky === true
+              ? "sticky top-0 z-[100]"
+              : "relative z-[60]"
+          }`}
+        >
+          <BuilderSection
+            id={headerSection.id}
+            config={headerSection.config}
+            elements={headerElements}
+            activeElementId={null}
+            isActive={false}
+            readOnly={true}
+            onElementSelect={() => {}}
+            onSectionSelect={() => {}}
+          />
+        </div>
+      ) : (
+        /* ── FALLBACK HARDCODED NAVBAR ── */
+        <nav className={`sticky top-0 z-[100] transition-all duration-500 ${
+          isScrolled
+            ? "shadow-[0_1px_0_0_#e4e4e7]"
+            : ""
+        }`}
+        style={{
+          backgroundColor: headerBgColor,
+          color: headerTextColor,
+          paddingTop: `${headerPaddingTop}px`,
+          paddingBottom: `${headerPaddingBottom}px`,
+          backdropFilter: isScrolled ? 'blur(24px)' : 'blur(12px)',
+          WebkitBackdropFilter: isScrolled ? 'blur(24px)' : 'blur(12px)',
+        }}>
+          <div className="max-w-screen-xl mx-auto px-5 md:px-10 flex items-center justify-between gap-4">
             
-            <Link href={baseLink || "/"} className="flex items-center gap-3 shrink-0 group">
-              {client.logoUrl ? (
-                <div className="w-9 h-9 rounded-lg overflow-hidden border border-zinc-100 bg-white flex items-center justify-center p-1 shadow-sm">
-                  <img src={client.logoUrl} alt={client.name} className="max-w-full max-h-full object-contain" />
-                </div>
-              ) : (
-                <div className="w-9 h-9 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-bold text-base uppercase shadow-sm">
-                  {client.name?.substring(0, 1) || "S"}
-                </div>
+            {/* 1. LEFT: Logo & Branding */}
+            <div className="flex items-center gap-6 justify-start flex-1 min-w-0">
+              {(showBack || backLink !== "/") && (
+                <Link href={backLink.startsWith('http') ? backLink : (backLink === "/" && !baseLink ? "/" : `${baseLink}${backLink === "/" ? "" : backLink}`)} className="md:hidden flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors group">
+                  <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+                  <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Kembali</span>
+                </Link>
               )}
-              <span 
-                style={{ 
-                  fontSize: brandingElement?.config?.fontSize ? `${brandingElement.config.fontSize}px` : undefined,
-                  color: brandingElement?.config?.textColor || undefined
-                }}
-                className="font-bold text-[14px] md:text-[15px] tracking-tight text-zinc-900"
-              >
-                {client.name}
-              </span>
-            </Link>
-          </div>
-
-          {/* 2. CENTER: Desktop Menu Navigasi */}
-          <div className="hidden md:flex items-center justify-center gap-6 flex-1">
-            {showCatalog && (
-              <Link 
-                href={baseLink || "/"} 
-                style={{
-                  fontFamily: menuElement?.config?.fontFamily || 'inherit',
-                  fontWeight: menuElement?.config?.fontWeight || '600',
-                  fontSize: menuElement?.config?.fontSize ? `${menuElement.config.fontSize}px` : '11px',
-                  color: menuElement?.config?.textColor || undefined,
-                  opacity: (pathname === (baseLink || "/") || pathname?.endsWith(client.slug)) ? 1 : 0.6
-                }}
-                className="font-black uppercase tracking-widest transition-colors hover:opacity-100"
-              >
-                {isKatalogLabel ? "Katalog" : "Produk"}
+              
+              <Link href={baseLink || "/"} className="flex items-center gap-3 shrink-0 group">
+                {client.logoUrl ? (
+                  <div className="w-9 h-9 rounded-lg overflow-hidden border border-zinc-100 bg-white flex items-center justify-center p-1 shadow-sm">
+                    <img src={client.logoUrl} alt={client.name} className="max-w-full max-h-full object-contain" />
+                  </div>
+                ) : (
+                  <div className="w-9 h-9 bg-zinc-950 text-white rounded-lg flex items-center justify-center font-bold text-base uppercase shadow-sm">
+                    {client.name?.substring(0, 1) || "S"}
+                  </div>
+                )}
+                <span 
+                  style={{ 
+                    fontSize: brandingElement?.config?.fontSize ? `${brandingElement.config.fontSize}px` : undefined,
+                    color: brandingElement?.config?.textColor || headerTextColor
+                  }}
+                  className="font-bold text-[14px] md:text-[15px] tracking-tight"
+                >
+                  {client.name}
+                </span>
               </Link>
-            )}
-            
-            {showCategories && (
-              <div className="relative group">
-                <button 
+            </div>
+
+            {/* 2. CENTER: Desktop Menu Navigasi */}
+            <div className="hidden md:flex items-center justify-center gap-6 flex-1">
+              {showCatalog && (
+                <Link 
+                  href={baseLink || "/"} 
                   style={{
                     fontFamily: menuElement?.config?.fontFamily || 'inherit',
                     fontWeight: menuElement?.config?.fontWeight || '600',
                     fontSize: menuElement?.config?.fontSize ? `${menuElement.config.fontSize}px` : '11px',
                     color: menuElement?.config?.textColor || undefined,
-                    opacity: 0.6
+                    opacity: (pathname === (baseLink || "/") || pathname?.endsWith(client.slug)) ? 1 : 0.6
                   }}
-                  className="font-black uppercase tracking-widest hover:opacity-100 transition-colors flex items-center gap-1"
+                  className="font-black uppercase tracking-widest transition-colors hover:opacity-100"
                 >
-                  Kategori
-                </button>
-                <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50">
-                  <div className="bg-white border border-zinc-100 rounded-2xl shadow-xl p-4 min-w-[200px] space-y-1">
-                    {categories.map((cat: any) => (
-                      <Link 
-                        key={cat.id} 
-                        href={`${baseLink}/category/${cat.id}`}
-                        className="block px-4 py-2.5 text-[11px] font-bold text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all"
-                      >
-                        {cat.name}
-                      </Link>
-                    ))}
-                    <div className="border-t border-zinc-50 mt-2 pt-2">
-                       <Link href={`${baseLink}/category/all`} className="block px-4 py-2.5 text-[11px] font-black text-amber-500 hover:text-amber-600 uppercase tracking-widest">
-                         Semua Produk
-                       </Link>
+                  {isKatalogLabel ? "Katalog" : "Produk"}
+                </Link>
+              )}
+              
+              {showCategories && (
+                <div className="relative group">
+                  <button 
+                    style={{
+                      fontFamily: menuElement?.config?.fontFamily || 'inherit',
+                      fontWeight: menuElement?.config?.fontWeight || '600',
+                      fontSize: menuElement?.config?.fontSize ? `${menuElement.config.fontSize}px` : '11px',
+                      color: menuElement?.config?.textColor || undefined,
+                      opacity: 0.6
+                    }}
+                    className="font-black uppercase tracking-widest hover:opacity-100 transition-colors flex items-center gap-1"
+                  >
+                    Kategori
+                  </button>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 z-50">
+                    <div className="bg-white border border-zinc-100 rounded-2xl shadow-xl p-4 min-w-[200px] space-y-1">
+                      {categories.map((cat: any) => (
+                        <Link 
+                          key={cat.id} 
+                          href={`${baseLink}/category/${cat.id}`}
+                          className="block px-4 py-2.5 text-[11px] font-bold text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl transition-all"
+                        >
+                          {cat.name}
+                        </Link>
+                      ))}
+                      <div className="border-t border-zinc-50 mt-2 pt-2">
+                         <Link href={`${baseLink}/category/all`} className="block px-4 py-2.5 text-[11px] font-black text-amber-500 hover:text-amber-600 uppercase tracking-widest">
+                           Semua Produk
+                         </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {showAbout && (
-              <Link 
-                href={`${baseLink}/about`} 
-                style={{
-                  fontFamily: menuElement?.config?.fontFamily || 'inherit',
-                  fontWeight: menuElement?.config?.fontWeight || '600',
-                  fontSize: menuElement?.config?.fontSize ? `${menuElement.config.fontSize}px` : '11px',
-                  color: menuElement?.config?.textColor || undefined,
-                  opacity: pathname?.includes("/about") ? 1 : 0.6
-                }}
-                className="font-black uppercase tracking-widest transition-colors hover:opacity-100"
-              >
-                Tentang
-              </Link>
-            )}
-          </div>
-
-          {/* 3. RIGHT: Actions (Cart & Hamburger) */}
-          <div className="flex items-center gap-3 justify-end flex-1">
-            <button
-              onClick={() => setIsCartOpen(true)}
-              style={{
-                backgroundColor: cartElement?.config?.bgColor || '#18181B',
-                color: cartElement?.config?.textColor || '#FFFFFF',
-                borderRadius: cartElement?.config?.borderRadius !== undefined ? `${cartElement.config.borderRadius}px` : '8px'
-              }}
-              className="relative hidden sm:flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold hover:opacity-90 transition-colors active:scale-95 shadow-sm"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>{cartElement?.config?.text || 'Keranjang'}</span>
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-zinc-900 text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow">
-                  {cartCount}
-                </span>
               )}
-            </button>
 
-            {/* Hamburger Button */}
-            <button 
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2.5 bg-zinc-100 text-zinc-900 rounded-xl md:hidden hover:bg-zinc-200 transition-all active:scale-90"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
+              {showAbout && (
+                <Link 
+                  href={`${baseLink}/about`} 
+                  style={{
+                    fontFamily: menuElement?.config?.fontFamily || 'inherit',
+                    fontWeight: menuElement?.config?.fontWeight || '600',
+                    fontSize: menuElement?.config?.fontSize ? `${menuElement.config.fontSize}px` : '11px',
+                    color: menuElement?.config?.textColor || undefined,
+                    opacity: pathname?.includes("/about") ? 1 : 0.6
+                  }}
+                  className="font-black uppercase tracking-widest transition-colors hover:opacity-100"
+                >
+                  Tentang
+                </Link>
+              )}
+            </div>
+
+            {/* 3. RIGHT: Actions (Cart & Hamburger) */}
+            <div className="flex items-center gap-3 justify-end flex-1">
+              <button
+                onClick={() => setIsCartOpen(true)}
+                style={{
+                  backgroundColor: cartElement?.config?.bgColor || '#18181B',
+                  color: cartElement?.config?.textColor || '#FFFFFF',
+                  borderRadius: cartElement?.config?.borderRadius !== undefined ? `${cartElement.config.borderRadius}px` : '8px'
+                }}
+                className="relative hidden sm:flex items-center gap-2 px-4 py-2.5 text-[13px] font-semibold hover:opacity-90 transition-colors active:scale-95 shadow-sm"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>{cartElement?.config?.text || 'Keranjang'}</span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-zinc-900 text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Hamburger Button */}
+              <button 
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="p-2.5 bg-zinc-100 text-zinc-900 rounded-xl md:hidden hover:bg-zinc-200 transition-all active:scale-90"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      )}
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Overlay (fallback header only) */}
+      {!headerSection && (
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -291,8 +331,10 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
           </>
         )}
       </AnimatePresence>
+      )}
 
-      {/* Floating Cart for Mobile - Keep it as FAB */}
+      {/* Floating Cart for Mobile (fallback header only) */}
+      {!headerSection && (
       <div className="fixed bottom-6 right-6 z-[100] sm:hidden">
         <button
           onClick={() => setIsCartOpen(true)}
@@ -306,6 +348,7 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
           )}
         </button>
       </div>
+      )}
 
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>

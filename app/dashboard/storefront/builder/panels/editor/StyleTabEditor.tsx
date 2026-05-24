@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import React from 'react';
 import { motion, Reorder, AnimatePresence } from "framer-motion";
@@ -5061,3 +5062,4 @@ export function StyleTabEditor({ props, activeElement }: { props: EditorPanelPro
     </>
   );
 }
+

@@ -29,6 +29,8 @@ interface StorefrontContextType {
   cartCount: number;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
   selectedProduct: any;
   setSelectedProduct: (product: any) => void;
   activeImageIndex: number;
@@ -57,9 +59,14 @@ export function StorefrontProvider({
 }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  useEffect(() => {
+    console.log("[StorefrontProvider Debug] isMobileMenuOpen state changed:", isMobileMenuOpen);
+  }, [isMobileMenuOpen]);
 
   const hasAbout = (sections || client?.sections || []).some((s: any) => 
     s.type?.toUpperCase() === "TEXT" && s.isActive !== false
@@ -176,12 +183,14 @@ export function StorefrontProvider({
     return fontList;
   }, [sections, client?.sections]);
 
+  const resolvedSections = (sections && sections.length > 0) ? sections : (client?.sections || []);
+
   return (
     <StorefrontContext.Provider value={{ 
       client, 
       products, 
       categories: categories || [],
-      sections: sections || [],
+      sections: resolvedSections,
       customPages: customPages || [],
       hasAbout,
       cart, 
@@ -193,6 +202,8 @@ export function StorefrontProvider({
       cartCount,
       isCartOpen,
       setIsCartOpen,
+      isMobileMenuOpen,
+      setIsMobileMenuOpen,
       selectedProduct,
       setSelectedProduct,
       activeImageIndex,

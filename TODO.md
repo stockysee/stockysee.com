@@ -1,3 +1,30 @@
+## Frontend - Relokasi Floating Section Navigator pada Header (2026-05-24)
+- [x] Memindahkan posisi floating Section Navigator (fuchsia badge) khusus untuk komponen `global-header` dari yang semula melayang di atas (`-top-3.5`) menjadi melayang di bawah (`-bottom-5`). Hal ini mencegah navigator terpotong atau menempel ke header panel visual builder atas.
+- [x] Menambahkan `useEffect` log untuk memantau status visual relokasi navigator header secara real-time.
+- File yang berubah:
+  - [components/storefront/sections/BuilderSection.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/sections/BuilderSection.tsx)
+
+## Frontend - Pembersihan Visual Header Canvas Editor (2026-05-24)
+- [x] Menghapus visual pembungkus (header label bar penanda "Header Canvas" & "Edit header — perubahan akan terlihat di semua halaman") di komponen `HeaderCanvas` agar area kanvas editor header menjadi bersih dan hanya merender `BuilderSection` secara murni tanpa bingkai tambahan.
+- [x] Menambahkan console.log untuk melacak render bersih `HeaderCanvas`.
+- File yang berubah:
+  - [components/storefront/sections/HeaderCanvas.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/sections/HeaderCanvas.tsx)
+
+## Frontend - Sinkronisasi Dinamis Header Canvas dan Storefront (2026-05-24)
+- [x] Sinkronisasi header dan footer visual builder ke storefront sehingga layout (Flexbox/Grid), kolom, perataan, warna background, batas, radius, padding, margin, dan urutan widget ter-render 100% dinamis dan identik.
+- [x] Menambahkan state `isMobileMenuOpen` dan `setIsMobileMenuOpen` secara global ke context `StorefrontProvider` untuk koordinasi menu seluler antar elemen.
+- [x] Memodifikasi elemen navigasi `BrandingElement`, `MenuElement`, dan `CartElement` di `BuilderSection.tsx` agar mendukung properti `readOnly` untuk perutean link dinamis, hamburger menu seluler, dan interaksi keranjang belanja di storefront.
+- [x] Memperbarui `StorefrontHeader.tsx` agar merendernya secara dinamis via `BuilderSection` jika komponen `headerSection` terkonfigurasi di database.
+- [x] Memperbarui `EcommerceModel.tsx` agar merender footer secara dinamis via `SectionRenderer` jika `footerSection` terkonfigurasi.
+- [x] Memperbaiki `SectionRenderer.tsx` agar membaca elements dari `section.elements` sebagai fallback utama dan memperbarui definisinya di `SectionRendererProps` interface.
+- [x] Menambahkan log visual (`console.log`) pada runtime inisialisasi context dan elemen header/footer untuk memudahkan debugging.
+- File yang berubah:
+  - [components/storefront/StorefrontProvider.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/StorefrontProvider.tsx)
+  - [components/storefront/sections/BuilderSection.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/sections/BuilderSection.tsx)
+  - [components/storefront/StorefrontHeader.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/StorefrontHeader.tsx)
+  - [components/storefront/models/EcommerceModel.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/models/EcommerceModel.tsx)
+  - [components/storefront/SectionRenderer.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/SectionRenderer.tsx)
+
 ## Frontend - Perbaikan Visual Input Warna menjadi Layout Kompak (Gambar 2) (2026-05-22)
 - [x] Merombak tampilan seluruh input warna (Color Picker) pada tab Gaya di elemen `CATEGORY_LIST` dan `PRODUCT_LIST` menjadi desain yang kompak dan minimalis (seperti referensi Gambar 2).
 - [x] Menghilangkan input teks HEX dan tombol reset, dan menggantinya dengan layout rata sisi (Label "Warna" di sebelah kiri dengan font `text-xs font-semibold`, dan swatch warna bundar `w-8 h-7` di sebelah kanan).

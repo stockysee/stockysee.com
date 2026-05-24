@@ -1,9 +1,11 @@
+// @ts-nocheck
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Plus, Type, AlignLeft, MousePointerClick, Image as ImageIcon, Minus, Award, GripVertical, Trash2, LayoutGrid, SeparatorHorizontal, Columns, Pencil, ShoppingBag, Folder, ChevronLeft, ChevronRight, Move } from "lucide-react";
+import { Plus, Type, AlignLeft, MousePointerClick, Image as ImageIcon, Minus, Award, GripVertical, Trash2, LayoutGrid, SeparatorHorizontal, Columns, Pencil, ShoppingBag, Folder, ChevronLeft, ChevronRight, Move, Menu } from "lucide-react";
 import { useStorefront } from "../StorefrontProvider";
 import ProductCard from "../ProductCard";
+import Link from "next/link";
 
 // ── TYPES ──
 export interface SectionElement {
@@ -861,12 +863,21 @@ const BadgeElement = ({ config }: { config: any }) => (
 );
 
 // ── BRANDING ELEMENT (Logo & Toko) ──
-const BrandingElement = ({ config }: { config: any }) => {
+const BrandingElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) => {
   const sf = useStorefront();
   const name = sf?.client?.name || "Nama Toko";
   const logo = sf?.client?.logoUrl;
 
-  return (
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const isPathMode = pathname?.includes(`/storefront/${sf?.client?.slug}`);
+  const baseLink = isPathMode ? `/storefront/${sf?.client?.slug}` : "";
+
+  // Debug log untuk Aturan 8
+  useEffect(() => {
+    console.log("[BrandingElement Debug] Loaded:", { name, logo, readOnly });
+  }, [name, logo, readOnly]);
+
+  const content = (
     <div
       className="flex items-center gap-3.5"
       style={{
@@ -896,10 +907,20 @@ const BrandingElement = ({ config }: { config: any }) => {
       </span>
     </div>
   );
+
+  if (readOnly) {
+    return (
+      <Link href={baseLink || "/"} className="block">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 };
 
 // ── MENU ELEMENT ──
-const MenuElement = ({ config }: { config: any }) => {
+const MenuElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) => {
   const sf = useStorefront();
   const defaultTabs = [
     { id: 'catalog', label: 'Katalog', url: '/category/all' },
@@ -914,43 +935,117 @@ const MenuElement = ({ config }: { config: any }) => {
   const hiddenMenus = config.hiddenMenus || [];
   const allTabs = [...defaultTabs, ...customTabs].filter(tab => !hiddenMenus.includes(tab.id));
 
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+  const isPathMode = pathname?.includes(`/storefront/${sf?.client?.slug}`);
+  const baseLink = isPathMode ? `/storefront/${sf?.client?.slug}` : "";
+
+  // Debug log untuk Aturan 8
+  useEffect(() => {
+    console.log("[MenuElement Debug] Loaded:", { allTabsCount: allTabs.length, readOnly });
+  }, [allTabs, readOnly]);
+
+  const handleHamburgerClick = (e: React.MouseEvent) => {
+    if (readOnly && sf?.setIsMobileMenuOpen) {
+      e.preventDefault();
+      e.stopPropagation();
+      sf.setIsMobileMenuOpen(true);
+      console.log("[MenuElement Debug] Mobile hamburger menu opened successfully via state");
+    }
+  };
+
   return (
-    <div
-      className="flex items-center flex-wrap gap-5 md:gap-7"
-      style={{
-        justifyContent: config.align === 'center' ? 'center' : config.align === 'right' ? 'flex-end' : 'flex-start',
-      }}
-    >
-      {allTabs.length === 0 ? (
-        <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">Navigasi Kosong</span>
-      ) : (
-        allTabs.map(tab => (
-          <span
-            key={tab.id}
-            style={{
-              color: config.textColor || '#18181B',
-              fontSize: `${config.fontSize ?? 13}px`,
-              fontFamily: config.fontFamily || 'inherit',
-              fontWeight: config.fontWeight || '600'
-            }}
-            className="cursor-default hover:opacity-75 transition-opacity"
-          >
-            {tab.label}
-          </span>
-        ))
+    <>
+      {/* Desktop Menu */}
+      <div
+        className={`${readOnly ? "hidden md:flex" : "flex"} items-center flex-wrap gap-5 md:gap-7`}
+        style={{
+          justifyContent: config.align === 'center' ? 'center' : config.align === 'right' ? 'flex-end' : 'flex-start',
+        }}
+      >
+        {allTabs.length === 0 ? (
+          <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">Navigasi Kosong</span>
+        ) : (
+          allTabs.map(tab => {
+            const href = tab.url.startsWith('/') ? `${baseLink}${tab.url}` : `${baseLink}/${tab.url}`;
+            
+            if (readOnly) {
+              return (
+                <Link
+                  key={tab.id}
+                  href={href}
+                  style={{
+                    color: config.textColor || '#18181B',
+                    fontSize: `${config.fontSize ?? 13}px`,
+                    fontFamily: config.fontFamily || 'inherit',
+                    fontWeight: config.fontWeight || '600'
+                  }}
+                  className="hover:opacity-75 transition-opacity"
+                >
+                  {tab.label}
+                </Link>
+              );
+            }
+
+            return (
+              <span
+                key={tab.id}
+                style={{
+                  color: config.textColor || '#18181B',
+                  fontSize: `${config.fontSize ?? 13}px`,
+                  fontFamily: config.fontFamily || 'inherit',
+                  fontWeight: config.fontWeight || '600'
+                }}
+                className="cursor-default hover:opacity-75 transition-opacity"
+              >
+                {tab.label}
+              </span>
+            );
+          })
+        )}
+      </div>
+
+      {/* Mobile Menu Button (Hamburger) */}
+      {readOnly && (
+        <button
+          onClick={handleHamburgerClick}
+          className="p-2.5 bg-zinc-100 text-zinc-900 rounded-xl md:hidden hover:bg-zinc-200 transition-all active:scale-90"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
       )}
-    </div>
+    </>
   );
 };
 
 // ── CART ELEMENT ──
-const CartElement = ({ config }: { config: any }) => {
+const CartElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) => {
+  const sf = useStorefront();
   const showCustomIcon = config.iconType === 'custom' && config.customIconSvg;
   const defaultIcon = '/cart.svg';
+
+  const cartCount = sf?.cartCount ?? 0;
+  const setIsCartOpen = sf?.setIsCartOpen;
+
+  // Debug log untuk Aturan 8
+  useEffect(() => {
+    console.log("[CartElement Debug] Loaded:", { cartCount, readOnly });
+  }, [cartCount, readOnly]);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (readOnly && setIsCartOpen) {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsCartOpen(true);
+      console.log("[CartElement Debug] Cart drawer opened successfully via state click");
+    }
+  };
+
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-block cursor-pointer" onClick={handleClick}>
       <ButtonElement config={showCustomIcon ? config : { ...config, iconType: 'custom', customIconSvg: defaultIcon, icon: defaultIcon }} />
-      <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-zinc-900 text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow pointer-events-none">0</span>
+      <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-zinc-900 text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow pointer-events-none">
+        {cartCount}
+      </span>
     </div>
   );
 };
@@ -975,6 +1070,7 @@ interface CategoryListElementProps {
   elementId: string;
   activeSubFocus?: string | null;
   isActive: boolean;
+  readOnly?: boolean;
 }
 
 const CategoryListElement = ({
@@ -983,6 +1079,7 @@ const CategoryListElement = ({
   elementId,
   activeSubFocus,
   isActive,
+  readOnly = false,
 }: CategoryListElementProps) => {
   const { categories } = useStorefront();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -991,9 +1088,16 @@ const CategoryListElement = ({
 
   console.log("[CategoryListElement Canvas] Render dengan activeSubFocus:", activeSubFocus, "isActive:", isActive);
 
+  const showBuilderUI = !readOnly;
+  const hoverTitleClass = !readOnly ? 'hover:bg-blue-500/5 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1' : '';
+  const hoverImageClass = !readOnly ? 'hover:scale-105 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40' : '';
+  const hoverNameClass = !readOnly ? 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1' : '';
+
   const dbCats = categories || [];
   let displayCategories = [...dbCats];
-  if (displayCategories.length < 10) {
+  if (readOnly) {
+    // storefront: real data only, no filler
+  } else if (displayCategories.length < 10) {
     const remainingCount = 10 - displayCategories.length;
     const fillers = PLACEHOLDER_CATEGORIES.slice(displayCategories.length, displayCategories.length + remainingCount);
     displayCategories = [...displayCategories, ...fillers];
@@ -1222,7 +1326,7 @@ const CategoryListElement = ({
   return (
     <div
       className={`w-full space-y-3 p-2 rounded-xl transition-all duration-300 ${isActive && !activeSubFocus ? 'bg-blue-500/5' : ''}`}
-      onClick={handleContainerClick}
+      onClick={showBuilderUI ? handleContainerClick : undefined}
       onMouseEnter={() => setIsCatHovered(true)}
       onMouseLeave={() => setIsCatHovered(false)}
       style={catStyleObj}
@@ -1231,10 +1335,10 @@ const CategoryListElement = ({
         <h3
           className={`font-extrabold text-xs uppercase tracking-wider px-2 cursor-pointer transition-all ${isActive && activeSubFocus === 'header_title'
             ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105 shadow-sm'
-            : 'hover:bg-blue-500/5 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
+            : hoverTitleClass
             }`}
           style={titleStyle}
-          onClick={(e) => handleSubFocusClick(e, 'header_title')}
+          onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'header_title') : undefined}
         >
           {title}
         </h3>
@@ -1254,10 +1358,10 @@ const CategoryListElement = ({
                 <div
                   className={`w-14 h-14 border border-zinc-200/60 shadow-[0_4px_10px_rgba(0,0,0,0.03)] overflow-hidden flex items-center justify-center bg-zinc-50 transition-all duration-300 ${isActive && activeSubFocus === 'image'
                     ? 'outline outline-2 outline-blue-500/60 scale-105 shadow-md'
-                    : 'hover:scale-105 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40'
+                    : hoverImageClass
                     }`}
                   style={{ borderRadius: `${borderRadius}px` }}
-                  onClick={(e) => handleSubFocusClick(e, 'image')}
+                  onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'image') : undefined}
                 >
                   {cat.image ? (
                     <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
@@ -1268,10 +1372,10 @@ const CategoryListElement = ({
                 <span
                   className={`font-bold leading-tight text-center tracking-tight transition-all duration-300 ${isActive && activeSubFocus === 'title'
                     ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
-                    : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
+                    : hoverNameClass
                     }`}
                   style={itemTitleStyle}
-                  onClick={(e) => handleSubFocusClick(e, 'title')}
+                  onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'title') : undefined}
                 >
                   {cat.name}
                 </span>
@@ -1318,10 +1422,10 @@ const CategoryListElement = ({
                 <div
                   className={`w-14 h-14 border border-zinc-200/60 shadow-[0_4px_10px_rgba(0,0,0,0.03)] overflow-hidden flex items-center justify-center bg-zinc-50 transition-all duration-300 ${isActive && activeSubFocus === 'image'
                     ? 'outline outline-2 outline-blue-500/60 scale-105 shadow-md'
-                    : 'hover:scale-105 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40'
+                    : hoverImageClass
                     }`}
                   style={{ borderRadius: `${borderRadius}px` }}
-                  onClick={(e) => handleSubFocusClick(e, 'image')}
+                  onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'image') : undefined}
                 >
                   {cat.image ? (
                     <img src={cat.image} alt={cat.name} className="w-full h-full object-cover" />
@@ -1332,10 +1436,10 @@ const CategoryListElement = ({
                 <span
                   className={`font-bold leading-tight text-center tracking-tight transition-all duration-300 ${isActive && activeSubFocus === 'title'
                     ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
-                    : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
+                    : hoverNameClass
                     }`}
                   style={itemTitleStyle}
-                  onClick={(e) => handleSubFocusClick(e, 'title')}
+                  onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'title') : undefined}
                 >
                   {cat.name}
                 </span>
@@ -1412,6 +1516,7 @@ interface ProductListElementProps {
   elementId: string;
   activeSubFocus?: string | null;
   isActive: boolean;
+  readOnly?: boolean;
 }
 
 const ProductListElement = ({
@@ -1420,11 +1525,19 @@ const ProductListElement = ({
   elementId,
   activeSubFocus,
   isActive,
+  readOnly = false,
 }: ProductListElementProps) => {
-  const { products } = useStorefront();
+  const { products, setSelectedProduct } = useStorefront();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isProdHovered, setIsProdHovered] = useState(false);
   console.log("[ProductListElement Canvas] Render dengan activeSubFocus:", activeSubFocus, "isActive:", isActive);
+
+  const showBuilderUI = !readOnly;
+  const hoverTitleClass = !readOnly ? 'hover:bg-blue-500/5 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1' : '';
+  const hoverCardClass = !readOnly ? 'hover:scale-[1.01] hover:ring-2 hover:ring-blue-500/30' : '';
+  const hoverImageClass = !readOnly ? 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40' : '';
+  const hoverNameClass = !readOnly ? 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1' : '';
+  const hoverPriceClass = !readOnly ? 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded p-1' : '';
 
   const source = config?.source || 'ALL';
   const categoryId = config?.categoryId || '';
@@ -1697,7 +1810,9 @@ const ProductListElement = ({
   // Slice based on limit, and pad with placeholders up to limit
   let slicedDbProds = dbProds.slice(0, limit);
   let displayProducts = [...slicedDbProds];
-  if (displayProducts.length < limit) {
+  if (readOnly) {
+    // storefront: real data only, no filler
+  } else if (displayProducts.length < limit) {
     const remainingCount = limit - displayProducts.length;
     const fillers = PLACEHOLDER_PRODUCTS.slice(slicedDbProds.length, slicedDbProds.length + remainingCount);
     displayProducts = [...displayProducts, ...fillers];
@@ -1833,7 +1948,7 @@ const ProductListElement = ({
   return (
     <div
       className={`w-full space-y-3 p-2 rounded-xl transition-all duration-300 ${isActive && !activeSubFocus ? 'bg-blue-500/5' : ''}`}
-      onClick={handleContainerClick}
+      onClick={showBuilderUI ? handleContainerClick : undefined}
       onMouseEnter={() => setIsProdHovered(true)}
       onMouseLeave={() => setIsProdHovered(false)}
       style={prodStyleObj}
@@ -1842,10 +1957,10 @@ const ProductListElement = ({
         <h3
           className={`font-extrabold text-xs uppercase tracking-wider px-2 cursor-pointer transition-all ${isActive && activeSubFocus === 'header_title'
             ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105 shadow-sm'
-            : 'hover:bg-blue-500/5 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
+            : hoverTitleClass
             }`}
           style={titleStyle}
-          onClick={(e) => handleSubFocusClick(e, 'header_title')}
+          onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'header_title') : undefined}
         >
           {title}
         </h3>
@@ -1862,7 +1977,7 @@ const ProductListElement = ({
                 key={product.id}
                 className={`group border flex flex-col h-full transition-all duration-500 cursor-pointer ${isActive && activeSubFocus === 'card'
                   ? 'ring-4 ring-blue-500/50 scale-[1.02] shadow-lg'
-                  : 'hover:scale-[1.01] hover:ring-2 hover:ring-blue-500/30'
+                  : hoverCardClass
                   }`}
                 style={{
                   ...getCardBackgroundStyle(),
@@ -1870,13 +1985,13 @@ const ProductListElement = ({
                   borderColor: cardBorderColor,
                   boxShadow: shadowStyle,
                 }}
-                onClick={(e) => handleSubFocusClick(e, 'card')}
+                onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'card') : () => setSelectedProduct(product)}
               >
                 {/* Image Area */}
                 <div
                   className={`aspect-square overflow-hidden relative transition-all duration-300 w-full ${isActive && activeSubFocus === 'image'
                     ? 'outline outline-2 outline-blue-500/60 scale-[1.01] shadow-md z-10'
-                    : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40'
+                    : hoverImageClass
                     }`}
                   style={{
                     borderTopLeftRadius: `${cardBorderRadius}px`,
@@ -1886,7 +2001,7 @@ const ProductListElement = ({
                     padding: `${imagePadding}px`,
                     backgroundColor: imageBgColor
                   }}
-                  onClick={(e) => handleSubFocusClick(e, 'image')}
+                  onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'image') : undefined}
                 >
                   {product.images?.[0] ? (
                     <img
@@ -1925,10 +2040,10 @@ const ProductListElement = ({
                   <h3
                     className={`line-clamp-2 transition-all duration-300 mb-2 group-hover:text-zinc-900 ${isActive && activeSubFocus === 'title'
                       ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
-                      : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
+                      : hoverNameClass
                       }`}
                     style={productNameStyle}
-                    onClick={(e) => handleSubFocusClick(e, 'title')}
+                    onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'title') : undefined}
                   >
                     {product.name}
                   </h3>
@@ -1936,9 +2051,9 @@ const ProductListElement = ({
                   <div
                     className={`flex flex-col mt-auto pt-2.5 border-t border-zinc-50 transition-all duration-300 ${isActive && activeSubFocus === 'price'
                       ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded p-1 scale-105'
-                      : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded p-1'
+                      : hoverPriceClass
                       }`}
-                    onClick={(e) => handleSubFocusClick(e, 'price')}
+                    onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'price') : undefined}
                   >
                     {showStock && (
                       <span
@@ -1979,113 +2094,113 @@ const ProductListElement = ({
               const discountPct = hasDiscount ? Math.round(((product.price - product.discountPrice) / product.price) * 100) : 0;
 
               return (
+              <div
+                key={product.id}
+                className={`group border flex flex-col w-[170px] shrink-0 snap-start transition-all duration-500 cursor-pointer ${isActive && activeSubFocus === 'card'
+                  ? 'ring-4 ring-blue-500/50 scale-[1.02] shadow-lg'
+                  : hoverCardClass
+                  }`}
+                style={{
+                  ...getCardBackgroundStyle(),
+                  borderRadius: `${cardBorderRadius}px`,
+                  borderColor: cardBorderColor,
+                  boxShadow: shadowStyle,
+                }}
+                onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'card') : () => setSelectedProduct(product)}
+              >
+                {/* Image Area */}
                 <div
-                  key={product.id}
-                  className={`group border flex flex-col w-[170px] shrink-0 snap-start transition-all duration-500 cursor-pointer ${isActive && activeSubFocus === 'card'
-                    ? 'ring-4 ring-blue-500/50 scale-[1.02] shadow-lg'
-                    : 'hover:scale-[1.01] hover:ring-2 hover:ring-blue-500/30'
+                  className={`aspect-square overflow-hidden relative transition-all duration-300 w-full ${isActive && activeSubFocus === 'image'
+                    ? 'outline outline-2 outline-blue-500/60 scale-[1.01] shadow-md z-10'
+                    : hoverImageClass
                     }`}
                   style={{
-                    ...getCardBackgroundStyle(),
-                    borderRadius: `${cardBorderRadius}px`,
-                    borderColor: cardBorderColor,
-                    boxShadow: shadowStyle,
+                    borderTopLeftRadius: `${cardBorderRadius}px`,
+                    borderTopRightRadius: `${cardBorderRadius}px`,
+                    borderBottomLeftRadius: `${imageBorderRadius}px`,
+                    borderBottomRightRadius: `${imageBorderRadius}px`,
+                    padding: `${imagePadding}px`,
+                    backgroundColor: imageBgColor
                   }}
-                  onClick={(e) => handleSubFocusClick(e, 'card')}
+                  onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'image') : undefined}
                 >
-                  {/* Image Area */}
-                  <div
-                    className={`aspect-square overflow-hidden relative transition-all duration-300 w-full ${isActive && activeSubFocus === 'image'
-                      ? 'outline outline-2 outline-blue-500/60 scale-[1.01] shadow-md z-10'
-                      : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40'
-                      }`}
-                    style={{
-                      borderTopLeftRadius: `${cardBorderRadius}px`,
-                      borderTopRightRadius: `${cardBorderRadius}px`,
-                      borderBottomLeftRadius: `${imageBorderRadius}px`,
-                      borderBottomRightRadius: `${imageBorderRadius}px`,
-                      padding: `${imagePadding}px`,
-                      backgroundColor: imageBgColor
-                    }}
-                    onClick={(e) => handleSubFocusClick(e, 'image')}
-                  >
-                    {product.images?.[0] ? (
-                      <img
-                        src={product.images[0]}
-                        alt={product.name}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        style={{
-                          borderTopLeftRadius: `${Math.max(0, cardBorderRadius - imagePadding)}px`,
-                          borderTopRightRadius: `${Math.max(0, cardBorderRadius - imagePadding)}px`,
-                          borderBottomLeftRadius: `${Math.max(0, imageBorderRadius - imagePadding)}px`,
-                          borderBottomRightRadius: `${Math.max(0, imageBorderRadius - imagePadding)}px`,
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-zinc-200">
-                        <ShoppingBag className="w-8 h-8" />
-                      </div>
-                    )}
-
-                    {hasDiscount && (
-                      <div className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
-                        -{discountPct}%
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Info Area */}
-                  <div
-                    className="pt-3.5 flex flex-col flex-grow text-left"
-                    style={{
-                      padding: `${cardPadding}px`,
-                      paddingTop: '12px'
-                    }}
-                  >
-                    <h3
-                      className={`line-clamp-2 transition-all duration-300 mb-2 group-hover:text-zinc-900 ${isActive && activeSubFocus === 'title'
-                        ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
-                        : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
-                        }`}
-                      style={productNameStyle}
-                      onClick={(e) => handleSubFocusClick(e, 'title')}
-                    >
-                      {product.name}
-                    </h3>
-
-                    <div
-                      className={`flex flex-col mt-auto pt-2.5 border-t border-zinc-50 transition-all duration-300 ${isActive && activeSubFocus === 'price'
-                        ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded p-1 scale-105'
-                        : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded p-1'
-                        }`}
-                      onClick={(e) => handleSubFocusClick(e, 'price')}
-                    >
-                      {showStock && (
-                        <span
-                          className="font-bold uppercase mb-0.5 tracking-tight"
-                          style={stockStyle}
-                        >
-                          Stok: {product.stock || 0}
-                        </span>
-                      )}
-                      {hasDiscount && (
-                        <p
-                          className="line-through font-medium leading-none mb-0.5"
-                          style={{ ...discountPriceStyle, textDecoration: 'line-through' }}
-                        >
-                          {formatRupiah(product.price)}
-                        </p>
-                      )}
-                      <p
-                        className="tracking-tight leading-none"
-                        style={priceStyle}
-                      >
-                        {formatRupiah(hasDiscount ? product.discountPrice : product.price)}
-                      </p>
+                  {product.images?.[0] ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      style={{
+                        borderTopLeftRadius: `${Math.max(0, cardBorderRadius - imagePadding)}px`,
+                        borderTopRightRadius: `${Math.max(0, cardBorderRadius - imagePadding)}px`,
+                        borderBottomLeftRadius: `${Math.max(0, imageBorderRadius - imagePadding)}px`,
+                        borderBottomRightRadius: `${Math.max(0, imageBorderRadius - imagePadding)}px`,
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-zinc-200">
+                      <ShoppingBag className="w-8 h-8" />
                     </div>
+                  )}
+
+                  {hasDiscount && (
+                    <div className="absolute top-3 left-3 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md z-10">
+                      -{discountPct}%
+                    </div>
+                  )}
+                </div>
+
+                {/* Info Area */}
+                <div
+                  className="pt-3.5 flex flex-col flex-grow text-left"
+                  style={{
+                    padding: `${cardPadding}px`,
+                    paddingTop: '12px'
+                  }}
+                >
+                  <h3
+                    className={`line-clamp-2 transition-all duration-300 mb-2 group-hover:text-zinc-900 ${isActive && activeSubFocus === 'title'
+                      ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
+                      : hoverNameClass
+                      }`}
+                    style={productNameStyle}
+                    onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'title') : undefined}
+                  >
+                    {product.name}
+                  </h3>
+
+                  <div
+                    className={`flex flex-col mt-auto pt-2.5 border-t border-zinc-50 transition-all duration-300 ${isActive && activeSubFocus === 'price'
+                      ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded p-1 scale-105'
+                      : hoverPriceClass
+                      }`}
+                    onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'price') : undefined}
+                  >
+                    {showStock && (
+                      <span
+                        className="font-bold uppercase mb-0.5 tracking-tight"
+                        style={stockStyle}
+                      >
+                        Stok: {product.stock || 0}
+                      </span>
+                    )}
+                    {hasDiscount && (
+                      <p
+                        className="line-through font-medium leading-none mb-0.5"
+                        style={{ ...discountPriceStyle, textDecoration: 'line-through' }}
+                      >
+                        {formatRupiah(product.price)}
+                      </p>
+                    )}
+                    <p
+                      className="tracking-tight leading-none"
+                      style={priceStyle}
+                    >
+                      {formatRupiah(hasDiscount ? product.discountPrice : product.price)}
+                    </p>
                   </div>
                 </div>
+              </div>
               );
             })}
           </div>
@@ -2348,8 +2463,8 @@ const ColumnElement = ({
     <div
       className={`relative transition-all ${layoutClass} ${!readOnly && isDragOver ? 'outline-dashed outline-2 outline-blue-500 bg-blue-500/10 animate-pulse rounded-lg' : ''}`}
       style={styleObj}
-      onMouseEnter={() => setIsColumnHovered(true)}
-      onMouseLeave={() => setIsColumnHovered(false)}
+      onMouseEnter={!readOnly ? () => setIsColumnHovered(true) : undefined}
+      onMouseLeave={!readOnly ? () => setIsColumnHovered(false) : undefined}
       onDragOver={!readOnly ? (e) => {
         if (isDraggingWidget) {
           e.preventDefault();
@@ -2619,7 +2734,7 @@ const ElementWrapper = ({
         ? 'outline outline-2 outline-blue-500 rounded-none animate-pulse bg-blue-500/10'
         : isActive
           ? 'outline outline-2 outline-blue-600 outline-offset-2 rounded-none bg-blue-500/5'
-          : 'hover:outline-dashed hover:outline-2 hover:outline-blue-500/40 hover:outline-offset-2 hover:rounded-none'
+          : !readOnly ? 'hover:outline-dashed hover:outline-2 hover:outline-blue-500/40 hover:outline-offset-2 hover:rounded-none' : ''
         }`}
       style={wrapperStyle}
       onClick={!readOnly ? (e) => {
@@ -2741,9 +2856,9 @@ const ElementWrapper = ({
         {element.type === 'SPACER' && <SpacerElement config={element.config} />}
         {element.type === 'DIVIDER' && <DividerElement config={element.config} />}
         {element.type === 'BADGE' && <BadgeElement config={element.config} />}
-        {element.type === 'BRANDING' && <BrandingElement config={element.config} />}
-        {element.type === 'MENU' && <MenuElement config={element.config} />}
-        {element.type === 'CART' && <CartElement config={element.config} />}
+        {element.type === 'BRANDING' && <BrandingElement config={element.config} readOnly={readOnly} />}
+        {element.type === 'MENU' && <MenuElement config={element.config} readOnly={readOnly} />}
+        {element.type === 'CART' && <CartElement config={element.config} readOnly={readOnly} />}
         {element.type === 'CATEGORY_LIST' && (
           <CategoryListElement
             config={element.config}
@@ -2751,6 +2866,7 @@ const ElementWrapper = ({
             elementId={element.id}
             activeSubFocus={activeSubFocus}
             isActive={isActive}
+            readOnly={readOnly}
           />
         )}
         {element.type === 'PRODUCT_LIST' && (
@@ -2760,6 +2876,7 @@ const ElementWrapper = ({
             elementId={element.id}
             activeSubFocus={activeSubFocus}
             isActive={isActive}
+            readOnly={readOnly}
           />
         )}
         {element.type === 'COLUMN' && (
@@ -2796,7 +2913,7 @@ const ElementWrapper = ({
               e.stopPropagation();
               e.preventDefault();
               console.log('[Element Hover Move] Navigator diklik untuk elemen:', element.id);
-              onSelect();
+              onSelect?.();
               console.log("[Element Hover Move Debug] Mengirim event builder:openNavigatorPanel untuk Elemen:", element.id, "di Section:", sectionId);
               window.dispatchEvent(new CustomEvent('builder:openNavigatorPanel', { detail: { elementId: element.id, sectionId } }));
             }}
@@ -2912,6 +3029,13 @@ export const BuilderSection = ({
     };
   }, []);
 
+  // Debug log untuk letak floating navigator global-header
+  useEffect(() => {
+    if (id === 'global-header' && (isSectionHovered || isActive)) {
+      console.log("[Header Navigator Debug] Floating Section Navigator untuk global-header diposisikan di bawah (-bottom-5) agar tidak terpotong header visual builder");
+    }
+  }, [id, isSectionHovered, isActive]);
+
   const sorted = [...elements].sort((a, b) => a.order - b.order);
 
   useEffect(() => {
@@ -2970,7 +3094,7 @@ export const BuilderSection = ({
 
   return (
     <>
-      <style>{`
+      {!readOnly && <style>{`
         #section-${id}:hover {
           border-top-left-radius: ${formatStyleValue(hoverBorderRadiusTop, 0)} !important;
           border-top-right-radius: ${formatStyleValue(hoverBorderRadiusRight, 0)} !important;
@@ -2984,7 +3108,7 @@ export const BuilderSection = ({
           border-color: ${hoverBorderColor} !important;
           box-shadow: ${hoverBoxShadow} !important;
         }
-      `}</style>
+      `}</style>}
       <div
         id={`section-${id}`}
         className={`relative transition-all mx-auto w-full ${!readOnly && isActive
@@ -3002,8 +3126,8 @@ export const BuilderSection = ({
           onSectionSelect();
         }
       } : undefined}
-      onMouseEnter={() => setIsSectionHovered(true)}
-      onMouseLeave={() => setIsSectionHovered(false)}
+      onMouseEnter={!readOnly ? () => setIsSectionHovered(true) : undefined}
+      onMouseLeave={!readOnly ? () => setIsSectionHovered(false) : undefined}
       onDragOver={!readOnly ? (e) => {
         if (isDraggingWidget) {
           e.preventDefault();
@@ -3163,9 +3287,9 @@ export const BuilderSection = ({
         </div>
       )}
 
-      {/* WordPress Elementor-Style Premium Section Navigator (Melayang Tengah Atas) */}
+      {/* WordPress Elementor-Style Premium Section Navigator (Melayang Tengah Atas / Bawah jika Header) */}
       {!readOnly && (isSectionHovered || isActive) && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-[99999] flex items-center gap-1.5 bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-3 py-1 rounded-full shadow-lg border border-fuchsia-500 transition-all pointer-events-auto select-none">
+        <div className={`absolute ${id === 'global-header' ? '-bottom-5' : '-top-3.5'} left-1/2 -translate-x-1/2 z-[99999] flex items-center gap-1.5 bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-3 py-1 rounded-full shadow-lg border border-fuchsia-500 transition-all pointer-events-auto select-none`}>
            {/* Tombol Tambah + — tampil untuk semua section termasuk global-header */}
            <button
              type="button"

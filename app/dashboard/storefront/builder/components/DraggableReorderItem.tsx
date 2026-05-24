@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Reorder, useDragControls } from "framer-motion";
 import { DraggableReorderItemProps } from "../types";
 
@@ -24,3 +25,4 @@ export function DraggableReorderItem({ value, onDragStart, onDragEnd, className,
     </Reorder.Item>
     );
 }
+

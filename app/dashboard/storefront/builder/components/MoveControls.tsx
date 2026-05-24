@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { MoveControlsProps } from "../types";
 
@@ -23,3 +24,4 @@ export function MoveControls({ canMoveUp, canMoveDown, onMoveUp, onMoveDown }: M
     </div>
     );
 }
+

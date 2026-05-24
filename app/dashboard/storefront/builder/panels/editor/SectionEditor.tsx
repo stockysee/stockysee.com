@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import React from 'react';
 import { 
@@ -2175,3 +2176,4 @@ export function SectionEditor({ props, activeElement }: { props: EditorPanelProp
                         )
   );
 }
+

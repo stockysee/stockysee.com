@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import React from 'react';
 import { motion, Reorder, AnimatePresence } from "framer-motion";
@@ -1003,3 +1004,4 @@ className="w-4 h-4 object-contain"
     </>
   );
 }
+

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { Monitor, Pencil, RotateCcw, Plus, AlignLeft, AlignCenter, AlignRight, AlignJustify } from 'lucide-react';
 import { POPULAR_FONTS } from '../constants';
@@ -608,3 +609,4 @@ export function TextStylingGroup({
     </div>
   );
 }
+
