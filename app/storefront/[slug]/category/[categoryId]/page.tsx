@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import prisma from "@/lib/db";
-export const revalidate = 60; // Cache for 60 seconds
+export const revalidate = 0; // Strict sync with latest builder data
 
 interface CategoryPageProps {
   params: Promise<{ slug: string; categoryId: string }>;

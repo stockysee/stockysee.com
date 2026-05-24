@@ -85,7 +85,7 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
             onSectionSelect={() => {}}
           />
         </div>
-      ) : (
+      ) : (false && (
         /* ── FALLBACK HARDCODED NAVBAR ── */
         <nav className={`sticky top-0 z-[100] transition-all duration-500 ${
           isScrolled
@@ -233,7 +233,7 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
             </div>
           </div>
         </nav>
-      )}
+      ))}
 
       {/* Mobile Menu Overlay (fallback header only) */}
       {!headerSection && (

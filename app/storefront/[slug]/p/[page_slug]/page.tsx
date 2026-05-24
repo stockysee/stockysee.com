@@ -1,7 +1,6 @@
 import prisma from "@/lib/db";
 import { notFound } from "next/navigation";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
-import { StorefrontProvider } from "@/components/storefront/StorefrontProvider";
 import { HeroSection, FeaturesSection, CategoriesSection, ProductGridSection, BannerSection, RichContentSection } from "@/components/storefront/sections/DynamicSections";
 import SectionRenderer from "@/components/storefront/SectionRenderer";
 import { Metadata, ResolvingMetadata } from "next";
@@ -117,37 +116,30 @@ export default async function DynamicClientPage({ params }: DynamicPageProps) {
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
-    <StorefrontProvider 
-      client={clientClean} 
-      products={clientClean.products} 
-      categories={clientClean.categories} 
-      sections={clientClean.sections}
-    >
-      <main className="min-h-screen bg-[#F3F0EC] pb-20">
-        <StorefrontHeader showBack={true} backLink="/" />
-        
-        <div className="flex flex-col min-h-[50vh]">
-          {parsedSections.length === 0 ? (
-            <div className="pt-40 text-center text-zinc-500 font-medium">
-              Halaman ini belum memiliki konten.
-            </div>
-          ) : (
-            parsedSections.map((section, index) => {
-              return (
-                <div key={section.id || index}>
-                  {section.type === "HERO" && <HeroSection config={section.config} />}
-                  {section.type === "FEATURES" && <FeaturesSection config={section.config} />}
-                  {section.type === "CATEGORIES" && <CategoriesSection config={section.config} />}
-                  {section.type === "PRODUCT_GRID" && <ProductGridSection config={section.config} />}
-                  {section.type === "BANNER" && <BannerSection config={section.config} />}
-                  {section.type === "TEXT" && <RichContentSection config={section.config} />}
-                  {section.type === "SECTION" && <SectionRenderer section={section} />}
-                </div>
-              );
-            })
-          )}
-        </div>
-      </main>
-    </StorefrontProvider>
+    <main className="min-h-screen bg-[#F3F0EC] pb-20">
+      <StorefrontHeader showBack={true} backLink="/" />
+      
+      <div className="flex flex-col min-h-[50vh]">
+        {parsedSections.length === 0 ? (
+          <div className="pt-40 text-center text-zinc-500 font-medium">
+            Halaman ini belum memiliki konten.
+          </div>
+        ) : (
+          parsedSections.map((section, index) => {
+            return (
+              <div key={section.id || index}>
+                {section.type === "HERO" && <HeroSection config={section.config} />}
+                {section.type === "FEATURES" && <FeaturesSection config={section.config} />}
+                {section.type === "CATEGORIES" && <CategoriesSection config={section.config} />}
+                {section.type === "PRODUCT_GRID" && <ProductGridSection config={section.config} />}
+                {section.type === "BANNER" && <BannerSection config={section.config} />}
+                {section.type === "TEXT" && <RichContentSection config={section.config} />}
+                {section.type === "SECTION" && <SectionRenderer section={section} />}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </main>
   );
 }

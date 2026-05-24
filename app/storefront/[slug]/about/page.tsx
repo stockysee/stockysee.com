@@ -2,7 +2,6 @@ import prisma from "@/lib/db";
 import { notFound } from "next/navigation";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import { RichContentSection } from "@/components/storefront/sections/DynamicSections";
-import { StorefrontProvider } from "@/components/storefront/StorefrontProvider";
 
 interface AboutPageProps {
   params: Promise<{ slug: string }>;
@@ -54,21 +53,14 @@ export default async function AboutPage({ params }: AboutPageProps) {
   }
 
   return (
-    <StorefrontProvider 
-      client={clientClean} 
-      products={clientClean.products} 
-      categories={clientClean.categories} 
-      sections={clientClean.sections}
-    >
-      <main className="min-h-screen bg-[#F8F7F5] pb-20">
-        <StorefrontHeader showBack={true} backLink="/" />
-        
-        <div className="pt-16 md:pt-24">
-          {aboutSections.map((section: any) => (
-            <RichContentSection key={section.id} config={section.config} />
-          ))}
-        </div>
-      </main>
-    </StorefrontProvider>
+    <main className="min-h-screen bg-[#F8F7F5] pb-20">
+      <StorefrontHeader showBack={true} backLink="/" />
+      
+      <div className="pt-16 md:pt-24">
+        {aboutSections.map((section: any) => (
+          <RichContentSection key={section.id} config={section.config} />
+        ))}
+      </div>
+    </main>
   );
 }
