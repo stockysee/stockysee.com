@@ -141,6 +141,10 @@ export interface BuilderSectionConfig {
   hoverOverlay?: number;
   // Hover transition
   hoverTransitionDuration?: number;
+  // Position & stacking
+  position?: 'relative' | 'absolute' | 'fixed' | 'static' | 'sticky';
+  zIndex?: number;
+  sticky?: boolean;
 }
 
 export const ELEMENT_TYPE_MAP: Record<string, { label: string; icon: any; defaultConfig?: any }> = {
@@ -3232,6 +3236,10 @@ export const BuilderSection = ({
         maxWidth: config.contentWidth === 'full' ? '100%' : (config.maxWidth || '1200px'),
         width: '100%',
         minHeight: isGrid ? '200px' : undefined,
+
+        // ── Position & Stacking ──
+        position: (config.position || 'relative') as any,
+        zIndex: config.zIndex !== undefined ? config.zIndex : undefined,
 
         // ── Transition (aktif jika ada hover setting apapun) ──
         transition: config.hoverTransitionDuration !== undefined

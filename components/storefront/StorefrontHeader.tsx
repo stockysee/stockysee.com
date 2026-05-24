@@ -67,18 +67,29 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
     <>
       {headerSection ? (
         /* ── DYNAMIC SECTIONS HEADER ── */
-        <div
-          className={`w-full transition-all duration-300 ${
-            headerSection.config?.sticky === true
-              ? "sticky top-0 z-[100]"
-              : "relative z-[60]"
-          }${isScrolled && headerSection.config?.sticky ? " shadow-[0_1px_0_0_rgba(0,0,0,0.08)]" : ""}`}
-          style={{
-            borderRadius: `${headerSection.config?.borderRadius ?? 0}px`,
-            backdropFilter: headerSection.config?.sticky && isScrolled ? "blur(12px)" : undefined,
-            WebkitBackdropFilter: headerSection.config?.sticky && isScrolled ? "blur(12px)" : undefined,
-          }}
-        >
+        (() => {
+          const pos = headerSection.config?.position;
+          const isFixed = pos === 'fixed';
+          const isSticky = pos === 'sticky' || headerSection.config?.sticky === true;
+          const zVal = headerSection.config?.zIndex ?? 100;
+          const positionClass = isFixed
+            ? 'fixed top-0 left-0 right-0'
+            : isSticky
+              ? 'sticky top-0'
+              : pos === 'absolute'
+                ? 'absolute top-0 left-0 right-0'
+                : 'relative';
+          const showScrollEffect = (isFixed || isSticky) && isScrolled;
+          return (
+            <div
+              className={`w-full transition-all duration-300 ${positionClass}${showScrollEffect ? " shadow-[0_1px_0_0_rgba(0,0,0,0.08)]" : ""}`}
+              style={{
+                zIndex: zVal,
+                borderRadius: `${headerSection.config?.borderRadius ?? 0}px`,
+                backdropFilter: showScrollEffect ? "blur(12px)" : undefined,
+                WebkitBackdropFilter: showScrollEffect ? "blur(12px)" : undefined,
+              }}
+            >
           <BuilderSection
             id={headerSection.id}
             config={headerSection.config}
@@ -89,7 +100,9 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
             onElementSelect={() => {}}
             onSectionSelect={() => {}}
           />
-        </div>
+            </div>
+          );
+        })()
       ) : (false && (
         /* ── FALLBACK HARDCODED NAVBAR ── */
         <nav className={`sticky top-0 z-[100] transition-all duration-500 ${

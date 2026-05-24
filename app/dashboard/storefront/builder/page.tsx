@@ -327,13 +327,25 @@ function BuilderContent() {
                 if (!headerSection) return null;
                 // In header canvas mode, the HeaderCanvas component renders the header — skip inline preview
                 if (activeCanvas === 'header') return null;
-                const isSticky = headerSection.config?.sticky === true;
+                const isSticky = headerSection.config?.sticky === true || headerSection.config?.position === 'sticky';
+                const isFixed = headerSection.config?.position === 'fixed';
                 const headerElements = headerSection.elements || [];
+                const posClass = isFixed
+                  ? 'fixed top-0 left-0 right-0'
+                  : isSticky
+                    ? 'sticky top-0'
+                    : headerSection.config?.position === 'absolute'
+                      ? 'absolute top-0 left-0 right-0'
+                      : 'relative';
+                const zVal = headerSection.config?.zIndex ?? 100;
 
                 return (
                   <div
-                    className={`relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none ${isSticky ? "sticky top-0 z-[100]" : "z-[60]"}`}
-                    style={{ borderRadius: `${headerSection.config?.borderRadius ?? 0}px` }}
+                    className={`relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none ${posClass}`}
+                    style={{
+                      zIndex: zVal,
+                      borderRadius: `${headerSection.config?.borderRadius ?? 0}px`,
+                    }}
                   >
                     <BuilderSection
                       id={headerSection.id}
