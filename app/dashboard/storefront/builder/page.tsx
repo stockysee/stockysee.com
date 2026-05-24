@@ -332,7 +332,7 @@ function BuilderContent() {
 
                 return (
                   <div
-                    className={`relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none ${isSticky ? "sticky top-0 z-[100] backdrop-blur-md shadow-sm" : "z-[60]"}`}
+                    className={`relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none ${isSticky ? "sticky top-0 z-[100]" : "z-[60]"}`}
                     style={{ borderRadius: `${headerSection.config?.borderRadius ?? 0}px` }}
                   >
                     <BuilderSection

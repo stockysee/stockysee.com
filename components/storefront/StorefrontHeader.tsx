@@ -72,7 +72,12 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
             headerSection.config?.sticky === true
               ? "sticky top-0 z-[100]"
               : "relative z-[60]"
-          }`}
+          }${isScrolled && headerSection.config?.sticky ? " shadow-[0_1px_0_0_rgba(0,0,0,0.08)]" : ""}`}
+          style={{
+            borderRadius: `${headerSection.config?.borderRadius ?? 0}px`,
+            backdropFilter: headerSection.config?.sticky && isScrolled ? "blur(12px)" : undefined,
+            WebkitBackdropFilter: headerSection.config?.sticky && isScrolled ? "blur(12px)" : undefined,
+          }}
         >
           <BuilderSection
             id={headerSection.id}
