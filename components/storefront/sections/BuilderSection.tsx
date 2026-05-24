@@ -55,21 +55,94 @@ export interface BuilderSectionConfig {
   marginTop?: number | string;
   marginBottom?: number | string;
   maxWidth?: string;
-  layout?: 'vertical' | 'horizontal' | 'grid';
+  contentWidth?: 'boxed' | 'full';
+  layout?: 'flexbox' | 'grid';
   columns?: number;
+  rows?: number;
+  customGridColumns?: string;
+  customGridRows?: string;
+  customGridClass?: string;
+  placeholderCount?: number;
+  showGridOutline?: boolean;
   gap?: number;
   columnGap?: number;
   rowGap?: number;
   gapLinked?: boolean;
   flexWrap?: 'nowrap' | 'wrap';
   borderRadius?: number;
+  borderRadiusTop?: number;
+  borderRadiusRight?: number;
+  borderRadiusBottom?: number;
+  borderRadiusLeft?: number;
+  borderRadiusLinked?: boolean;
+  borderType?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderWidthTop?: number;
+  borderWidthRight?: number;
+  borderWidthBottom?: number;
+  borderWidthLeft?: number;
+  boxShadow?: string;
+  boxShadowType?: string;
+  shadowColor?: string;
+  shadowOffsetX?: number;
+  shadowOffsetY?: number;
+  shadowBlur?: number;
+  shadowSpread?: number;
   align?: 'left' | 'center' | 'right' | 'start' | 'end' | 'stretch';
   direction?: 'row' | 'col' | 'row-reverse' | 'col-reverse';
   justify?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly';
+  // Background Extensions
+  bgType?: 'classic' | 'gradient';
+  bgGradientType?: 'linear' | 'radial';
+  bgGradientColor1?: string;
+  bgGradientColor2?: string;
+  bgGradientLoc1?: number;
+  bgGradientLoc2?: number;
+  bgGradientAngle?: number;
+  bgGradientRadialPos?: string;
+  bgImageOpacity?: number;
+  bgImageBlur?: number;
+  // Hover configuration for borders and shadows
+  hoverBorderType?: string;
+  hoverBorderColor?: string;
+  hoverBorderWidth?: number;
+  hoverBorderWidthTop?: number;
+  hoverBorderWidthRight?: number;
+  hoverBorderWidthBottom?: number;
+  hoverBorderWidthLeft?: number;
+  hoverBorderWidthLinked?: boolean;
+  hoverBorderRadius?: number;
+  hoverBorderRadiusTop?: number;
+  hoverBorderRadiusRight?: number;
+  hoverBorderRadiusBottom?: number;
+  hoverBorderRadiusLeft?: number;
+  hoverBorderRadiusLinked?: boolean;
+  hoverBoxShadow?: string;
+  hoverBoxShadowType?: string;
+  hoverShadowColor?: string;
+  hoverShadowOffsetX?: number;
+  hoverShadowOffsetY?: number;
+  hoverShadowBlur?: number;
+  hoverShadowSpread?: number;
+  // Hover background
+  hoverBgColor?: string;
+  hoverBgType?: 'classic' | 'gradient';
+  hoverBgGradientType?: 'linear' | 'radial';
+  hoverBgGradientColor1?: string;
+  hoverBgGradientColor2?: string;
+  hoverBgGradientLoc1?: number;
+  hoverBgGradientLoc2?: number;
+  hoverBgGradientAngle?: number;
+  hoverBgGradientRadialPos?: string;
+  hoverBgImageUrl?: string;
+  hoverOverlay?: number;
+  // Hover transition
+  hoverTransitionDuration?: number;
 }
 
 export const ELEMENT_TYPE_MAP: Record<string, { label: string; icon: any; defaultConfig?: any }> = {
-  HEADING: { label: 'Heading', icon: Type },
+  HEADING: { label: 'Heading', icon: Type, defaultConfig: { fontSize: 30 } },
   TEXT: { label: 'Paragraph', icon: AlignLeft },
   BUTTON: { label: 'Button', icon: MousePointerClick },
   IMAGE: { label: 'Image', icon: ImageIcon },
@@ -81,7 +154,7 @@ export const ELEMENT_TYPE_MAP: Record<string, { label: string; icon: any; defaul
     label: 'Kolom',
     icon: Columns,
     defaultConfig: {
-      layout: 'vertical',
+      layout: 'flexbox',
       gap: 16,
       align: 'left',
       paddingTop: 16,
@@ -104,7 +177,7 @@ export const ELEMENT_TYPE_MAP: Record<string, { label: string; icon: any; defaul
     label: 'Menu Navigasi',
     icon: AlignLeft,
     defaultConfig: {
-      fontSize: 13,
+      fontSize: 20,
       textColor: '#18181B',
       align: 'center',
       fontFamily: 'Inter',
@@ -119,7 +192,10 @@ export const ELEMENT_TYPE_MAP: Record<string, { label: string; icon: any; defaul
       bgColor: '#18181B',
       textColor: '#FFFFFF',
       borderRadius: 8,
-      align: 'right'
+      buttonType: 'Asali',
+      iconType: 'none',
+      iconPosition: 'before',
+      iconSpacing: 4
     }
   },
   CATEGORY_LIST: {
@@ -129,10 +205,17 @@ export const ELEMENT_TYPE_MAP: Record<string, { label: string; icon: any; defaul
       title: 'Kategori Populer',
       layout: 'slider',
       columns: 5,
+      columnsMobile: 2,
       borderRadius: 9999,
       titleColor: '#18181B',
       textColor: '#18181B',
-      fontSize: 12
+      fontSize: 14,
+      titleFontSize: 22,
+      fontWeight: '700',
+      titleFontWeight: '700',
+      align: 'center',
+      showDots: true,
+      showArrows: true
     }
   },
   PRODUCT_LIST: {
@@ -142,8 +225,18 @@ export const ELEMENT_TYPE_MAP: Record<string, { label: string; icon: any; defaul
       title: 'Produk Pilihan',
       source: 'ALL',
       categoryId: '',
-      limit: 4,
-      titleColor: '#18181B'
+      limit: 10,
+      limitMobile: 8,
+      columns: 5,
+      columnsMobile: 2,
+      titleColor: '#18181B',
+      cardBorderRadius: 8,
+      showStock: true,
+      showComparePrice: true,
+      titleFontSize: 22,
+      productNameFontSize: 17,
+      priceFontWeight: '700',
+      stockFontWeight: '800'
     }
   }
 };
@@ -322,49 +415,42 @@ const TextElement = ({ config, elementId }: { config: any, elementId?: string })
 // ── BUTTON ELEMENT ──
 const ButtonElement = ({ config }: { config: any }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const hoverClassRef = useRef(`bh_${Math.random().toString(36).substr(2, 8)}`);
 
   useEffect(() => {
     console.log(`[Button Hover State Debug] isHovered: ${isHovered}, hoverBgColor: ${config.hoverBgColor}, hoverTextColor: ${config.hoverTextColor}, hoverBorderColor: ${config.hoverBorderColor}`);
   }, [isHovered, config.hoverBgColor, config.hoverTextColor, config.hoverBorderColor]);
 
-  // Setelan Latar Belakang (Warna Solid vs Gradien Kustom)
+  // Build CSS hover string using simple concatenation (no nested templates to avoid parser issues)
+  const hoverStyles: string[] = [];
+  if (config.hoverBgColor) hoverStyles.push('background-color:' + config.hoverBgColor + '!important');
+  if (config.hoverTextColor) hoverStyles.push('color:' + config.hoverTextColor + '!important');
+  if (config.hoverBorderColor) hoverStyles.push('border-color:' + config.hoverBorderColor + '!important');
+  if (config.hoverBgType === 'gradient' && config.hoverGradientStart && config.hoverGradientEnd) {
+    const a = config.hoverGradientAngle || '90deg';
+    hoverStyles.push('background:linear-gradient(' + a + ',' + config.hoverGradientStart + ',' + config.hoverGradientEnd + ')!important');
+  }
+  if (config.hoverBoxShadowOffsetX !== undefined || config.hoverBoxShadowBlur !== undefined) {
+    const sx = config.hoverBoxShadowOffsetX ?? config.boxShadowOffsetX ?? 0;
+    const sy = config.hoverBoxShadowOffsetY ?? config.boxShadowOffsetY ?? 0;
+    const bl = config.hoverBoxShadowBlur ?? config.boxShadowBlur ?? 0;
+    const sc = config.hoverBoxShadowColor || config.boxShadowColor || 'rgba(0,0,0,0.15)';
+    hoverStyles.push('box-shadow:' + sx + 'px ' + sy + 'px ' + bl + 'px ' + sc + '!important');
+  }
+
+  // Base (non-hover) background — CSS :hover overrides for hover state
   let backgroundStyle: string | undefined = undefined;
   let backgroundColorStyle: string | undefined = undefined;
 
-  if (isHovered) {
-    if (config.hoverBgColor) {
-      backgroundColorStyle = config.hoverBgColor;
-    } else if (config.hoverBgType === 'gradient') {
-      backgroundStyle = `linear-gradient(${config.hoverGradientAngle || '90deg'}, ${config.hoverGradientStart || '#3b82f6'}, ${config.hoverGradientEnd || '#8b5cf6'})`;
-    } else if (config.bgType === 'gradient') {
-      backgroundStyle = `linear-gradient(${config.gradientAngle || '90deg'}, ${config.gradientStart || '#3b82f6'}, ${config.gradientEnd || '#8b5cf6'})`;
-    } else {
-      backgroundColorStyle = config.bgColor || '#2563eb';
-    }
+  if (config.bgType === 'gradient') {
+    backgroundStyle = `linear-gradient(${config.gradientAngle || '90deg'}, ${config.gradientStart || '#3b82f6'}, ${config.gradientEnd || '#8b5cf6'})`;
   } else {
-    if (config.bgType === 'gradient') {
-      backgroundStyle = `linear-gradient(${config.gradientAngle || '90deg'}, ${config.gradientStart || '#3b82f6'}, ${config.gradientEnd || '#8b5cf6'})`;
-    } else {
-      backgroundColorStyle = config.bgColor || '#2563eb';
-    }
+    backgroundColorStyle = config.bgColor || '#2563eb';
   }
 
-  // Bayangan Tombol (Box Shadow)
-  const currentBoxShadowOffsetX = isHovered
-    ? (config.hoverBoxShadowOffsetX ?? config.boxShadowOffsetX ?? 0)
-    : (config.boxShadowOffsetX ?? 0);
-  const currentBoxShadowOffsetY = isHovered
-    ? (config.hoverBoxShadowOffsetY ?? config.boxShadowOffsetY ?? 0)
-    : (config.boxShadowOffsetY ?? 0);
-  const currentBoxShadowBlur = isHovered
-    ? (config.hoverBoxShadowBlur ?? config.boxShadowBlur ?? 0)
-    : (config.boxShadowBlur ?? 0);
-  const currentBoxShadowColor = isHovered
-    ? (config.hoverBoxShadowColor || config.boxShadowColor || 'rgba(0,0,0,0.15)')
-    : (config.boxShadowColor || 'rgba(0,0,0,0.15)');
-
-  const boxShadowStyle = (currentBoxShadowColor || currentBoxShadowBlur !== undefined || currentBoxShadowOffsetX !== undefined || currentBoxShadowOffsetY !== undefined)
-    ? `${currentBoxShadowOffsetX}px ${currentBoxShadowOffsetY}px ${currentBoxShadowBlur}px ${currentBoxShadowColor}`
+  // Bayangan Tombol (Box Shadow) — base values; CSS :hover overrides for hover
+  const boxShadowStyle = (config.boxShadowColor || config.boxShadowBlur !== undefined || config.boxShadowOffsetX !== undefined || config.boxShadowOffsetY !== undefined)
+    ? `${config.boxShadowOffsetX ?? 0}px ${config.boxShadowOffsetY ?? 0}px ${config.boxShadowBlur ?? 0}px ${config.boxShadowColor || 'rgba(0,0,0,0.15)'}`
     : undefined;
 
   // Bayangan Teks (Text Shadow)
@@ -460,7 +546,7 @@ const ButtonElement = ({ config }: { config: any }) => {
 
   return (
     <div className="w-full" style={{ textAlign: config.align || 'left' }}>
-      {/* Dynamic Keyframes Style Block */}
+      {/* Dynamic Keyframes & Hover Style Block */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes btn-pulse-anim {
           0%, 100% { transform: scale(1); }
@@ -470,6 +556,7 @@ const ButtonElement = ({ config }: { config: any }) => {
           0%, 100% { box-shadow: 0 0 5px ${config.hoverBorderColor || config.hoverBgColor || '#2563eb'}; }
           50% { box-shadow: 0 0 20px ${config.hoverBorderColor || config.hoverBgColor || '#2563eb'}; }
         }
+        ${hoverStyles.length > 0 ? '.' + hoverClassRef.current + ':hover { ' + hoverStyles.join('; ') + ' }' : ''}
       ` }} />
       <a
         id={config.elementId || undefined}
@@ -478,11 +565,11 @@ const ButtonElement = ({ config }: { config: any }) => {
         onClick={(e) => e.preventDefault()}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className="inline-flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
+        className={`${hoverClassRef.current} pointer-events-auto inline-flex items-center justify-center transition-all hover:opacity-90 active:scale-95`}
         style={{
           background: backgroundStyle,
           backgroundColor: backgroundColorStyle,
-          color: isHovered ? (config.hoverTextColor || config.textColor || '#ffffff') : (config.textColor || '#ffffff'),
+          color: config.textColor || '#ffffff',
           paddingTop: formatStyleValue(config.paddingY, 12),
           paddingBottom: formatStyleValue(config.paddingY, 12),
           paddingLeft: formatStyleValue(config.paddingX, 24),
@@ -497,23 +584,51 @@ const ButtonElement = ({ config }: { config: any }) => {
           lineHeight: config.lineHeight !== undefined ? `${config.lineHeight}${config.lineHeightUnit || ''}` : undefined,
           letterSpacing: config.letterSpacing !== undefined ? `${config.letterSpacing}${config.letterSpacingUnit || 'px'}` : undefined,
           wordSpacing: config.wordSpacing !== undefined ? `${config.wordSpacing}${config.wordSpacingUnit || 'px'}` : undefined,
-          border: config.borderWidth ? `${config.borderWidth}px ${config.borderStyle || 'solid'} ${isHovered ? (config.hoverBorderColor || config.borderColor || '#2563eb') : (config.borderColor || '#2563eb')}` : 'none',
+          border: config.borderWidth ? `${config.borderWidth}px ${config.borderStyle || 'solid'} ${config.borderColor || '#2563eb'}` : 'none',
           width: config.fullWidth ? '100%' : undefined,
           boxShadow: boxShadowStyle,
           textShadow: textShadowStyle,
           WebkitTextStroke: textStrokeStyle,
-          gap: `${config.iconSpacing ?? 8}${config.iconSpaceUnit || 'px'}`,
+          gap: `${config.iconSpacing ?? 4}${config.iconSpaceUnit || 'px'}`,
           transform: transformStyle,
           animation: animationStyle,
           transitionDuration: transitionDurationStyle,
         }}
       >
         {config.iconType === 'custom' && (config.customIconSvg || config.icon) && (config.iconPosition || 'before') === 'before' && (
-          <img src={config.customIconSvg || config.icon} alt="icon" className="w-4 h-4 object-contain shrink-0" />
+          config.iconColor ? (
+            <span
+              style={{
+                display: 'inline-block',
+                width: config.iconSize || 20,
+                height: config.iconSize || 20,
+                backgroundColor: config.iconColor,
+                mask: `url(${config.customIconSvg || config.icon}) center/contain no-repeat`,
+                WebkitMask: `url(${config.customIconSvg || config.icon}) center/contain no-repeat`,
+              }}
+              className="shrink-0"
+            />
+          ) : (
+            <img src={config.customIconSvg || config.icon} alt="icon" className="object-contain shrink-0" style={{ width: config.iconSize || 20, height: config.iconSize || 20 }} />
+          )
         )}
         <span>{config.text || 'Click Me'}</span>
         {config.iconType === 'custom' && (config.customIconSvg || config.icon) && config.iconPosition === 'after' && (
-          <img src={config.customIconSvg || config.icon} alt="icon" className="w-4 h-4 object-contain shrink-0" />
+          config.iconColor ? (
+            <span
+              style={{
+                display: 'inline-block',
+                width: config.iconSize || 20,
+                height: config.iconSize || 20,
+                backgroundColor: config.iconColor,
+                mask: `url(${config.customIconSvg || config.icon}) center/contain no-repeat`,
+                WebkitMask: `url(${config.customIconSvg || config.icon}) center/contain no-repeat`,
+              }}
+              className="shrink-0"
+            />
+          ) : (
+            <img src={config.customIconSvg || config.icon} alt="icon" className="object-contain shrink-0" style={{ width: config.iconSize || 20, height: config.iconSize || 20 }} />
+          )
         )}
       </a>
     </div>
@@ -542,7 +657,7 @@ const ImageElement = ({ config }: { config: any }) => {
   const unit = config.borderRadiusUnit || 'px';
   const borderRadiusStyle = config.borderRadiusType === 'custom'
     ? `${config.borderRadiusTop ?? config.borderRadius ?? 0}${unit} ${config.borderRadiusRight ?? config.borderRadius ?? 0}${unit} ${config.borderRadiusBottom ?? config.borderRadius ?? 0}${unit} ${config.borderRadiusLeft ?? config.borderRadius ?? 0}${unit}`
-    : `${config.borderRadius ?? 8}px`;
+    : `${config.borderRadius ?? 0}px`;
 
   // Custom Box Shadow
   let boxShadowStyle = 'none';
@@ -574,7 +689,8 @@ const ImageElement = ({ config }: { config: any }) => {
 
   const imageStyles: React.CSSProperties = {
     width: formatStyleValue(config.width, '100%'),
-    height: formatStyleValue(config.height, 'auto'),
+    height: formatStyleValue(config.height, '100%'),
+    objectFit: 'cover',
     borderRadius: borderRadiusStyle,
     boxShadow: boxShadowStyle,
     borderTop: borderTop,
@@ -587,16 +703,16 @@ const ImageElement = ({ config }: { config: any }) => {
 
   const imageContent = (
     <img
-      src={config.url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=60'}
+      src={config.url || '/placeholder-gambar.png'}
       alt={config.alt || 'Visual Storefront'}
-      className="max-w-full transition-all"
+      className="max-w-full w-full h-full transition-all"
       style={imageStyles}
     />
   );
 
   return (
     <div
-      className="w-full flex transition-all"
+      className="w-full h-full flex transition-all"
       style={{
         justifyContent: config.align === 'center' ? 'center' : config.align === 'right' ? 'flex-end' : 'flex-start',
       }}
@@ -606,7 +722,7 @@ const ImageElement = ({ config }: { config: any }) => {
           href={config.clickUrl} 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="block max-w-full hover:opacity-95 transition-opacity"
+          className="block w-full h-full max-w-full hover:opacity-95 transition-opacity"
         >
           {imageContent}
         </a>
@@ -652,12 +768,14 @@ const GalleryElement = ({ config }: { config: any }) => {
 
   // Compute border radius per-corner
   const radiusUnit = config.borderRadiusUnit || 'px';
-  const fallbackRadius = config.borderRadius ?? 8;
-  const brTop = config.borderRadiusTop !== undefined ? config.borderRadiusTop : fallbackRadius;
-  const brRight = config.borderRadiusRight !== undefined ? config.borderRadiusRight : fallbackRadius;
-  const brBottom = config.borderRadiusBottom !== undefined ? config.borderRadiusBottom : fallbackRadius;
-  const brLeft = config.borderRadiusLeft !== undefined ? config.borderRadiusLeft : fallbackRadius;
-  const borderRadiusStr = `${brTop}${radiusUnit} ${brRight}${radiusUnit} ${brBottom}${radiusUnit} ${brLeft}${radiusUnit}`;
+  const fallbackRadius = config.borderRadius !== undefined ? `${config.borderRadius}${radiusUnit}` : '0';
+  const brTop = config.borderRadiusTop !== undefined ? `${config.borderRadiusTop}${radiusUnit}` : fallbackRadius;
+  const brRight = config.borderRadiusRight !== undefined ? `${config.borderRadiusRight}${radiusUnit}` : fallbackRadius;
+  const brBottom = config.borderRadiusBottom !== undefined ? `${config.borderRadiusBottom}${radiusUnit}` : fallbackRadius;
+  const brLeft = config.borderRadiusLeft !== undefined ? `${config.borderRadiusLeft}${radiusUnit}` : fallbackRadius;
+  const borderRadiusStr = [brTop, brRight, brBottom, brLeft].every(v => v === 'inherit') 
+    ? 'inherit' 
+    : `${brTop} ${brRight} ${brBottom} ${brLeft}`;
 
   // Border style (Asali = no explicit border, none = none, others = 1px <style> transparent)
   const effectiveBorderStyle = config.borderStyle || 'Asali';
@@ -667,7 +785,7 @@ const GalleryElement = ({ config }: { config: any }) => {
 
   return (
     <div
-      className="grid transition-all justify-items-center"
+      className="grid w-full h-full transition-all justify-items-center"
       style={{
         gridTemplateColumns: `repeat(${columnsCount}, 1fr)`,
         gap: `${effectiveGap}px`,
@@ -677,7 +795,8 @@ const GalleryElement = ({ config }: { config: any }) => {
         const imgStyle: React.CSSProperties = {
           borderRadius: borderRadiusStr,
           width: isKhusus && config.imageWidth ? formatDimension(config.imageWidth) : '100%',
-          height: isKhusus && config.imageHeight ? formatDimension(config.imageHeight) : '12rem',
+          height: isKhusus && config.imageHeight ? formatDimension(config.imageHeight) : '100%',
+          minHeight: isKhusus && config.imageHeight ? undefined : '12rem',
           objectFit: 'cover',
           ...(effectiveBorderStyle !== 'Asali' && effectiveBorderStyle !== 'none'
             ? { border: `1px ${effectiveBorderStyle} rgba(255,255,255,0.15)` }
@@ -826,41 +945,28 @@ const MenuElement = ({ config }: { config: any }) => {
 
 // ── CART ELEMENT ──
 const CartElement = ({ config }: { config: any }) => {
+  const showCustomIcon = config.iconType === 'custom' && config.customIconSvg;
+  const defaultIcon = '/cart.svg';
   return (
-    <div
-      className="w-full flex"
-      style={{
-        justifyContent: config.align === 'center' ? 'center' : config.align === 'right' ? 'flex-end' : 'flex-start',
-      }}
-    >
-      <div
-        className="relative inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 text-white rounded-lg text-[13px] font-semibold cursor-default transition-all shadow-sm border border-zinc-200/10 active:scale-95 duration-200"
-        style={{
-          backgroundColor: config.bgColor || '#18181B',
-          color: config.textColor || '#FFFFFF',
-          borderRadius: `${config.borderRadius ?? 8}px`
-        }}
-      >
-        <ShoppingBag className="w-4 h-4" />
-        <span>{config.text || 'Keranjang'}</span>
-        <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-zinc-900 text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow">0</span>
-      </div>
+    <div className="relative inline-block">
+      <ButtonElement config={showCustomIcon ? config : { ...config, iconType: 'custom', customIconSvg: defaultIcon, icon: defaultIcon }} />
+      <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-zinc-900 text-[10px] font-black min-w-[18px] h-[18px] rounded-full flex items-center justify-center border-2 border-white shadow pointer-events-none">0</span>
     </div>
   );
 };
 
 // ── CATEGORY LIST WIDGET ──
 const PLACEHOLDER_CATEGORIES = [
-  { id: 'cat-dummy-1', name: 'Koleksi Pria', image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-2', name: 'Koleksi Wanita', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-3', name: 'Aksesoris Lux', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-4', name: 'Koleksi Sepatu', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-5', name: 'Gaya Anak Muda', image: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-6', name: 'Tas Premium', image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-7', name: 'Kacamata Modis', image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-8', name: 'Jam Tangan Emas', image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-9', name: 'Parfum Mewah', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=150&q=80' },
-  { id: 'cat-dummy-10', name: 'Topi Estetik', image: 'https://images.unsplash.com/photo-1534215754734-18e55d13e346?auto=format&fit=crop&w=150&q=80' }
+  { id: 'cat-dummy-1', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-2', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-3', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-4', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-5', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-6', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-7', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-8', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-9', name: 'Nama kategori', image: '/default-kategori.webp' },
+  { id: 'cat-dummy-10', name: 'Nama kategori', image: '/default-kategori.webp' }
 ];
 
 interface CategoryListElementProps {
@@ -881,6 +987,7 @@ const CategoryListElement = ({
   const { categories } = useStorefront();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activePage, setActivePage] = useState(0);
+  const [isCatHovered, setIsCatHovered] = useState(false);
 
   console.log("[CategoryListElement Canvas] Render dengan activeSubFocus:", activeSubFocus, "isActive:", isActive);
 
@@ -897,13 +1004,204 @@ const CategoryListElement = ({
   const borderRadius = config?.borderRadius !== undefined ? config.borderRadius : 9999;
   const title = config?.title || 'Kategori Populer';
   const titleColor = config?.titleColor || '#18181b';
-  const textColor = config?.textColor || '#18181b';
-  const fontSize = config?.fontSize || 12;
+  const itemTitleColor = config?.textColor || '#18181b';
+  const itemTitleAlign = config?.align || 'center';
+  const itemTitleFontFamily = config?.fontFamily || 'inherit';
+  const itemTitleFontSize = config?.fontSize || 14;
+  const itemTitleFontWeight = config?.fontWeight || 'bold';
+  const itemTitleTextTransform = config?.textTransform || 'none';
+  const itemTitleFontStyle = config?.fontStyle || 'normal';
+  const itemTitleTextDecoration = config?.textDecoration || 'none';
+  const itemTitleLineHeight = config?.lineHeight || '1.2';
+  const itemTitleLetterSpacing = config?.letterSpacing || '0px';
+  const itemTitleWordSpacing = config?.wordSpacing || '0px';
+
+  const itemTitleTextStrokeWidth = config?.textStrokeWidth || 0;
+  const itemTitleTextStrokeColor = config?.textStrokeColor || '#000000';
+  const itemTitleTextStrokeStyle = itemTitleTextStrokeWidth > 0
+    ? `${itemTitleTextStrokeWidth}px ${itemTitleTextStrokeColor}`
+    : undefined;
+
+  const itemTitleTextShadowColor = config?.textShadowColor;
+  const itemTitleTextShadowBlur = config?.textShadowBlur;
+  const itemTitleTextShadowOffsetX = config?.textShadowOffsetX;
+  const itemTitleTextShadowOffsetY = config?.textShadowOffsetY;
+  const itemTitleTextShadowStyle = (itemTitleTextShadowColor || itemTitleTextShadowBlur !== undefined || itemTitleTextShadowOffsetX !== undefined || itemTitleTextShadowOffsetY !== undefined)
+    ? `${itemTitleTextShadowOffsetX || 0}px ${itemTitleTextShadowOffsetY || 0}px ${itemTitleTextShadowBlur || 0}px ${itemTitleTextShadowColor || 'rgba(0,0,0,0.5)'}`
+    : undefined;
+
+  const itemTitleStyle: React.CSSProperties = {
+    color: itemTitleColor,
+    textAlign: itemTitleAlign as any,
+    fontFamily: itemTitleFontFamily,
+    fontSize: itemTitleFontSize,
+    fontWeight: itemTitleFontWeight,
+    textTransform: itemTitleTextTransform as any,
+    fontStyle: itemTitleFontStyle,
+    textDecoration: itemTitleTextDecoration,
+    lineHeight: itemTitleLineHeight,
+    letterSpacing: itemTitleLetterSpacing,
+    wordSpacing: itemTitleWordSpacing,
+    WebkitTextStroke: itemTitleTextStrokeStyle,
+    textShadow: itemTitleTextShadowStyle,
+  };
+
+  // Custom typography styles for Title
+  const titleAlign = config?.titleAlign || 'left';
+  const titleFontFamily = config?.titleFontFamily || 'inherit';
+  const titleFontSize = config?.titleFontSize || 22;
+  const titleFontWeight = config?.titleFontWeight || '800';
+  const titleTextTransform = config?.titleTextTransform || 'none';
+  const titleFontStyle = config?.titleFontStyle || 'normal';
+  const titleTextDecoration = config?.titleTextDecoration || 'none';
+  const titleLineHeight = config?.titleLineHeight || '1.2';
+  const titleLetterSpacing = config?.titleLetterSpacing || '0px';
+  const titleWordSpacing = config?.titleWordSpacing || '0px';
+
+  // Text Stroke for Title
+  const titleTextStrokeWidth = config?.titleTextStrokeWidth || 0;
+  const titleTextStrokeColor = config?.titleTextStrokeColor || '#000000';
+  const textStrokeStyle = titleTextStrokeWidth > 0
+    ? `${titleTextStrokeWidth}px ${titleTextStrokeColor}`
+    : undefined;
+
+  // Text Shadow for Title
+  const titleTextShadowColor = config?.titleTextShadowColor;
+  const titleTextShadowBlur = config?.titleTextShadowBlur;
+  const titleTextShadowOffsetX = config?.titleTextShadowOffsetX;
+  const titleTextShadowOffsetY = config?.titleTextShadowOffsetY;
+  const textShadowStyle = (titleTextShadowColor || titleTextShadowBlur !== undefined || titleTextShadowOffsetX !== undefined || titleTextShadowOffsetY !== undefined)
+    ? `${titleTextShadowOffsetX || 0}px ${titleTextShadowOffsetY || 0}px ${titleTextShadowBlur || 0}px ${titleTextShadowColor || 'rgba(0,0,0,0.5)'}`
+    : undefined;
+
+  console.log(`[CategoryListElement Canvas Debug] Rendering Title: "${title}", Color: "${titleColor}", Align: "${titleAlign}", FontSize: "${titleFontSize}", Stroke: "${textStrokeStyle}", Shadow: "${textShadowStyle}"`);
+
+  const titleStyle: React.CSSProperties = {
+    color: titleColor,
+    textAlign: titleAlign as any,
+    fontFamily: titleFontFamily,
+    fontSize: titleFontSize,
+    fontWeight: titleFontWeight,
+    textTransform: titleTextTransform as any,
+    fontStyle: titleFontStyle,
+    textDecoration: titleTextDecoration,
+    lineHeight: titleLineHeight,
+    letterSpacing: titleLetterSpacing,
+    wordSpacing: titleWordSpacing,
+    WebkitTextStroke: textStrokeStyle,
+    textShadow: textShadowStyle,
+  };
 
   // Grid pagination calculation
   const itemsPerPage = columns;
   const totalPages = Math.ceil(displayCategories.length / itemsPerPage);
   const paginatedCategories = displayCategories.slice(activePage * itemsPerPage, (activePage + 1) * itemsPerPage);
+
+  // ── Hover-aware style computation ──
+  const getCatShadow = (s?: string) => {
+    if (s === 'soft') return '0 2px 10px rgba(0, 0, 0, 0.05)';
+    if (s === 'medium') return '0 4px 20px rgba(0, 0, 0, 0.08)';
+    if (s === 'strong') return '0 10px 30px rgba(0, 0, 0, 0.12)';
+    return undefined;
+  };
+
+  const catResolvedBgColor = isCatHovered && config.hoverBgColor && config.hoverBgColor !== 'transparent'
+    ? config.hoverBgColor
+    : (config.bgColor || 'transparent');
+
+  const catResolvedBgImage = (() => {
+    if (isCatHovered && config.hoverBgType === 'gradient') {
+      return config.hoverBgGradientType === 'radial'
+        ? `radial-gradient(circle at ${config.hoverBgGradientRadialPos || 'center center'}, ${config.hoverBgGradientColor1 || 'transparent'} ${config.hoverBgGradientLoc1 ?? 0}%, ${config.hoverBgGradientColor2 || 'transparent'} ${config.hoverBgGradientLoc2 ?? 100}%)`
+        : `linear-gradient(${config.hoverBgGradientAngle ?? 180}deg, ${config.hoverBgGradientColor1 || 'transparent'} ${config.hoverBgGradientLoc1 ?? 0}%, ${config.hoverBgGradientColor2 || 'transparent'} ${config.hoverBgGradientLoc2 ?? 100}%)`;
+    }
+    if (config.bgType === 'gradient') {
+      return config.bgGradientType === 'radial'
+        ? `radial-gradient(circle at ${config.bgGradientRadialPos || 'center center'}, ${config.bgGradientColor1 || '#ffffff'} ${config.bgGradientLoc1 ?? 0}%, ${config.bgGradientColor2 || '#e83a65'} ${config.bgGradientLoc2 ?? 100}%)`
+        : `linear-gradient(${config.bgGradientAngle ?? 180}deg, ${config.bgGradientColor1 || '#ffffff'} ${config.bgGradientLoc1 ?? 0}%, ${config.bgGradientColor2 || '#e83a65'} ${config.bgGradientLoc2 ?? 100}%)`;
+    }
+    if (config.bgImageUrl) return `url(${config.bgImageUrl})`;
+    return undefined;
+  })();
+
+  const catResolvedBorderTopLeftRadius = formatStyleValue(
+    isCatHovered ? (config.hoverBorderRadiusTop ?? config.hoverBorderRadius ?? config.borderRadiusTop ?? config.borderRadius) : (config.borderRadiusTop ?? config.borderRadius), 0);
+  const catResolvedBorderTopRightRadius = formatStyleValue(
+    isCatHovered ? (config.hoverBorderRadiusRight ?? config.hoverBorderRadius ?? config.borderRadiusRight ?? config.borderRadius) : (config.borderRadiusRight ?? config.borderRadius), 0);
+  const catResolvedBorderBottomRightRadius = formatStyleValue(
+    isCatHovered ? (config.hoverBorderRadiusBottom ?? config.hoverBorderRadius ?? config.borderRadiusBottom ?? config.borderRadius) : (config.borderRadiusBottom ?? config.borderRadius), 0);
+  const catResolvedBorderBottomLeftRadius = formatStyleValue(
+    isCatHovered ? (config.hoverBorderRadiusLeft ?? config.hoverBorderRadius ?? config.borderRadiusLeft ?? config.borderRadius) : (config.borderRadiusLeft ?? config.borderRadius), 0);
+
+  const catResolvedBorderStyle = (() => {
+    const bt = isCatHovered ? (config.hoverBorderType || config.borderType) : config.borderType;
+    return bt && bt !== 'none' && bt !== 'Asali' ? bt : undefined;
+  })();
+
+  const catResolvedBorderTopWidth = (() => {
+    const bw = isCatHovered
+      ? (config.hoverBorderWidthTop ?? config.hoverBorderWidth ?? config.borderWidthTop ?? config.borderWidth)
+      : (config.borderWidthTop ?? config.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const catResolvedBorderRightWidth = (() => {
+    const bw = isCatHovered
+      ? (config.hoverBorderWidthRight ?? config.hoverBorderWidth ?? config.borderWidthRight ?? config.borderWidth)
+      : (config.borderWidthRight ?? config.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const catResolvedBorderBottomWidth = (() => {
+    const bw = isCatHovered
+      ? (config.hoverBorderWidthBottom ?? config.hoverBorderWidth ?? config.borderWidthBottom ?? config.borderWidth)
+      : (config.borderWidthBottom ?? config.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const catResolvedBorderLeftWidth = (() => {
+    const bw = isCatHovered
+      ? (config.hoverBorderWidthLeft ?? config.hoverBorderWidth ?? config.borderWidthLeft ?? config.borderWidth)
+      : (config.borderWidthLeft ?? config.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+
+  const catResolvedBorderColor = isCatHovered
+    ? (config.hoverBorderColor || config.borderColor || undefined)
+    : (config.borderColor || undefined);
+
+  const catResolvedBoxShadow = (() => {
+    if (isCatHovered && config.hoverBoxShadowType === 'custom') {
+      return `${config.hoverShadowOffsetX ?? 0}px ${config.hoverShadowOffsetY ?? 0}px ${config.hoverShadowBlur ?? 10}px ${config.hoverShadowSpread ?? 0}px ${config.hoverShadowColor || 'rgba(0,0,0,0.5)'}`;
+    }
+    if (isCatHovered && config.hoverBoxShadow) {
+      return config.hoverBoxShadow;
+    }
+    if (config.boxShadowType === 'custom') {
+      return `${config.shadowOffsetX ?? 0}px ${config.shadowOffsetY ?? 0}px ${config.shadowBlur ?? 10}px ${config.shadowSpread ?? 0}px ${config.shadowColor || 'rgba(0,0,0,0.5)'}`;
+    }
+    return getCatShadow(config.boxShadow) || config.boxShadow || undefined;
+  })();
+
+  const catResolvedTransition = config.hoverTransitionDuration !== undefined
+    ? `background-color ${config.hoverTransitionDuration}s ease, background-image ${config.hoverTransitionDuration}s ease, border-color ${config.hoverTransitionDuration}s ease, border-width ${config.hoverTransitionDuration}s ease, border-radius ${config.hoverTransitionDuration}s ease, box-shadow ${config.hoverTransitionDuration}s ease`
+    : undefined;
+
+  const catStyleObj: React.CSSProperties = {
+    backgroundColor: catResolvedBgColor,
+    backgroundImage: catResolvedBgImage,
+    backgroundSize: config.bgImageUrl ? 'cover' : undefined,
+    backgroundPosition: config.bgImageUrl ? 'center' : undefined,
+    borderTopLeftRadius: catResolvedBorderTopLeftRadius,
+    borderTopRightRadius: catResolvedBorderTopRightRadius,
+    borderBottomRightRadius: catResolvedBorderBottomRightRadius,
+    borderBottomLeftRadius: catResolvedBorderBottomLeftRadius,
+    boxShadow: catResolvedBoxShadow,
+    borderStyle: catResolvedBorderStyle,
+    borderTopWidth: catResolvedBorderTopWidth,
+    borderRightWidth: catResolvedBorderRightWidth,
+    borderBottomWidth: catResolvedBorderBottomWidth,
+    borderLeftWidth: catResolvedBorderLeftWidth,
+    borderColor: catResolvedBorderColor,
+    transition: catResolvedTransition,
+  };
 
   const handleContainerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -925,6 +1223,9 @@ const CategoryListElement = ({
     <div
       className={`w-full space-y-3 p-2 rounded-xl transition-all duration-300 ${isActive && !activeSubFocus ? 'bg-blue-500/5' : ''}`}
       onClick={handleContainerClick}
+      onMouseEnter={() => setIsCatHovered(true)}
+      onMouseLeave={() => setIsCatHovered(false)}
+      style={catStyleObj}
     >
       {title && (
         <h3
@@ -932,7 +1233,7 @@ const CategoryListElement = ({
             ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105 shadow-sm'
             : 'hover:bg-blue-500/5 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
             }`}
-          style={{ color: titleColor }}
+          style={titleStyle}
           onClick={(e) => handleSubFocusClick(e, 'header_title')}
         >
           {title}
@@ -969,7 +1270,7 @@ const CategoryListElement = ({
                     ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
                     : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
                     }`}
-                  style={{ color: textColor, fontSize: `${fontSize}px` }}
+                  style={itemTitleStyle}
                   onClick={(e) => handleSubFocusClick(e, 'title')}
                 >
                   {cat.name}
@@ -1033,7 +1334,7 @@ const CategoryListElement = ({
                     ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
                     : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
                     }`}
-                  style={{ color: textColor, fontSize: `${fontSize}px` }}
+                  style={itemTitleStyle}
                   onClick={(e) => handleSubFocusClick(e, 'title')}
                 >
                   {cat.name}
@@ -1093,16 +1394,16 @@ const CategoryListElement = ({
 
 // ── PRODUCT LIST WIDGET ──
 const PLACEHOLDER_PRODUCTS = [
-  { id: 'p-dummy-1', name: 'Kaos Minimalis Premium', price: 149000, images: ['https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=300&q=80'], stock: 12 },
-  { id: 'p-dummy-2', name: 'Celana Cargo Canvas', price: 299000, images: ['https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=300&q=80'], stock: 5 },
-  { id: 'p-dummy-3', name: 'Jaket Denim Vintage', price: 389000, images: ['https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=300&q=80'], stock: 8 },
-  { id: 'p-dummy-4', name: 'Topi Snapback Classic', price: 99000, images: ['https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=300&q=80'], stock: 20 },
-  { id: 'p-dummy-5', name: 'Kacamata Hitam Aviator', price: 199000, images: ['https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=300&q=80'], stock: 15 },
-  { id: 'p-dummy-6', name: 'Dompet Kulit Eksklusif', price: 249000, images: ['https://images.unsplash.com/photo-1627124765135-56c33fc36eab?auto=format&fit=crop&w=300&q=80'], stock: 7 },
-  { id: 'p-dummy-7', name: 'Jam Tangan Quartz Premium', price: 499000, images: ['https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?auto=format&fit=crop&w=300&q=80'], stock: 4 },
-  { id: 'p-dummy-8', name: 'Sepatu Sneaker Urban', price: 589000, images: ['https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=300&q=80'], stock: 9 },
-  { id: 'p-dummy-9', name: 'Tas Ransel Outdoor', price: 349000, images: ['https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=300&q=80'], stock: 11 },
-  { id: 'p-dummy-10', name: 'Parfum Premium Signature', price: 429000, images: ['https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=300&q=80'], stock: 6 }
+  { id: 'p-dummy-1', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-2', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-3', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-4', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-5', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-6', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-7', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-8', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-9', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 },
+  { id: 'p-dummy-10', name: 'Nama produk', price: 199000, discountPrice: 299000, images: ['/default-produk.png'], stock: 100 }
 ];
 
 interface ProductListElementProps {
@@ -1122,6 +1423,7 @@ const ProductListElement = ({
 }: ProductListElementProps) => {
   const { products } = useStorefront();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isProdHovered, setIsProdHovered] = useState(false);
   console.log("[ProductListElement Canvas] Render dengan activeSubFocus:", activeSubFocus, "isActive:", isActive);
 
   const source = config?.source || 'ALL';
@@ -1131,8 +1433,72 @@ const ProductListElement = ({
   const titleColor = config?.titleColor || '#18181b';
   const layout = config?.layout || 'grid'; // grid is default
 
+  // Custom typography styles for Title
+  const titleAlign = config?.titleAlign || 'left';
+  const titleFontFamily = config?.titleFontFamily || 'inherit';
+  const titleFontSize = config?.titleFontSize || 22;
+  const titleFontWeight = config?.titleFontWeight || '800';
+  const titleTextTransform = config?.titleTextTransform || 'none';
+  const titleFontStyle = config?.titleFontStyle || 'normal';
+  const titleTextDecoration = config?.titleTextDecoration || 'none';
+  const titleLineHeight = config?.titleLineHeight || '1.2';
+  const titleLetterSpacing = config?.titleLetterSpacing || '0px';
+  const titleWordSpacing = config?.titleWordSpacing || '0px';
+
+  // Text Stroke for Title
+  const titleTextStrokeWidth = config?.titleTextStrokeWidth || 0;
+  const titleTextStrokeColor = config?.titleTextStrokeColor || '#000000';
+  const textStrokeStyle = titleTextStrokeWidth > 0
+    ? `${titleTextStrokeWidth}px ${titleTextStrokeColor}`
+    : undefined;
+
+  // Text Shadow for Title
+  const titleTextShadowColor = config?.titleTextShadowColor;
+  const titleTextShadowBlur = config?.titleTextShadowBlur;
+  const titleTextShadowOffsetX = config?.titleTextShadowOffsetX;
+  const titleTextShadowOffsetY = config?.titleTextShadowOffsetY;
+  const textShadowStyle = (titleTextShadowColor || titleTextShadowBlur !== undefined || titleTextShadowOffsetX !== undefined || titleTextShadowOffsetY !== undefined)
+    ? `${titleTextShadowOffsetX || 0}px ${titleTextShadowOffsetY || 0}px ${titleTextShadowBlur || 0}px ${titleTextShadowColor || 'rgba(0,0,0,0.5)'}`
+    : undefined;
+
+  console.log(`[ProductListElement Canvas Debug] Rendering Title: "${title}", Color: "${titleColor}", Align: "${titleAlign}", FontSize: "${titleFontSize}", Stroke: "${textStrokeStyle}", Shadow: "${textShadowStyle}"`);
+
+  const titleStyle: React.CSSProperties = {
+    color: titleColor,
+    textAlign: titleAlign as any,
+    fontFamily: titleFontFamily,
+    fontSize: titleFontSize,
+    fontWeight: titleFontWeight,
+    textTransform: titleTextTransform as any,
+    fontStyle: titleFontStyle,
+    textDecoration: titleTextDecoration,
+    lineHeight: titleLineHeight,
+    letterSpacing: titleLetterSpacing,
+    wordSpacing: titleWordSpacing,
+    WebkitTextStroke: textStrokeStyle,
+    textShadow: textShadowStyle,
+  };
+
   // Card customization styles from config
+  const cardBgType = config?.cardBgType || 'classic';
   const cardBgColor = config?.cardBgColor || '#ffffff';
+  const cardBgGradientType = config?.cardBgGradientType || 'linear';
+  const cardBgGradientAngle = config?.cardBgGradientAngle ?? 180;
+  const cardBgGradientColor1 = config?.cardBgGradientColor1 || '#ffffff';
+  const cardBgGradientLoc1 = config?.cardBgGradientLoc1 ?? 0;
+  const cardBgGradientColor2 = config?.cardBgGradientColor2 || '#e83a65';
+  const cardBgGradientLoc2 = config?.cardBgGradientLoc2 ?? 100;
+  const cardBgGradientRadialPos = config?.cardBgGradientRadialPos || 'center center';
+
+  const getCardBackgroundStyle = () => {
+    if (cardBgType === 'gradient') {
+      if (cardBgGradientType === 'radial') {
+        return { backgroundImage: `radial-gradient(circle at ${cardBgGradientRadialPos}, ${cardBgGradientColor1} ${cardBgGradientLoc1}%, ${cardBgGradientColor2} ${cardBgGradientLoc2}%)` };
+      }
+      return { backgroundImage: `linear-gradient(${cardBgGradientAngle}deg, ${cardBgGradientColor1} ${cardBgGradientLoc1}%, ${cardBgGradientColor2} ${cardBgGradientLoc2}%)` };
+    }
+    return { backgroundColor: cardBgColor !== 'transparent' ? cardBgColor : undefined };
+  };
   const cardBorderRadius = config?.cardBorderRadius !== undefined ? config.cardBorderRadius : 16;
   const cardBorderColor = config?.cardBorderColor || '#f4f4f5';
   const cardBoxShadow = config?.cardBoxShadow || 'soft';
@@ -1143,21 +1509,183 @@ const ProductListElement = ({
   const imagePadding = config?.imagePadding !== undefined ? config.imagePadding : 0;
   const imageBgColor = config?.imageBgColor || '#F5F4F2';
 
-  // Product Name customization styles from config
+  // Typography styles for productName
   const productNameColor = config?.productNameColor || '#1f2937';
-  const productNameSize = config?.productNameSize || 13;
-  const productNameWeight = config?.productNameWeight || '600';
   const productNameAlign = config?.productNameAlign || 'left';
+  const productNameFontFamily = config?.productNameFontFamily || 'inherit';
+  const productNameFontSize = config?.productNameFontSize || 17;
+  const productNameFontWeight = config?.productNameFontWeight || '600';
+  const productNameTextTransform = config?.productNameTextTransform || 'none';
+  const productNameFontStyle = config?.productNameFontStyle || 'normal';
+  const productNameTextDecoration = config?.productNameTextDecoration || 'none';
+  const productNameLineHeight = config?.productNameLineHeight || '1.2';
+  const productNameLetterSpacing = config?.productNameLetterSpacing || '0px';
+  const productNameWordSpacing = config?.productNameWordSpacing || '0px';
 
-  // Price & Stock customization styles from config
+  // Text Stroke for productName
+  const productNameTextStrokeWidth = config?.productNameTextStrokeWidth || 0;
+  const productNameTextStrokeColor = config?.productNameTextStrokeColor || '#000000';
+  const productNameTextStrokeStyle = productNameTextStrokeWidth > 0
+    ? `${productNameTextStrokeWidth}px ${productNameTextStrokeColor}`
+    : undefined;
+
+  // Text Shadow for productName
+  const productNameTextShadowColor = config?.productNameTextShadowColor;
+  const productNameTextShadowBlur = config?.productNameTextShadowBlur;
+  const productNameTextShadowOffsetX = config?.productNameTextShadowOffsetX;
+  const productNameTextShadowOffsetY = config?.productNameTextShadowOffsetY;
+  const productNameTextShadowStyle = (productNameTextShadowColor || productNameTextShadowBlur !== undefined || productNameTextShadowOffsetX !== undefined || productNameTextShadowOffsetY !== undefined)
+    ? `${productNameTextShadowOffsetX || 0}px ${productNameTextShadowOffsetY || 0}px ${productNameTextShadowBlur || 0}px ${productNameTextShadowColor || 'rgba(0,0,0,0.5)'}`
+    : undefined;
+
+  const productNameStyle: React.CSSProperties = {
+    color: productNameColor,
+    textAlign: productNameAlign as any,
+    fontFamily: productNameFontFamily,
+    fontSize: productNameFontSize,
+    fontWeight: productNameFontWeight,
+    textTransform: productNameTextTransform as any,
+    fontStyle: productNameFontStyle,
+    textDecoration: productNameTextDecoration,
+    lineHeight: productNameLineHeight,
+    letterSpacing: productNameLetterSpacing,
+    wordSpacing: productNameWordSpacing,
+    WebkitTextStroke: productNameTextStrokeStyle,
+    textShadow: productNameTextShadowStyle,
+  };
+  // Typography styles for price
   const priceColor = config?.priceColor || '#18181b';
-  const priceSize = config?.priceSize || 14;
-  const priceWeight = config?.priceWeight || '900';
+  const priceAlign = config?.priceAlign || 'left';
+  const priceFontFamily = config?.priceFontFamily || 'inherit';
+  const priceFontSize = config?.priceFontSize || 14;
+  const priceFontWeight = config?.priceFontWeight || '700';
+  const priceTextTransform = config?.priceTextTransform || 'none';
+  const priceFontStyle = config?.priceFontStyle || 'normal';
+  const priceTextDecoration = config?.priceTextDecoration || 'none';
+  const priceLineHeight = config?.priceLineHeight || '1.2';
+  const priceLetterSpacing = config?.priceLetterSpacing || '0px';
+  const priceWordSpacing = config?.priceWordSpacing || '0px';
+
+  // Text Stroke for price
+  const priceTextStrokeWidth = config?.priceTextStrokeWidth || 0;
+  const priceTextStrokeColor = config?.priceTextStrokeColor || '#000000';
+  const priceTextStrokeStyle = priceTextStrokeWidth > 0
+    ? `${priceTextStrokeWidth}px ${priceTextStrokeColor}`
+    : undefined;
+
+  // Text Shadow for price
+  const priceTextShadowColor = config?.priceTextShadowColor;
+  const priceTextShadowBlur = config?.priceTextShadowBlur;
+  const priceTextShadowOffsetX = config?.priceTextShadowOffsetX;
+  const priceTextShadowOffsetY = config?.priceTextShadowOffsetY;
+  const priceTextShadowStyle = (priceTextShadowColor || priceTextShadowBlur !== undefined || priceTextShadowOffsetX !== undefined || priceTextShadowOffsetY !== undefined)
+    ? `${priceTextShadowOffsetX || 0}px ${priceTextShadowOffsetY || 0}px ${priceTextShadowBlur || 0}px ${priceTextShadowColor || 'rgba(0,0,0,0.5)'}`
+    : undefined;
+
+  const priceStyle: React.CSSProperties = {
+    color: priceColor,
+    textAlign: priceAlign as any,
+    fontFamily: priceFontFamily,
+    fontSize: priceFontSize,
+    fontWeight: priceFontWeight,
+    textTransform: priceTextTransform as any,
+    fontStyle: priceFontStyle,
+    textDecoration: priceTextDecoration,
+    lineHeight: priceLineHeight,
+    letterSpacing: priceLetterSpacing,
+    wordSpacing: priceWordSpacing,
+    WebkitTextStroke: priceTextStrokeStyle,
+    textShadow: priceTextShadowStyle,
+  };
+  // Typography styles for discountPrice
   const discountPriceColor = config?.discountPriceColor || '#d1d5db';
-  const discountPriceSize = config?.discountPriceSize || 10;
-  const showStock = config?.showStock !== false;
+  const discountPriceAlign = config?.discountPriceAlign || 'left';
+  const discountPriceFontFamily = config?.discountPriceFontFamily || 'inherit';
+  const discountPriceFontSize = config?.discountPriceFontSize || 10;
+  const discountPriceFontWeight = config?.discountPriceFontWeight || '500';
+  const discountPriceTextTransform = config?.discountPriceTextTransform || 'none';
+  const discountPriceFontStyle = config?.discountPriceFontStyle || 'normal';
+  const discountPriceTextDecoration = config?.discountPriceTextDecoration || 'none';
+  const discountPriceLineHeight = config?.discountPriceLineHeight || '1.2';
+  const discountPriceLetterSpacing = config?.discountPriceLetterSpacing || '0px';
+  const discountPriceWordSpacing = config?.discountPriceWordSpacing || '0px';
+
+  // Text Stroke for discountPrice
+  const discountPriceTextStrokeWidth = config?.discountPriceTextStrokeWidth || 0;
+  const discountPriceTextStrokeColor = config?.discountPriceTextStrokeColor || '#000000';
+  const discountPriceTextStrokeStyle = discountPriceTextStrokeWidth > 0
+    ? `${discountPriceTextStrokeWidth}px ${discountPriceTextStrokeColor}`
+    : undefined;
+
+  // Text Shadow for discountPrice
+  const discountPriceTextShadowColor = config?.discountPriceTextShadowColor;
+  const discountPriceTextShadowBlur = config?.discountPriceTextShadowBlur;
+  const discountPriceTextShadowOffsetX = config?.discountPriceTextShadowOffsetX;
+  const discountPriceTextShadowOffsetY = config?.discountPriceTextShadowOffsetY;
+  const discountPriceTextShadowStyle = (discountPriceTextShadowColor || discountPriceTextShadowBlur !== undefined || discountPriceTextShadowOffsetX !== undefined || discountPriceTextShadowOffsetY !== undefined)
+    ? `${discountPriceTextShadowOffsetX || 0}px ${discountPriceTextShadowOffsetY || 0}px ${discountPriceTextShadowBlur || 0}px ${discountPriceTextShadowColor || 'rgba(0,0,0,0.5)'}`
+    : undefined;
+
+  const discountPriceStyle: React.CSSProperties = {
+    color: discountPriceColor,
+    textAlign: discountPriceAlign as any,
+    fontFamily: discountPriceFontFamily,
+    fontSize: discountPriceFontSize,
+    fontWeight: discountPriceFontWeight,
+    textTransform: discountPriceTextTransform as any,
+    fontStyle: discountPriceFontStyle,
+    textDecoration: discountPriceTextDecoration,
+    lineHeight: discountPriceLineHeight,
+    letterSpacing: discountPriceLetterSpacing,
+    wordSpacing: discountPriceWordSpacing,
+    WebkitTextStroke: discountPriceTextStrokeStyle,
+    textShadow: discountPriceTextShadowStyle,
+  };
+  // Typography styles for stock
   const stockColor = config?.stockColor || '#9ca3af';
-  const stockSize = config?.stockSize || 9;
+  const stockAlign = config?.stockAlign || 'left';
+  const stockFontFamily = config?.stockFontFamily || 'inherit';
+  const stockFontSize = config?.stockFontSize || 9;
+  const stockFontWeight = config?.stockFontWeight || '800';
+  const stockTextTransform = config?.stockTextTransform || 'none';
+  const stockFontStyle = config?.stockFontStyle || 'normal';
+  const stockTextDecoration = config?.stockTextDecoration || 'none';
+  const stockLineHeight = config?.stockLineHeight || '1.2';
+  const stockLetterSpacing = config?.stockLetterSpacing || '0px';
+  const stockWordSpacing = config?.stockWordSpacing || '0px';
+
+  // Text Stroke for stock
+  const stockTextStrokeWidth = config?.stockTextStrokeWidth || 0;
+  const stockTextStrokeColor = config?.stockTextStrokeColor || '#000000';
+  const stockTextStrokeStyle = stockTextStrokeWidth > 0
+    ? `${stockTextStrokeWidth}px ${stockTextStrokeColor}`
+    : undefined;
+
+  // Text Shadow for stock
+  const stockTextShadowColor = config?.stockTextShadowColor;
+  const stockTextShadowBlur = config?.stockTextShadowBlur;
+  const stockTextShadowOffsetX = config?.stockTextShadowOffsetX;
+  const stockTextShadowOffsetY = config?.stockTextShadowOffsetY;
+  const stockTextShadowStyle = (stockTextShadowColor || stockTextShadowBlur !== undefined || stockTextShadowOffsetX !== undefined || stockTextShadowOffsetY !== undefined)
+    ? `${stockTextShadowOffsetX || 0}px ${stockTextShadowOffsetY || 0}px ${stockTextShadowBlur || 0}px ${stockTextShadowColor || 'rgba(0,0,0,0.5)'}`
+    : undefined;
+
+  const showStock = config?.showStock !== false;
+  const stockStyle: React.CSSProperties = {
+    color: stockColor,
+    textAlign: stockAlign as any,
+    fontFamily: stockFontFamily,
+    fontSize: stockFontSize,
+    fontWeight: stockFontWeight,
+    textTransform: stockTextTransform as any,
+    fontStyle: stockFontStyle,
+    textDecoration: stockTextDecoration,
+    lineHeight: stockLineHeight,
+    letterSpacing: stockLetterSpacing,
+    wordSpacing: stockWordSpacing,
+    WebkitTextStroke: stockTextStrokeStyle,
+    textShadow: stockTextShadowStyle,
+  };
 
   let dbProds = products || [];
   if (source === 'CATEGORY' && categoryId) {
@@ -1177,6 +1705,112 @@ const ProductListElement = ({
 
   const formatRupiah = (num: number) => {
     return 'Rp ' + num.toLocaleString('id-ID');
+  };
+
+  // ── Hover-aware style computation ──
+  const getProdShadow = (s?: string) => {
+    if (s === 'soft') return '0 2px 10px rgba(0, 0, 0, 0.05)';
+    if (s === 'medium') return '0 4px 20px rgba(0, 0, 0, 0.08)';
+    if (s === 'strong') return '0 10px 30px rgba(0, 0, 0, 0.12)';
+    return undefined;
+  };
+
+  const prodResolvedBgColor = isProdHovered && config.hoverBgColor && config.hoverBgColor !== 'transparent'
+    ? config.hoverBgColor
+    : (config.bgColor || 'transparent');
+
+  const prodResolvedBgImage = (() => {
+    if (isProdHovered && config.hoverBgType === 'gradient') {
+      return config.hoverBgGradientType === 'radial'
+        ? `radial-gradient(circle at ${config.hoverBgGradientRadialPos || 'center center'}, ${config.hoverBgGradientColor1 || 'transparent'} ${config.hoverBgGradientLoc1 ?? 0}%, ${config.hoverBgGradientColor2 || 'transparent'} ${config.hoverBgGradientLoc2 ?? 100}%)`
+        : `linear-gradient(${config.hoverBgGradientAngle ?? 180}deg, ${config.hoverBgGradientColor1 || 'transparent'} ${config.hoverBgGradientLoc1 ?? 0}%, ${config.hoverBgGradientColor2 || 'transparent'} ${config.hoverBgGradientLoc2 ?? 100}%)`;
+    }
+    if (config.bgType === 'gradient') {
+      return config.bgGradientType === 'radial'
+        ? `radial-gradient(circle at ${config.bgGradientRadialPos || 'center center'}, ${config.bgGradientColor1 || '#ffffff'} ${config.bgGradientLoc1 ?? 0}%, ${config.bgGradientColor2 || '#e83a65'} ${config.bgGradientLoc2 ?? 100}%)`
+        : `linear-gradient(${config.bgGradientAngle ?? 180}deg, ${config.bgGradientColor1 || '#ffffff'} ${config.bgGradientLoc1 ?? 0}%, ${config.bgGradientColor2 || '#e83a65'} ${config.bgGradientLoc2 ?? 100}%)`;
+    }
+    if (config.bgImageUrl) return `url(${config.bgImageUrl})`;
+    return undefined;
+  })();
+
+  const prodResolvedBorderTopLeftRadius = formatStyleValue(
+    isProdHovered ? (config.hoverBorderRadiusTop ?? config.hoverBorderRadius ?? config.borderRadiusTop ?? config.borderRadius) : (config.borderRadiusTop ?? config.borderRadius), 0);
+  const prodResolvedBorderTopRightRadius = formatStyleValue(
+    isProdHovered ? (config.hoverBorderRadiusRight ?? config.hoverBorderRadius ?? config.borderRadiusRight ?? config.borderRadius) : (config.borderRadiusRight ?? config.borderRadius), 0);
+  const prodResolvedBorderBottomRightRadius = formatStyleValue(
+    isProdHovered ? (config.hoverBorderRadiusBottom ?? config.hoverBorderRadius ?? config.borderRadiusBottom ?? config.borderRadius) : (config.borderRadiusBottom ?? config.borderRadius), 0);
+  const prodResolvedBorderBottomLeftRadius = formatStyleValue(
+    isProdHovered ? (config.hoverBorderRadiusLeft ?? config.hoverBorderRadius ?? config.borderRadiusLeft ?? config.borderRadius) : (config.borderRadiusLeft ?? config.borderRadius), 0);
+
+  const prodResolvedBorderStyle = (() => {
+    const bt = isProdHovered ? (config.hoverBorderType || config.borderType) : config.borderType;
+    return bt && bt !== 'none' && bt !== 'Asali' ? bt : undefined;
+  })();
+
+  const prodResolvedBorderTopWidth = (() => {
+    const bw = isProdHovered
+      ? (config.hoverBorderWidthTop ?? config.hoverBorderWidth ?? config.borderWidthTop ?? config.borderWidth)
+      : (config.borderWidthTop ?? config.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const prodResolvedBorderRightWidth = (() => {
+    const bw = isProdHovered
+      ? (config.hoverBorderWidthRight ?? config.hoverBorderWidth ?? config.borderWidthRight ?? config.borderWidth)
+      : (config.borderWidthRight ?? config.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const prodResolvedBorderBottomWidth = (() => {
+    const bw = isProdHovered
+      ? (config.hoverBorderWidthBottom ?? config.hoverBorderWidth ?? config.borderWidthBottom ?? config.borderWidth)
+      : (config.borderWidthBottom ?? config.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const prodResolvedBorderLeftWidth = (() => {
+    const bw = isProdHovered
+      ? (config.hoverBorderWidthLeft ?? config.hoverBorderWidth ?? config.borderWidthLeft ?? config.borderWidth)
+      : (config.borderWidthLeft ?? config.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+
+  const prodResolvedBorderColor = isProdHovered
+    ? (config.hoverBorderColor || config.borderColor || undefined)
+    : (config.borderColor || undefined);
+
+  const prodResolvedBoxShadow = (() => {
+    if (isProdHovered && config.hoverBoxShadowType === 'custom') {
+      return `${config.hoverShadowOffsetX ?? 0}px ${config.hoverShadowOffsetY ?? 0}px ${config.hoverShadowBlur ?? 10}px ${config.hoverShadowSpread ?? 0}px ${config.hoverShadowColor || 'rgba(0,0,0,0.5)'}`;
+    }
+    if (isProdHovered && config.hoverBoxShadow) {
+      return config.hoverBoxShadow;
+    }
+    if (config.boxShadowType === 'custom') {
+      return `${config.shadowOffsetX ?? 0}px ${config.shadowOffsetY ?? 0}px ${config.shadowBlur ?? 10}px ${config.shadowSpread ?? 0}px ${config.shadowColor || 'rgba(0,0,0,0.5)'}`;
+    }
+    return getProdShadow(config.boxShadow) || config.boxShadow || undefined;
+  })();
+
+  const prodResolvedTransition = config.hoverTransitionDuration !== undefined
+    ? `background-color ${config.hoverTransitionDuration}s ease, background-image ${config.hoverTransitionDuration}s ease, border-color ${config.hoverTransitionDuration}s ease, border-width ${config.hoverTransitionDuration}s ease, border-radius ${config.hoverTransitionDuration}s ease, box-shadow ${config.hoverTransitionDuration}s ease`
+    : undefined;
+
+  const prodStyleObj: React.CSSProperties = {
+    backgroundColor: prodResolvedBgColor,
+    backgroundImage: prodResolvedBgImage,
+    backgroundSize: config.bgImageUrl ? 'cover' : undefined,
+    backgroundPosition: config.bgImageUrl ? 'center' : undefined,
+    borderTopLeftRadius: prodResolvedBorderTopLeftRadius,
+    borderTopRightRadius: prodResolvedBorderTopRightRadius,
+    borderBottomRightRadius: prodResolvedBorderBottomRightRadius,
+    borderBottomLeftRadius: prodResolvedBorderBottomLeftRadius,
+    boxShadow: prodResolvedBoxShadow,
+    borderStyle: prodResolvedBorderStyle,
+    borderTopWidth: prodResolvedBorderTopWidth,
+    borderRightWidth: prodResolvedBorderRightWidth,
+    borderBottomWidth: prodResolvedBorderBottomWidth,
+    borderLeftWidth: prodResolvedBorderLeftWidth,
+    borderColor: prodResolvedBorderColor,
+    transition: prodResolvedTransition,
   };
 
   const handleContainerClick = (e: React.MouseEvent) => {
@@ -1200,6 +1834,9 @@ const ProductListElement = ({
     <div
       className={`w-full space-y-3 p-2 rounded-xl transition-all duration-300 ${isActive && !activeSubFocus ? 'bg-blue-500/5' : ''}`}
       onClick={handleContainerClick}
+      onMouseEnter={() => setIsProdHovered(true)}
+      onMouseLeave={() => setIsProdHovered(false)}
+      style={prodStyleObj}
     >
       {title && (
         <h3
@@ -1207,7 +1844,7 @@ const ProductListElement = ({
             ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105 shadow-sm'
             : 'hover:bg-blue-500/5 hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
             }`}
-          style={{ color: titleColor }}
+          style={titleStyle}
           onClick={(e) => handleSubFocusClick(e, 'header_title')}
         >
           {title}
@@ -1228,7 +1865,7 @@ const ProductListElement = ({
                   : 'hover:scale-[1.01] hover:ring-2 hover:ring-blue-500/30'
                   }`}
                 style={{
-                  backgroundColor: cardBgColor,
+                  ...getCardBackgroundStyle(),
                   borderRadius: `${cardBorderRadius}px`,
                   borderColor: cardBorderColor,
                   boxShadow: shadowStyle,
@@ -1290,12 +1927,7 @@ const ProductListElement = ({
                       ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
                       : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
                       }`}
-                    style={{
-                      color: productNameColor,
-                      fontSize: `${productNameSize}px`,
-                      fontWeight: productNameWeight,
-                      textAlign: productNameAlign as any,
-                    }}
+                    style={productNameStyle}
                     onClick={(e) => handleSubFocusClick(e, 'title')}
                   >
                     {product.name}
@@ -1311,10 +1943,7 @@ const ProductListElement = ({
                     {showStock && (
                       <span
                         className="font-bold uppercase mb-0.5 tracking-tight"
-                        style={{
-                          color: stockColor,
-                          fontSize: `${stockSize}px`
-                        }}
+                        style={stockStyle}
                       >
                         Stok: {product.stock || 0}
                       </span>
@@ -1322,21 +1951,14 @@ const ProductListElement = ({
                     {hasDiscount && (
                       <p
                         className="line-through font-medium leading-none mb-0.5"
-                        style={{
-                          color: discountPriceColor,
-                          fontSize: `${discountPriceSize}px`
-                        }}
+                        style={{ ...discountPriceStyle, textDecoration: 'line-through' }}
                       >
                         {formatRupiah(product.price)}
                       </p>
                     )}
                     <p
                       className="tracking-tight leading-none"
-                      style={{
-                        color: priceColor,
-                        fontSize: `${priceSize}px`,
-                        fontWeight: priceWeight
-                      }}
+                      style={priceStyle}
                     >
                       {formatRupiah(hasDiscount ? product.discountPrice : product.price)}
                     </p>
@@ -1364,7 +1986,7 @@ const ProductListElement = ({
                     : 'hover:scale-[1.01] hover:ring-2 hover:ring-blue-500/30'
                     }`}
                   style={{
-                    backgroundColor: cardBgColor,
+                    ...getCardBackgroundStyle(),
                     borderRadius: `${cardBorderRadius}px`,
                     borderColor: cardBorderColor,
                     boxShadow: shadowStyle,
@@ -1426,12 +2048,7 @@ const ProductListElement = ({
                         ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105'
                         : 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1'
                         }`}
-                      style={{
-                        color: productNameColor,
-                        fontSize: `${productNameSize}px`,
-                        fontWeight: productNameWeight,
-                        textAlign: productNameAlign as any,
-                      }}
+                      style={productNameStyle}
                       onClick={(e) => handleSubFocusClick(e, 'title')}
                     >
                       {product.name}
@@ -1447,10 +2064,7 @@ const ProductListElement = ({
                       {showStock && (
                         <span
                           className="font-bold uppercase mb-0.5 tracking-tight"
-                          style={{
-                            color: stockColor,
-                            fontSize: `${stockSize}px`
-                          }}
+                          style={stockStyle}
                         >
                           Stok: {product.stock || 0}
                         </span>
@@ -1458,21 +2072,14 @@ const ProductListElement = ({
                       {hasDiscount && (
                         <p
                           className="line-through font-medium leading-none mb-0.5"
-                          style={{
-                            color: discountPriceColor,
-                            fontSize: `${discountPriceSize}px`
-                          }}
+                          style={{ ...discountPriceStyle, textDecoration: 'line-through' }}
                         >
                           {formatRupiah(product.price)}
                         </p>
                       )}
                       <p
                         className="tracking-tight leading-none"
-                        style={{
-                          color: priceColor,
-                          fontSize: `${priceSize}px`,
-                          fontWeight: priceWeight
-                        }}
+                        style={priceStyle}
                       >
                         {formatRupiah(hasDiscount ? product.discountPrice : product.price)}
                       </p>
@@ -1531,6 +2138,8 @@ const ColumnElement = ({
   onOpenEditPanel,
   isLocalNavigatorOpen,
   onSectionSelect,
+  hidePlaceholder,
+  readOnly = false,
 }: {
   element: SectionElement;
   activeElementId: string | null;
@@ -1549,9 +2158,12 @@ const ColumnElement = ({
   onOpenEditPanel?: (elementId: string) => void;
   isLocalNavigatorOpen?: boolean;
   onSectionSelect?: () => void;
+  hidePlaceholder?: boolean;
+  readOnly?: boolean;
 }) => {
   const [hoveredChild, setHoveredChild] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isColumnHovered, setIsColumnHovered] = useState(false);
 
   // Debug Log rendering properti kolom (Aturan 8)
   useEffect(() => {
@@ -1598,18 +2210,107 @@ const ColumnElement = ({
     return c.contentWidth === 'boxed' ? undefined : '100%';
   };
 
+  // ── Hover-aware style computation (sama seperti Section) ──
+  const resolvedBgColor = isColumnHovered && c.hoverBgColor && c.hoverBgColor !== 'transparent'
+    ? c.hoverBgColor
+    : (c.bgColor || 'transparent');
+
+  const resolvedBgImage = (() => {
+    if (isColumnHovered && c.hoverBgType === 'gradient') {
+      return c.hoverBgGradientType === 'radial'
+        ? `radial-gradient(circle at ${c.hoverBgGradientRadialPos || 'center center'}, ${c.hoverBgGradientColor1 || 'transparent'} ${c.hoverBgGradientLoc1 ?? 0}%, ${c.hoverBgGradientColor2 || 'transparent'} ${c.hoverBgGradientLoc2 ?? 100}%)`
+        : `linear-gradient(${c.hoverBgGradientAngle ?? 180}deg, ${c.hoverBgGradientColor1 || 'transparent'} ${c.hoverBgGradientLoc1 ?? 0}%, ${c.hoverBgGradientColor2 || 'transparent'} ${c.hoverBgGradientLoc2 ?? 100}%)`;
+    }
+    if (c.bgType === 'gradient') {
+      return c.bgGradientType === 'radial'
+        ? `radial-gradient(circle at ${c.bgGradientRadialPos || 'center center'}, ${c.bgGradientColor1 || '#ffffff'} ${c.bgGradientLoc1 ?? 0}%, ${c.bgGradientColor2 || '#e83a65'} ${c.bgGradientLoc2 ?? 100}%)`
+        : `linear-gradient(${c.bgGradientAngle ?? 180}deg, ${c.bgGradientColor1 || '#ffffff'} ${c.bgGradientLoc1 ?? 0}%, ${c.bgGradientColor2 || '#e83a65'} ${c.bgGradientLoc2 ?? 100}%)`;
+    }
+    if (c.bgImageUrl) return `url(${c.bgImageUrl})`;
+    return undefined;
+  })();
+
+  const resolvedBorderTopLeftRadius = formatStyleValue(
+    isColumnHovered ? (c.hoverBorderRadiusTop ?? c.hoverBorderRadius ?? c.borderRadiusTop ?? c.borderRadius) : (c.borderRadiusTop ?? c.borderRadius), 0);
+  const resolvedBorderTopRightRadius = formatStyleValue(
+    isColumnHovered ? (c.hoverBorderRadiusRight ?? c.hoverBorderRadius ?? c.borderRadiusRight ?? c.borderRadius) : (c.borderRadiusRight ?? c.borderRadius), 0);
+  const resolvedBorderBottomRightRadius = formatStyleValue(
+    isColumnHovered ? (c.hoverBorderRadiusBottom ?? c.hoverBorderRadius ?? c.borderRadiusBottom ?? c.borderRadius) : (c.borderRadiusBottom ?? c.borderRadius), 0);
+  const resolvedBorderBottomLeftRadius = formatStyleValue(
+    isColumnHovered ? (c.hoverBorderRadiusLeft ?? c.hoverBorderRadius ?? c.borderRadiusLeft ?? c.borderRadius) : (c.borderRadiusLeft ?? c.borderRadius), 0);
+
+  const resolvedBorderStyle = (() => {
+    const bt = isColumnHovered ? (c.hoverBorderType || c.borderType) : c.borderType;
+    return bt && bt !== 'none' && bt !== 'Asali' ? bt : undefined;
+  })();
+
+  const resolvedBorderTopWidth = (() => {
+    const bw = isColumnHovered
+      ? (c.hoverBorderWidthTop ?? c.hoverBorderWidth ?? c.borderWidthTop ?? c.borderWidth)
+      : (c.borderWidthTop ?? c.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const resolvedBorderRightWidth = (() => {
+    const bw = isColumnHovered
+      ? (c.hoverBorderWidthRight ?? c.hoverBorderWidth ?? c.borderWidthRight ?? c.borderWidth)
+      : (c.borderWidthRight ?? c.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const resolvedBorderBottomWidth = (() => {
+    const bw = isColumnHovered
+      ? (c.hoverBorderWidthBottom ?? c.hoverBorderWidth ?? c.borderWidthBottom ?? c.borderWidth)
+      : (c.borderWidthBottom ?? c.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+  const resolvedBorderLeftWidth = (() => {
+    const bw = isColumnHovered
+      ? (c.hoverBorderWidthLeft ?? c.hoverBorderWidth ?? c.borderWidthLeft ?? c.borderWidth)
+      : (c.borderWidthLeft ?? c.borderWidth);
+    return bw !== undefined ? `${bw}px` : undefined;
+  })();
+
+  const resolvedBorderColor = isColumnHovered
+    ? (c.hoverBorderColor || c.borderColor || undefined)
+    : (c.borderColor || undefined);
+
+  const resolvedBoxShadow = (() => {
+    if (isColumnHovered && c.hoverBoxShadowType === 'custom') {
+      return `${c.hoverShadowOffsetX ?? 0}px ${c.hoverShadowOffsetY ?? 0}px ${c.hoverShadowBlur ?? 10}px ${c.hoverShadowSpread ?? 0}px ${c.hoverShadowColor || 'rgba(0,0,0,0.5)'}`;
+    }
+    if (isColumnHovered && c.hoverBoxShadow) {
+      return c.hoverBoxShadow;
+    }
+    if (c.boxShadowType === 'custom') {
+      return `${c.shadowOffsetX ?? 0}px ${c.shadowOffsetY ?? 0}px ${c.shadowBlur ?? 10}px ${c.shadowSpread ?? 0}px ${c.shadowColor || 'rgba(0,0,0,0.5)'}`;
+    }
+    return getShadow(c.boxShadow) || c.boxShadow || undefined;
+  })();
+
+  const resolvedTransition = c.hoverTransitionDuration !== undefined
+    ? `background-color ${c.hoverTransitionDuration}s ease, background-image ${c.hoverTransitionDuration}s ease, border-color ${c.hoverTransitionDuration}s ease, border-width ${c.hoverTransitionDuration}s ease, border-radius ${c.hoverTransitionDuration}s ease, box-shadow ${c.hoverTransitionDuration}s ease`
+    : undefined;
+
   const styleObj: React.CSSProperties = {
     // Gap
     columnGap: `${c.columnGap ?? c.gap ?? 16}px`,
     rowGap: `${c.rowGap ?? c.gap ?? 16}px`,
 
-    // Background & Visual
-    backgroundColor: c.bgColor || 'transparent',
-    borderRadius: `${c.borderRadius ?? 0}px`,
-    boxShadow: getShadow(c.boxShadow),
-    borderWidth: c.borderWidth ? `${c.borderWidth}px` : undefined,
-    borderColor: c.borderColor || undefined,
-    borderStyle: c.borderWidth ? 'solid' : undefined,
+    // Background & Visual (hover-aware)
+    backgroundColor: resolvedBgColor,
+    backgroundImage: resolvedBgImage,
+    backgroundSize: c.bgImageUrl ? 'cover' : undefined,
+    backgroundPosition: c.bgImageUrl ? 'center' : undefined,
+    borderTopLeftRadius: resolvedBorderTopLeftRadius,
+    borderTopRightRadius: resolvedBorderTopRightRadius,
+    borderBottomRightRadius: resolvedBorderBottomRightRadius,
+    borderBottomLeftRadius: resolvedBorderBottomLeftRadius,
+    boxShadow: resolvedBoxShadow,
+    borderStyle: resolvedBorderStyle,
+    borderTopWidth: resolvedBorderTopWidth,
+    borderRightWidth: resolvedBorderRightWidth,
+    borderBottomWidth: resolvedBorderBottomWidth,
+    borderLeftWidth: resolvedBorderLeftWidth,
+    borderColor: resolvedBorderColor,
 
     // Padding
     paddingTop: formatStyleValue(c.paddingTop, 16),
@@ -1638,29 +2339,28 @@ const ColumnElement = ({
     order: getOrder(),
     position: (c.position || 'relative') as any,
     zIndex: c.zIndex !== undefined ? c.zIndex : undefined,
-  };
 
-  if (c.bgImageUrl) {
-    styleObj.backgroundImage = `url(${c.bgImageUrl})`;
-    styleObj.backgroundSize = 'cover';
-    styleObj.backgroundPosition = 'center';
-  }
+    // Transition
+    transition: resolvedTransition,
+  };
 
   return (
     <div
-      className={`relative transition-all ${layoutClass} ${isDragOver ? 'outline-dashed outline-2 outline-blue-500 bg-blue-500/10 animate-pulse rounded-lg' : ''}`}
+      className={`relative transition-all ${layoutClass} ${!readOnly && isDragOver ? 'outline-dashed outline-2 outline-blue-500 bg-blue-500/10 animate-pulse rounded-lg' : ''}`}
       style={styleObj}
-      onDragOver={(e) => {
+      onMouseEnter={() => setIsColumnHovered(true)}
+      onMouseLeave={() => setIsColumnHovered(false)}
+      onDragOver={!readOnly ? (e) => {
         if (isDraggingWidget) {
           e.preventDefault();
           e.stopPropagation();
           setIsDragOver(true);
         }
-      }}
-      onDragLeave={() => {
+      } : undefined}
+      onDragLeave={!readOnly ? () => {
         setIsDragOver(false);
-      }}
-      onDrop={(e) => {
+      } : undefined}
+      onDrop={!readOnly ? (e) => {
         if (isDraggingWidget) {
           e.preventDefault();
           e.stopPropagation();
@@ -1671,7 +2371,7 @@ const ColumnElement = ({
             onDropWidget(element.id, type);
           }
         }
-      }}
+      } : undefined}
     >
       {/* Overlay Background image */}
       {c.bgImageUrl && c.overlay !== undefined && (
@@ -1680,7 +2380,7 @@ const ColumnElement = ({
           style={{ opacity: c.overlay ?? 0.3 }}
         />
       )}
-      {children.length === 0 ? (
+      {!readOnly && children.length === 0 ? (
         <div
           onClick={(e) => {
             e.stopPropagation();
@@ -1690,7 +2390,7 @@ const ColumnElement = ({
               onAddElementClick(element.id, true);
             }
           }}
-          className="w-full py-10 flex flex-col items-center justify-center gap-2 border-2 border-dashed border-zinc-200/60 hover:border-blue-400 rounded-xl bg-zinc-50/30 hover:bg-blue-50/20 cursor-pointer transition-all group/colempty"
+          className="w-full py-10 h-full min-h-[120px] flex flex-col items-center justify-center gap-2 border-2 border-dashed border-zinc-200/60 hover:border-blue-400 rounded-xl bg-zinc-50/30 hover:bg-blue-50/20 cursor-pointer transition-all group/colempty"
         >
           <div className="w-10 h-10 rounded-xl bg-zinc-100 group-hover/colempty:bg-blue-500/10 flex items-center justify-center transition-colors">
             <Plus className="w-4 h-4 text-zinc-400 group-hover/colempty:text-blue-600 transition-colors" />
@@ -1698,26 +2398,29 @@ const ColumnElement = ({
           <span className="text-[10px] font-bold text-zinc-400 group-hover/colempty:text-blue-600 transition-colors uppercase tracking-widest">Kolom Kosong</span>
           <span className="text-[8px] text-zinc-400">Klik tombol + untuk menambahkan elemen</span>
         </div>
-      ) : (
-        children.map((child) => (
-          <div key={child.id} className={isHoriz ? 'flex-1 min-w-0' : (c.alignItems === 'stretch' || !c.alignItems ? 'w-full' : 'max-w-full')} onClick={(e) => e.stopPropagation()}>
-            <ElementWrapper
-              element={child}
-              isActive={activeElementId === child.id}
-              isHovered={hoveredChild === child.id}
-              onSelect={() => {
+      ) : readOnly && children.length === 0 ? null : (
+        (() => {
+          return children.map((child) => {
+            return (
+            <div key={child.id} className={isHoriz ? 'flex-1 min-w-0' : (c.alignItems === 'stretch' || !c.alignItems ? 'w-full' : 'max-w-full')} onClick={(e) => e.stopPropagation()}>
+              <ElementWrapper
+                element={child}
+                isActive={!readOnly && activeElementId === child.id}
+                isHovered={!readOnly && hoveredChild === child.id}
+                readOnly={readOnly}
+              onSelect={!readOnly ? () => {
                 if (onSectionSelect) onSectionSelect();
                 onElementSelect(child.id);
-              }}
-              onHover={() => setHoveredChild(child.id)}
-              onLeave={() => setHoveredChild(null)}
-              onContextMenu={(e) => {
+              } : undefined}
+              onHover={!readOnly ? () => setHoveredChild(child.id) : undefined}
+              onLeave={!readOnly ? () => setHoveredChild(null) : undefined}
+              onContextMenu={!readOnly ? (e) => {
                 if (onElementContextMenu) {
                   e.preventDefault();
                   e.stopPropagation();
                   onElementContextMenu(child.id, e.clientX, e.clientY);
                 }
-              }}
+              } : undefined}
               activeElementId={activeElementId}
               parentGap={c.gap ?? 16}
               parentLayout={c.layout}
@@ -1737,8 +2440,10 @@ const ColumnElement = ({
               isLocalNavigatorOpen={isLocalNavigatorOpen}
               onSectionSelect={onSectionSelect}
             />
-          </div>
-        ))
+            </div>
+            );
+          });
+        })()
       )}
     </div>
   );
@@ -1771,14 +2476,15 @@ const ElementWrapper = ({
   onOpenEditPanel,
   isLocalNavigatorOpen,
   onSectionSelect,
+  readOnly = false,
 }: {
   element: SectionElement;
   isActive: boolean;
   isHovered: boolean;
-  onSelect: () => void;
-  onHover: () => void;
-  onLeave: () => void;
-  onContextMenu: (e: React.MouseEvent) => void;
+  onSelect?: () => void;
+  onHover?: () => void;
+  onLeave?: () => void;
+  onContextMenu?: (e: React.MouseEvent) => void;
   activeElementId: string | null;
   onElementSelect: (id: string, subFocus?: string | null) => void;
   onElementContextMenu?: (elementId: string, x: number, y: number) => void;
@@ -1797,6 +2503,7 @@ const ElementWrapper = ({
   onOpenEditPanel?: (elementId: string) => void;
   isLocalNavigatorOpen?: boolean;
   onSectionSelect?: () => void;
+  readOnly?: boolean;
 }) => {
   const meta = ELEMENT_TYPE_MAP[element.type];
   const Icon = meta?.icon || Type;
@@ -1804,12 +2511,7 @@ const ElementWrapper = ({
 
   const isHeader = sectionId === 'global-header';
   const headerWrapperStyle = isHeader
-    ? {
-      flex: '1 1 0%',
-      display: 'flex',
-      justifyContent: element.type === 'BRANDING' ? 'flex-start' : element.type === 'MENU' ? 'center' : 'flex-end',
-      minWidth: element.type === 'BRANDING' ? '0px' : undefined,
-    }
+    ? {}
     : undefined;
 
   // Debug log untuk Aturan 8
@@ -1823,9 +2525,8 @@ const ElementWrapper = ({
 
   const defaultMarginBottom =
     element.type === 'HEADING' ? 12 :
-      ['TEXT', 'BUTTON', 'IMAGE'].includes(element.type) ? 16 :
+      ['TEXT', 'BUTTON'].includes(element.type) ? 16 :
         element.type === 'BADGE' ? 12 :
-          element.type === 'GALLERY' ? 24 :
             element.type === 'DIVIDER' ? 16 :
               0;
 
@@ -1833,8 +2534,8 @@ const ElementWrapper = ({
     ...headerWrapperStyle,
     ...(element.type === 'COLUMN' ? {
       width: (() => {
-        const rawWidth = element.config?.width || (element.config?.sizing === 'full' ? '100%' : element.config?.sizing === 'fit' ? 'fit-content' : element.config?.sizing === 'custom' ? `${element.config?.customWidth}px` : undefined);
-        if (typeof rawWidth === 'string' && rawWidth.endsWith('%') && parentLayout === 'horizontal') {
+        const rawWidth = element.config?.width || (element.config?.sizing === 'full' ? '100%' : element.config?.sizing === 'fit' ? 'fit-content' : element.config?.sizing === 'custom' ? `${element.config?.customWidth}px` : '100%');
+        if (typeof rawWidth === 'string' && rawWidth.endsWith('%') && (parentLayout === 'flexbox' || parentLayout === 'horizontal')) {
           const pct = parseFloat(rawWidth);
           if (!isNaN(pct)) {
             const fraction = pct / 100;
@@ -1862,14 +2563,20 @@ const ElementWrapper = ({
       order: element.config?.order !== undefined ? Number(element.config.order) : undefined,
       width: element.config?.widthType === 'full' ? '100%' : element.config?.widthType === 'custom' ? element.config?.customWidth : undefined,
       flex: element.config?.sizing === 'full' ? '1 1 100%' : element.config?.sizing === 'fit' ? '0 0 auto' : element.config?.sizing === 'custom' ? element.config?.flex : undefined,
-    })
+    }),
+    ...(sectionId === 'global-header' && element.type === 'CART' ? { marginLeft: 'auto' as const } : {}),
   };
 
   const isColumnType = element.type === 'COLUMN';
   const contentStyle: React.CSSProperties = !isColumnType ? {
-    backgroundColor: element.type === 'BUTTON' ? undefined : (element.config?.bgColor || undefined),
+    backgroundColor: element.type === 'BUTTON' ? undefined : ((element.config?.bgType || 'classic') === 'classic' ? (element.config?.bgColor || undefined) : undefined),
+    backgroundImage: element.type === 'BUTTON' ? undefined : (element.config?.bgType === 'gradient'
+      ? (element.config.bgGradientType === 'radial'
+          ? `radial-gradient(circle at ${element.config.bgGradientRadialPos || 'center center'}, ${element.config.bgGradientColor1 || '#ffffff'} ${element.config.bgGradientLoc1 ?? 0}%, ${element.config.bgGradientColor2 || '#e83a65'} ${element.config.bgGradientLoc2 ?? 100}%)`
+          : `linear-gradient(${element.config.bgGradientAngle ?? 180}deg, ${element.config.bgGradientColor1 || '#ffffff'} ${element.config.bgGradientLoc1 ?? 0}%, ${element.config.bgGradientColor2 || '#e83a65'} ${element.config.bgGradientLoc2 ?? 100}%)`)
+      : undefined),
     color: element.type === 'BUTTON' ? undefined : (element.config?.textColor || undefined),
-    borderRadius: element.type === 'BUTTON' ? undefined : (element.config?.borderRadius !== undefined ? `${element.config.borderRadius}px` : undefined),
+    borderRadius: element.type === 'BUTTON' ? undefined : (element.config?.borderRadius !== undefined ? `${element.config.borderRadius}px` : 0),
     borderWidth: element.type === 'BUTTON' ? undefined : (element.config?.borderWidth !== undefined ? `${element.config.borderWidth}px` : undefined),
     borderStyle: element.type === 'BUTTON' ? undefined : (element.config?.borderStyle || undefined),
     borderColor: element.type === 'BUTTON' ? undefined : (element.config?.borderColor || undefined),
@@ -1887,6 +2594,8 @@ const ElementWrapper = ({
     paddingLeft: element.type === 'BUTTON' ? undefined : formatStyleValue(element.config?.paddingLeft, undefined),
     paddingRight: element.type === 'BUTTON' ? undefined : formatStyleValue(element.config?.paddingRight, undefined),
     opacity: element.config?.opacity !== undefined ? (Number(element.config.opacity) / 100) : undefined,
+    height: '100%',
+    width: '100%',
   } : {};
 
   useEffect(() => {
@@ -1907,22 +2616,26 @@ const ElementWrapper = ({
   return (
     <div
       className={`relative group/el cursor-pointer transition-all ${isNewlyAdded
-        ? 'outline outline-2 outline-blue-500 rounded-lg animate-pulse bg-blue-500/10'
+        ? 'outline outline-2 outline-blue-500 rounded-none animate-pulse bg-blue-500/10'
         : isActive
-          ? 'outline outline-2 outline-blue-600 outline-offset-2 rounded-lg bg-blue-500/5'
-          : 'hover:outline-dashed hover:outline-2 hover:outline-blue-500/40 hover:outline-offset-2 hover:rounded-lg'
+          ? 'outline outline-2 outline-blue-600 outline-offset-2 rounded-none bg-blue-500/5'
+          : 'hover:outline-dashed hover:outline-2 hover:outline-blue-500/40 hover:outline-offset-2 hover:rounded-none'
         }`}
       style={wrapperStyle}
-      onClick={(e) => {
+      onClick={!readOnly ? (e) => {
         e.stopPropagation();
-        onSelect();
-      }}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
-      onContextMenu={onContextMenu}
+        if (element.type === 'COLUMN') {
+          if (onElementSelectOnly) onElementSelectOnly(element.id);
+        } else {
+          onSelect?.();
+        }
+      } : undefined}
+      onMouseEnter={!readOnly ? onHover : undefined}
+      onMouseLeave={!readOnly ? onLeave : undefined}
+      onContextMenu={!readOnly ? onContextMenu : undefined}
     >
-      {/* Element Badge di Pojok Kiri Atas (tanpa tombol pensil saat panel collapse) */}
-      {(isHovered || isActive) && (
+      {/* Element Badge di Pojok Kiri Atas */}
+      {!readOnly && (isHovered || isActive) && (
         <div className="absolute -top-5 left-0 z-[65] flex items-center gap-1 pointer-events-none">
           <div className={`flex items-center gap-1 ${isActive ? 'bg-blue-700' : 'bg-blue-600'} text-white px-2 py-0.5 rounded shadow-lg`}>
             <Icon className="w-2.5 h-2.5" />
@@ -1934,7 +2647,7 @@ const ElementWrapper = ({
 
 
       {/* WordPress Elementor-Style Premium Column Navigator (Melayang Tengah Atas) */}
-      {element.type === 'COLUMN' && (isHovered || isActive) && (
+      {!readOnly && element.type === 'COLUMN' && (isHovered || isActive) && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-[99999] flex items-center gap-1.5 bg-zinc-900/60 hover:bg-zinc-900/80 backdrop-blur-md text-white px-2.5 py-0.5 rounded-full shadow-lg border border-white/10 transition-all pointer-events-auto select-none">
           {/* Tombol Tambah + */}
           <button
@@ -1976,29 +2689,25 @@ const ElementWrapper = ({
           {/* Divider */}
           <div className="w-px h-3 bg-white/10" />
 
-          {/* Tombol Edit/Pensil ✏️ — hanya muncul jika panel kiri collapse */}
-          {!isLeftPanelOpen && (
-            <>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  console.log("[Column Navigator] Edit (Pencil) diklik untuk Kolom ID:", element.id);
-                  if (onElementEdit) {
-                    onElementEdit(element.id);
-                  }
-                }}
-                className="p-1 hover:text-amber-400 transition-colors flex items-center justify-center cursor-pointer"
-                title="Edit Kolom"
-              >
-                <Pencil className="w-2.5 h-2.5" />
-              </button>
+          {/* Tombol Edit/Pensil ✏️ */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              console.log("[Column Navigator] Edit (Pencil) diklik untuk Kolom ID:", element.id);
+              if (onElementEdit) {
+                onElementEdit(element.id);
+              }
+            }}
+            className="p-1 hover:text-amber-400 transition-colors flex items-center justify-center cursor-pointer"
+            title="Edit Kolom"
+          >
+            <Pencil className="w-2.5 h-2.5" />
+          </button>
 
-              {/* Divider */}
-              <div className="w-px h-3 bg-white/10" />
-            </>
-          )}
+          {/* Divider */}
+          <div className="w-px h-3 bg-white/10" />
 
           {/* Tombol Hapus/Sampah 🗑️ */}
           <button
@@ -2072,12 +2781,13 @@ const ElementWrapper = ({
             onOpenEditPanel={onOpenEditPanel}
             isLocalNavigatorOpen={isLocalNavigatorOpen}
             onSectionSelect={onSectionSelect}
+            readOnly={readOnly}
           />
         )}
       </div>
 
       {/* Hover action buttons — pojok kanan atas elemen */}
-      {!isHeader && element.type !== 'COLUMN' && isHovered && (
+      {!readOnly && !isHeader && element.type !== 'COLUMN' && isHovered && (
         <div className="absolute top-1 right-1 z-[60] flex items-center gap-0.5 pointer-events-auto">
           {/* Tombol Move 🟢 */}
           <button
@@ -2158,6 +2868,7 @@ export const BuilderSection = ({
   activeSubFocus,
   isLeftPanelOpen,
   onOpenEditPanel,
+  readOnly = false,
 }: {
   id: string;
   config: BuilderSectionConfig;
@@ -2182,6 +2893,7 @@ export const BuilderSection = ({
   onOpenEditPanel?: (elementId: string) => void;
   onOpenNavigatorPanel?: () => void;
   isNavigatorPanelOpen?: boolean;
+  readOnly?: boolean;
 }) => {
   const [hoveredElementId, setHoveredElementId] = useState<string | null>(null);
   const [isSectionHovered, setIsSectionHovered] = useState(false);
@@ -2208,31 +2920,79 @@ export const BuilderSection = ({
 
   // Layout classes
   const isGrid = config.layout === 'grid';
+  // config.direction (row/col/row-reverse/col-reverse) takes precedence over legacy config.layout
+  const effectiveDirection = config.direction
+    ? config.direction
+    : (config.layout === 'flexbox' ? 'row' : 'col');
   const layoutClass = isGrid
     ? 'grid'
-    : config.layout === 'horizontal'
-      ? 'flex flex-row flex-wrap items-center'
+    : (effectiveDirection === 'row' || effectiveDirection === 'row-reverse')
+      ? 'flex flex-row flex-wrap'
       : 'flex flex-col';
 
-  const alignClass = config.align === 'center'
-    ? 'items-center text-center'
-    : config.align === 'right'
-      ? 'items-end text-right'
-      : 'items-start text-left';
+  const alignClass = isGrid 
+    ? (config.align === 'stretch' ? 'items-stretch' : config.align === 'center' ? 'items-center text-center' : config.align === 'right' ? 'items-end text-right' : 'items-start text-left')
+    : (config.align === 'center'
+      ? 'items-center text-center'
+      : config.align === 'right'
+        ? 'items-end text-right'
+        : 'items-start text-left');
 
   const gridStyle = isGrid
-    ? { gridTemplateColumns: `repeat(${config.columns || 2}, 1fr)` }
+    ? { 
+        gridTemplateColumns: config.customGridColumns || `repeat(${config.columns ?? 3}, 1fr)`,
+        gridTemplateRows: config.customGridRows || `repeat(${config.rows ?? 2}, 1fr)`,
+      }
     : {};
 
+  const placeholderCount = config.placeholderCount ?? ((config.columns ?? 3) * (config.rows ?? 2));
+
+  // Compute CSS hover styles using native :hover pseudo-class to override inline styles
+  const hoverBorderRadiusTop = config.hoverBorderRadiusTop !== undefined ? config.hoverBorderRadiusTop : (config.borderRadiusTop ?? config.borderRadius);
+  const hoverBorderRadiusRight = config.hoverBorderRadiusRight !== undefined ? config.hoverBorderRadiusRight : (config.borderRadiusRight ?? config.borderRadius);
+  const hoverBorderRadiusBottom = config.hoverBorderRadiusBottom !== undefined ? config.hoverBorderRadiusBottom : (config.borderRadiusBottom ?? config.borderRadius);
+  const hoverBorderRadiusLeft = config.hoverBorderRadiusLeft !== undefined ? config.hoverBorderRadiusLeft : (config.borderRadiusLeft ?? config.borderRadius);
+
+  const hoverBorderType = config.hoverBorderType && config.hoverBorderType !== 'none' && config.hoverBorderType !== 'Asali' && config.hoverBorderType !== 'asali'
+    ? config.hoverBorderType 
+    : (config.borderType && config.borderType !== 'none' && config.borderType !== 'Asali' && config.borderType !== 'asali' ? config.borderType : 'none');
+
+  const hoverBorderColor = (config.hoverBorderColor && config.hoverBorderColor !== 'transparent') ? config.hoverBorderColor : (config.borderColor || 'transparent');
+
+  const hoverBorderWidthTop = config.hoverBorderWidthTop !== undefined ? `${config.hoverBorderWidthTop}px` : (config.hoverBorderWidth ? `${config.hoverBorderWidth}px` : undefined);
+  const hoverBorderWidthRight = config.hoverBorderWidthRight !== undefined ? `${config.hoverBorderWidthRight}px` : (config.hoverBorderWidth ? `${config.hoverBorderWidth}px` : undefined);
+  const hoverBorderWidthBottom = config.hoverBorderWidthBottom !== undefined ? `${config.hoverBorderWidthBottom}px` : (config.hoverBorderWidth ? `${config.hoverBorderWidth}px` : undefined);
+  const hoverBorderWidthLeft = config.hoverBorderWidthLeft !== undefined ? `${config.hoverBorderWidthLeft}px` : (config.hoverBorderWidth ? `${config.hoverBorderWidth}px` : undefined);
+
+  const hoverBoxShadow = config.hoverBoxShadowType === 'custom'
+    ? `${config.hoverShadowOffsetX ?? 0}px ${config.hoverShadowOffsetY ?? 0}px ${config.hoverShadowBlur ?? 10}px ${config.hoverShadowSpread ?? 0}px ${config.hoverShadowColor || 'rgba(0,0,0,0.5)'}`
+    : (config.hoverBoxShadow || 'none');
+
   return (
-    <div
-      className={`relative transition-all mx-auto ${isActive
+    <>
+      <style>{`
+        #section-${id}:hover {
+          border-top-left-radius: ${formatStyleValue(hoverBorderRadiusTop, 0)} !important;
+          border-top-right-radius: ${formatStyleValue(hoverBorderRadiusRight, 0)} !important;
+          border-bottom-right-radius: ${formatStyleValue(hoverBorderRadiusBottom, 0)} !important;
+          border-bottom-left-radius: ${formatStyleValue(hoverBorderRadiusLeft, 0)} !important;
+          border-style: ${hoverBorderType} !important;
+          ${hoverBorderWidthTop !== undefined ? `border-top-width: ${hoverBorderWidthTop} !important;` : ''}
+          ${hoverBorderWidthRight !== undefined ? `border-right-width: ${hoverBorderWidthRight} !important;` : ''}
+          ${hoverBorderWidthBottom !== undefined ? `border-bottom-width: ${hoverBorderWidthBottom} !important;` : ''}
+          ${hoverBorderWidthLeft !== undefined ? `border-left-width: ${hoverBorderWidthLeft} !important;` : ''}
+          border-color: ${hoverBorderColor} !important;
+          box-shadow: ${hoverBoxShadow} !important;
+        }
+      `}</style>
+      <div
+        id={`section-${id}`}
+        className={`relative transition-all mx-auto w-full ${!readOnly && isActive
         ? 'after:absolute after:inset-0 after:border-2 after:border-blue-600 after:pointer-events-none after:z-[50] after:rounded-[inherit]'
-        : 'hover:after:absolute hover:after:inset-0 hover:after:border-2 hover:after:border-blue-500/30 hover:after:pointer-events-none hover:after:z-[50] hover:after:rounded-[inherit]'
-        } ${isDragOver ? 'after:absolute after:inset-0 after:border-2 after:border-dashed after:border-blue-500 after:bg-blue-500/10 after:pointer-events-none after:z-[50] after:rounded-[inherit] after:animate-pulse' : ''}`}
-      onClick={(e) => {
-        // Hanya aktifkan section jika klik LANGSUNG di section background,
-        // bukan dari bubbling event child element
+        : !readOnly ? 'hover:after:absolute hover:after:inset-0 hover:after:border-2 hover:after:border-blue-500/30 hover:after:pointer-events-none hover:after:z-[50] hover:after:rounded-[inherit]'
+        : ''
+        } ${!readOnly && isDragOver ? 'after:absolute after:inset-0 after:border-2 after:border-dashed after:border-blue-500 after:bg-blue-500/10 after:pointer-events-none after:z-[50] after:rounded-[inherit] after:animate-pulse' : ''}`}
+      onClick={!readOnly ? (e) => {
         if (e.target !== e.currentTarget) return;
         e.stopPropagation();
         console.log("[Canvas Click] Section area diklik biasa (hanya sorot), ID:", id);
@@ -2241,19 +3001,19 @@ export const BuilderSection = ({
         } else {
           onSectionSelect();
         }
-      }}
+      } : undefined}
       onMouseEnter={() => setIsSectionHovered(true)}
       onMouseLeave={() => setIsSectionHovered(false)}
-      onDragOver={(e) => {
+      onDragOver={!readOnly ? (e) => {
         if (isDraggingWidget) {
           e.preventDefault();
           setIsDragOver(true);
         }
-      }}
-      onDragLeave={() => {
+      } : undefined}
+      onDragLeave={!readOnly ? () => {
         setIsDragOver(false);
-      }}
-      onDrop={(e) => {
+      } : undefined}
+      onDrop={!readOnly ? (e) => {
         if (isDraggingWidget) {
           e.preventDefault();
           e.stopPropagation();
@@ -2264,46 +3024,167 @@ export const BuilderSection = ({
             onDropWidget(id, type);
           }
         }
-      }}
+      } : undefined}
       style={{
-        backgroundColor: config.bgColor || 'transparent',
-        borderRadius: `${config.borderRadius ?? 0}px`,
+        // ── Latar Belakang ──
+        backgroundColor: isSectionHovered && config.hoverBgColor && config.hoverBgColor !== 'transparent'
+          ? config.hoverBgColor
+          : (config.bgColor || 'transparent'),
+        backgroundImage: isSectionHovered && config.hoverBgType === 'gradient'
+          ? (config.hoverBgGradientType === 'radial'
+              ? `radial-gradient(circle at ${config.hoverBgGradientRadialPos || 'center center'}, ${config.hoverBgGradientColor1 || 'transparent'} ${config.hoverBgGradientLoc1 ?? 0}%, ${config.hoverBgGradientColor2 || 'transparent'} ${config.hoverBgGradientLoc2 ?? 100}%)`
+              : `linear-gradient(${config.hoverBgGradientAngle ?? 180}deg, ${config.hoverBgGradientColor1 || 'transparent'} ${config.hoverBgGradientLoc1 ?? 0}%, ${config.hoverBgGradientColor2 || 'transparent'} ${config.hoverBgGradientLoc2 ?? 100}%)`)
+          : config.bgType === 'gradient'
+            ? (config.bgGradientType === 'radial'
+                ? `radial-gradient(circle at ${config.bgGradientRadialPos || 'center center'}, ${config.bgGradientColor1 || '#ffffff'} ${config.bgGradientLoc1 ?? 0}%, ${config.bgGradientColor2 || '#e83a65'} ${config.bgGradientLoc2 ?? 100}%)`
+                : `linear-gradient(${config.bgGradientAngle ?? 180}deg, ${config.bgGradientColor1 || '#ffffff'} ${config.bgGradientLoc1 ?? 0}%, ${config.bgGradientColor2 || '#e83a65'} ${config.bgGradientLoc2 ?? 100}%)`)
+            : undefined,
+
+        // ── Radius ──
+        borderTopLeftRadius: formatStyleValue(
+          isSectionHovered ? (config.hoverBorderRadiusTop ?? config.hoverBorderRadius ?? config.borderRadiusTop ?? config.borderRadius)
+                           : (config.borderRadiusTop ?? config.borderRadius), 0),
+        borderTopRightRadius: formatStyleValue(
+          isSectionHovered ? (config.hoverBorderRadiusRight ?? config.hoverBorderRadius ?? config.borderRadiusRight ?? config.borderRadius)
+                           : (config.borderRadiusRight ?? config.borderRadius), 0),
+        borderBottomRightRadius: formatStyleValue(
+          isSectionHovered ? (config.hoverBorderRadiusBottom ?? config.hoverBorderRadius ?? config.borderRadiusBottom ?? config.borderRadius)
+                           : (config.borderRadiusBottom ?? config.borderRadius), 0),
+        borderBottomLeftRadius: formatStyleValue(
+          isSectionHovered ? (config.hoverBorderRadiusLeft ?? config.hoverBorderRadius ?? config.borderRadiusLeft ?? config.borderRadius)
+                           : (config.borderRadiusLeft ?? config.borderRadius), 0),
+
+        // ── Border ──
+        borderStyle: (() => {
+          const bt = isSectionHovered ? (config.hoverBorderType || config.borderType) : config.borderType;
+          return bt && bt !== 'none' && bt !== 'Asali' ? bt : undefined;
+        })(),
+        borderTopWidth: (() => {
+          const bw = isSectionHovered
+            ? (config.hoverBorderWidthTop ?? config.hoverBorderWidth ?? config.borderWidthTop ?? config.borderWidth)
+            : (config.borderWidthTop ?? config.borderWidth);
+          return bw !== undefined ? `${bw}px` : undefined;
+        })(),
+        borderRightWidth: (() => {
+          const bw = isSectionHovered
+            ? (config.hoverBorderWidthRight ?? config.hoverBorderWidth ?? config.borderWidthRight ?? config.borderWidth)
+            : (config.borderWidthRight ?? config.borderWidth);
+          return bw !== undefined ? `${bw}px` : undefined;
+        })(),
+        borderBottomWidth: (() => {
+          const bw = isSectionHovered
+            ? (config.hoverBorderWidthBottom ?? config.hoverBorderWidth ?? config.borderWidthBottom ?? config.borderWidth)
+            : (config.borderWidthBottom ?? config.borderWidth);
+          return bw !== undefined ? `${bw}px` : undefined;
+        })(),
+        borderLeftWidth: (() => {
+          const bw = isSectionHovered
+            ? (config.hoverBorderWidthLeft ?? config.hoverBorderWidth ?? config.borderWidthLeft ?? config.borderWidth)
+            : (config.borderWidthLeft ?? config.borderWidth);
+          return bw !== undefined ? `${bw}px` : undefined;
+        })(),
+        borderColor: isSectionHovered
+          ? (config.hoverBorderColor || config.borderColor || undefined)
+          : (config.borderColor || undefined),
+
+        // ── Box Shadow ──
+        boxShadow: (() => {
+          if (isSectionHovered && config.hoverBoxShadowType === 'custom') {
+            return `${config.hoverShadowOffsetX ?? 0}px ${config.hoverShadowOffsetY ?? 0}px ${config.hoverShadowBlur ?? 10}px ${config.hoverShadowSpread ?? 0}px ${config.hoverShadowColor || 'rgba(0,0,0,0.5)'}`;
+          }
+          if (config.boxShadowType === 'custom') {
+            return `${config.shadowOffsetX ?? 0}px ${config.shadowOffsetY ?? 0}px ${config.shadowBlur ?? 10}px ${config.shadowSpread ?? 0}px ${config.shadowColor || 'rgba(0,0,0,0.5)'}`;
+          }
+          return config.boxShadow || undefined;
+        })(),
+
+        // ── Spacing & Size ──
         paddingTop: formatStyleValue(config.paddingTop, 40),
         paddingBottom: formatStyleValue(config.paddingBottom, 40),
         paddingLeft: formatStyleValue(config.paddingLeft, 40),
         paddingRight: formatStyleValue(config.paddingRight, 40),
         marginTop: formatStyleValue(config.marginTop, 0),
         marginBottom: formatStyleValue(config.marginBottom, 0),
-        maxWidth: config.maxWidth || '100%',
+        maxWidth: config.contentWidth === 'full' ? '100%' : (config.maxWidth || '1200px'),
         width: '100%',
+        minHeight: isGrid ? '200px' : undefined,
+
+        // ── Transition (aktif jika ada hover setting apapun) ──
+        transition: config.hoverTransitionDuration !== undefined
+          ? `background-color ${config.hoverTransitionDuration}s ease, background-image ${config.hoverTransitionDuration}s ease, border-color ${config.hoverTransitionDuration}s ease, border-width ${config.hoverTransitionDuration}s ease, border-radius ${config.hoverTransitionDuration}s ease, box-shadow ${config.hoverTransitionDuration}s ease`
+          : undefined,
       }}
     >
-      {/* WordPress Elementor-Style Premium Section Navigator (Melayang Tengah Atas) */}
-      {(isSectionHovered || isActive) && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-[99999] flex items-center gap-1.5 bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-3 py-1 rounded-full shadow-lg border border-fuchsia-500 transition-all pointer-events-auto select-none">
-          {id !== 'global-header' && (
-            <>
-              {/* Tombol Tambah + */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  console.log("[Section Navigator] Plus diklik untuk Section ID:", id);
-                  if (onAddElementClick) {
-                    onAddElementClick(id, false);
-                  }
-                }}
-                className="p-1 hover:text-fuchsia-200 transition-colors flex items-center justify-center cursor-pointer"
-                title="Tambah Elemen ke Section"
-              >
-                <Plus className="w-3.5 h-3.5 font-extrabold" />
-              </button>
-
-              {/* Divider */}
-              <div className="w-px h-3.5 bg-fuchsia-400/40" />
-            </>
+      {/* Background Image Layer (with opacity and blur) */}
+      {((isSectionHovered && config.hoverBgType === 'classic') || (!isSectionHovered && (config.bgType === 'classic' || !config.bgType))) && (isSectionHovered && config.hoverBgImageUrl ? config.hoverBgImageUrl : config.bgImageUrl) && (
+        <div className="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none z-0">
+          <img 
+            src={isSectionHovered && config.hoverBgImageUrl ? config.hoverBgImageUrl : config.bgImageUrl} 
+            alt="Section Background" 
+            className={`w-full h-full object-cover ${config.hoverTransitionDuration ? 'transition-all' : ''}`}
+            style={{
+              opacity: (config.bgImageOpacity ?? 100) / 100,
+              filter: (config.bgImageBlur ?? 0) > 0 ? `blur(${config.bgImageBlur}px)` : 'none',
+              transform: (config.bgImageBlur ?? 0) > 0 ? `scale(1.1)` : 'none',
+              transitionDuration: config.hoverTransitionDuration ? `${config.hoverTransitionDuration}s` : undefined
+            }}
+          />
+          {((isSectionHovered ? (config.hoverOverlay ?? config.overlay) : config.overlay) !== undefined && (isSectionHovered ? (config.hoverOverlay ?? config.overlay) : config.overlay)! > 0) && (
+            <div className={`absolute inset-0 bg-black ${config.hoverTransitionDuration ? 'transition-all' : ''}`} style={{ 
+              opacity: isSectionHovered ? (config.hoverOverlay ?? config.overlay ?? 0) : (config.overlay ?? 0),
+              transitionDuration: config.hoverTransitionDuration ? `${config.hoverTransitionDuration}s` : undefined
+            }}></div>
           )}
+        </div>
+      )}
+
+      {/* Grid Outline Visuals */}
+      {isGrid && (config.showGridOutline ?? true) && (
+        <div 
+           className={`absolute inset-0 z-0 pointer-events-none ${config.customGridClass ?? ''}`}
+           style={{
+             display: 'grid',
+             columnGap: `${config.columnGap ?? config.gap ?? 16}px`,
+             rowGap: `${config.rowGap ?? config.gap ?? 16}px`,
+             paddingTop: formatStyleValue(config.paddingTop, 40),
+             paddingBottom: formatStyleValue(config.paddingBottom, 40),
+             paddingLeft: formatStyleValue(config.paddingLeft, 40),
+             paddingRight: formatStyleValue(config.paddingRight, 40),
+             ...gridStyle,
+           }}
+        >
+           {Array.from({ length: placeholderCount }).map((_, i) => {
+             const col = sorted[i];
+             const isFilled = col && col.type === 'COLUMN' && col.children && col.children.length > 0;
+             // Kisi terisi: tidak tampilkan outline dashed
+             if (isFilled) return <div key={i} />;
+             return <div key={i} className="border border-dashed border-zinc-400/50 bg-zinc-500/5 rounded" />;
+           })}
+        </div>
+      )}
+
+      {/* WordPress Elementor-Style Premium Section Navigator (Melayang Tengah Atas) */}
+      {!readOnly && (isSectionHovered || isActive) && (
+        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-[99999] flex items-center gap-1.5 bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-3 py-1 rounded-full shadow-lg border border-fuchsia-500 transition-all pointer-events-auto select-none">
+           {/* Tombol Tambah + — tampil untuk semua section termasuk global-header */}
+           <button
+             type="button"
+             onClick={(e) => {
+               e.stopPropagation();
+               e.preventDefault();
+               console.log("[Section Navigator] Plus diklik untuk Section ID:", id);
+               if (onAddElementClick) {
+                 onAddElementClick(id, false);
+               }
+             }}
+             className="p-1 hover:text-fuchsia-200 transition-colors flex items-center justify-center cursor-pointer"
+             title="Tambah Elemen ke Section"
+           >
+             <Plus className="w-3.5 h-3.5 font-extrabold" />
+           </button>
+
+           {/* Divider */}
+           <div className="w-px h-3.5 bg-fuchsia-400/40" />
 
           {/* Tombol Move/Navigator 🟢 — selalu muncul */}
           <button
@@ -2365,29 +3246,40 @@ export const BuilderSection = ({
         </div>
       )}
 
-      {/* BG Image + Overlay */}
-      {config.bgImageUrl && (
+      {/* BG Image + Overlay (Legacy div backgrounds, only rendered if not classic type, or maybe it's redundant but kept for safety if used without bgType flag) */}
+      {!(config.bgType === 'classic' || !config.bgType) && (isSectionHovered && config.hoverBgImageUrl ? config.hoverBgImageUrl : config.bgImageUrl) && (
         <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${config.bgImageUrl})`, borderRadius: `${config.borderRadius ?? 0}px` }}
+          className={`absolute inset-0 bg-cover bg-center ${config.hoverTransitionDuration ? 'transition-all' : ''}`}
+          style={{ 
+            backgroundImage: `url(${isSectionHovered && config.hoverBgImageUrl ? config.hoverBgImageUrl : config.bgImageUrl})`, 
+            borderRadius: `${config.borderRadius ?? 0}px`,
+            transitionDuration: config.hoverTransitionDuration ? `${config.hoverTransitionDuration}s` : undefined
+          }}
         />
       )}
-      {config.bgImageUrl && (
+      {!(config.bgType === 'classic' || !config.bgType) && (isSectionHovered && config.hoverBgImageUrl ? config.hoverBgImageUrl : config.bgImageUrl) && (
         <div
-          className="absolute inset-0 bg-black"
-          style={{ opacity: config.overlay ?? 0.3, borderRadius: `${config.borderRadius ?? 0}px` }}
+          className={`absolute inset-0 bg-black ${config.hoverTransitionDuration ? 'transition-all' : ''}`}
+          style={{ 
+            opacity: isSectionHovered ? (config.hoverOverlay ?? config.overlay ?? 0.3) : (config.overlay ?? 0.3), 
+            borderRadius: `${config.borderRadius ?? 0}px`,
+            transitionDuration: config.hoverTransitionDuration ? `${config.hoverTransitionDuration}s` : undefined
+          }}
         />
       )}
 
       {/* Elements */}
       <div
-        className={`relative z-10 ${layoutClass} ${alignClass} ${id === 'global-header' ? 'w-full' : ''}`}
+        className={`relative z-10 ${layoutClass} ${alignClass} ${id === 'global-header' ? 'w-full' : ''} ${config.customGridClass ?? ''}`}
         style={{
           columnGap: `${config.columnGap ?? config.gap ?? 16}px`,
           rowGap: `${config.rowGap ?? config.gap ?? 16}px`,
           ...gridStyle,
-          flexDirection: (config.layout !== 'grid' && config.direction)
-            ? (config.direction === 'col' ? 'column' : config.direction === 'col-reverse' ? 'column-reverse' : config.direction as any)
+          flexDirection: !isGrid
+            ? (effectiveDirection === 'col' ? 'column'
+                : effectiveDirection === 'col-reverse' ? 'column-reverse'
+                : effectiveDirection === 'row-reverse' ? 'row-reverse'
+                : 'row')
             : undefined,
           flexWrap: (config.layout !== 'grid' && config.flexWrap)
             ? config.flexWrap
@@ -2400,7 +3292,7 @@ export const BuilderSection = ({
             : undefined
         }}
       >
-        {sorted.length === 0 ? (
+        {!readOnly && sorted.length === 0 ? (
           <div
             onClick={(e) => {
               e.stopPropagation();
@@ -2418,17 +3310,20 @@ export const BuilderSection = ({
             <p className="text-[11px] font-bold text-zinc-400 group-hover/empty:text-blue-600 transition-colors uppercase tracking-widest">Section Kosong</p>
             <p className="text-[10px] text-zinc-400">Klik tombol + untuk menambahkan elemen</p>
           </div>
-        ) : (
-          sorted.map((el) => (
-            <ElementWrapper
-              key={el.id}
-              element={el}
-              isActive={activeElementId === el.id}
-              isHovered={hoveredElementId === el.id}
-              onSelect={() => {
+        ) : readOnly && sorted.length === 0 ? null : (
+          (() => {
+            return sorted.map((el) => {
+              return (
+              <ElementWrapper
+                key={el.id}
+                element={el}
+                isActive={!readOnly && activeElementId === el.id}
+                isHovered={!readOnly && hoveredElementId === el.id}
+                readOnly={readOnly}
+              onSelect={!readOnly ? () => {
                 onSectionSelect();
                 onElementSelect(el.id);
-              }}
+              } : undefined}
               onHover={() => setHoveredElementId(el.id)}
               onLeave={() => setHoveredElementId(null)}
               onContextMenu={(e) => {
@@ -2457,9 +3352,12 @@ export const BuilderSection = ({
               isLocalNavigatorOpen={isLocalNavigatorOpen}
               onSectionSelect={onSectionSelect}
             />
-          ))
+            );
+          });
+        })()
         )}
       </div>
     </div>
+    </>
   );
 };

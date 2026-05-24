@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import StorefrontHeader from "@/components/storefront/StorefrontHeader";
 import { StorefrontProvider } from "@/components/storefront/StorefrontProvider";
 import { HeroSection, FeaturesSection, CategoriesSection, ProductGridSection, BannerSection, RichContentSection } from "@/components/storefront/sections/DynamicSections";
+import SectionRenderer from "@/components/storefront/SectionRenderer";
 import { Metadata, ResolvingMetadata } from "next";
 
 interface DynamicPageProps {
@@ -140,6 +141,7 @@ export default async function DynamicClientPage({ params }: DynamicPageProps) {
                   {section.type === "PRODUCT_GRID" && <ProductGridSection config={section.config} />}
                   {section.type === "BANNER" && <BannerSection config={section.config} />}
                   {section.type === "TEXT" && <RichContentSection config={section.config} />}
+                  {section.type === "SECTION" && <SectionRenderer section={section} />}
                 </div>
               );
             })

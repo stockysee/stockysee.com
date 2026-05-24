@@ -5,7 +5,6 @@ Membangun platform SaaS multi-tenant di mana client bisa membuat toko online (st
 
 ## User Review Required
 > [!IMPORTANT]
-> - **Multi-Theme Strategy**: Memastikan 3 tema utama (Retail, Landing, Digital) mencakup 90% kebutuhan market UMKM.
 > - **Subscription Model**: Model bertingkat (Basic, Standard, Premium) untuk monetisasi platform.
 > - **Security**: Super Admin Dashboard harus sangat aman.
 

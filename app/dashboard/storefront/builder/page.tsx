@@ -1,12 +1,13 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { 
   Plus, Trash2, Settings2, Sliders, Eye, Save, X, Layers, Box, LayoutTemplate, Palette, Settings, Link as LinkIcon, ArrowLeft, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Smartphone, Monitor, Type, Image as ImageIcon, Paintbrush, Globe, Upload, Loader2, ShoppingBag, ShieldCheck, Copy, Clipboard, CopyPlus, PlusCircle, Columns, Undo2, Redo2, LayoutGrid, AlignLeft, AlignCenter, AlignRight, AlignJustify, MousePointerClick, SeparatorHorizontal, Award, Pencil, Folder, Sparkles, Link2, RotateCcw, Bold, Italic, Underline, List, ListOrdered, Maximize2, Table, Strikethrough, HelpCircle, Eraser, Quote, Minus 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StorefrontProvider } from "@/components/storefront/StorefrontProvider";
 import { BuilderSection, SectionElement, ELEMENT_TYPE_MAP } from "@/components/storefront/sections/BuilderSection";
+import HeaderCanvas from "@/components/storefront/sections/HeaderCanvas";
 import { MediaLibraryModal } from "@/components/MediaLibraryModal";
 import { LottiePanelTrigger } from "@/components/LottiePanelTrigger";
 
@@ -189,6 +190,8 @@ function BuilderContent() {
     updateLocalSection
   } = state;
 
+  const [activeCanvas, setActiveCanvas] = useState<'homepage' | 'header' | 'footer'>('homepage');
+
   if (isLoading && sections.length === 0) {
     return (
       <div className={`fixed inset-0 ${theme === 'dark' ? 'bg-black' : 'bg-slate-50'} flex flex-col items-center justify-center space-y-8 z-[200]`}>
@@ -223,10 +226,26 @@ function BuilderContent() {
           <h2 className={`text-[10px] font-black uppercase tracking-widest ${theme === 'dark' ? 'text-white' : 'text-slate-950'}`}>
             {pageId && customPage?.page ? customPage.page.title : 'Visual Builder'}
           </h2>
+          <div className={`h-5 w-px ${theme === 'dark' ? 'bg-white/10' : 'bg-slate-200'} mx-1`}></div>
+          <div className="relative">
+            <select
+              value={activeCanvas}
+              onChange={(e) => setActiveCanvas(e.target.value as any)}
+              className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-lg border appearance-none cursor-pointer outline-none pr-6 ${
+                theme === 'dark'
+                  ? 'bg-zinc-800 text-white border-zinc-700 hover:border-zinc-500'
+                  : 'bg-slate-100 text-slate-800 border-slate-200 hover:border-slate-400'
+              }`}
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center', backgroundSize: '10px' }}
+            >
+              <option value="homepage">Homepage</option>
+              <option value="header">Header</option>
+              <option value="footer">Footer</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className={`h-5 w-px ${theme === 'dark' ? 'bg-white/10' : 'bg-slate-200'} mx-1`}></div>
           <button
             onClick={handleUndo}
             disabled={past.length === 0}
@@ -269,7 +288,7 @@ function BuilderContent() {
       <main className="flex-1 flex overflow-hidden relative">
         {/* 1. LEFT PANEL */}
 
-        <BuilderSidebar state={state} />
+        <BuilderSidebar state={state} activeCanvas={activeCanvas} />
 
         {/* LOTTIE TRIGGER BUTTON - Floating di kiri canvas */}
         {!isLeftPanelOpen && (
@@ -298,92 +317,40 @@ function BuilderContent() {
         )}
 
         {/* 2. CANVAS */}
-        <div className="flex-1 bg-[#F3F0EC] overflow-y-auto premium-scrollbar relative pt-8">
+        <div className="flex-1 bg-[#F3F0EC] overflow-y-auto canvas-scrollbar relative pb-48">
           <div className="absolute inset-0 bg-[radial-gradient(#00000005_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none"></div>
           <div className="min-h-full w-full transition-all duration-700 flex flex-col">
             <StorefrontProvider client={client} products={products || []} categories={categories || []} sections={sections} customPages={(allCustomPages as any)?.pages || []}>
               {(() => {
                 const headerSection = sections.find(s => s.type === "HEADER");
                 if (!headerSection) return null;
+                // In header canvas mode, the HeaderCanvas component renders the header — skip inline preview
+                if (activeCanvas === 'header') return null;
                 const isSticky = headerSection.config?.sticky === true;
+                const headerElements = headerSection.elements || [];
 
                 return (
                   <div
-                    onContextMenu={(e: React.MouseEvent) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log("[Builder Security] Context Menu dinonaktifkan pada Header (Template Tetap).");
-                    }}
-                    className={`relative group transition-all duration-300 ${isSticky ? "sticky top-0 z-[100] backdrop-blur-md shadow-sm" : "z-[60]"}`}
+                    className={`relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none ${isSticky ? "sticky top-0 z-[100] backdrop-blur-md shadow-sm" : "z-[60]"}`}
                     style={{ borderRadius: `${headerSection.config?.borderRadius ?? 0}px` }}
                   >
                     <BuilderSection
                       id={headerSection.id}
                       config={headerSection.config}
-                      elements={headerSection.elements || []}
-                      activeElementId={editingSection?.id === headerSection.id ? activeElementId : null}
-                      activeSubFocus={activeSubFocus}
-                      onElementSelect={(elementId, subFocus) => {
-                        setEditingSection(headerSection);
-                        setActiveElementId(elementId);
-                        setActivePanel('editor');
-                        setActiveSubFocus(subFocus || null);
-                        console.log("[Builder Debug] Header Element terpilih dengan subFocus:", subFocus, "ID:", elementId);
-                      }}
-                      onElementSelectOnly={(elementId) => {
-                        setEditingSection(headerSection);
-                        setActiveElementId(elementId);
-                        setActivePanel('editor');
-                        setIsLeftPanelOpen(true);
-                        console.log("[Builder Debug] Header Element tersorot dan editor panel dibuka otomatis untuk ID:", elementId);
-                      }}
-                      onElementEdit={(elementId) => {
-                        setEditingSection(headerSection);
-                        setActiveElementId(elementId);
-                        setIsLeftPanelOpen(true);
-                        setActivePanel('editor');
-                        console.log("[Builder Debug] Header Element edit dibuka via Pensil:", elementId);
-                      }}
-                      onDeleteElement={(elementId) => {
-                        console.log("[Builder Debug] Menghapus Header Element ID:", elementId);
-                        handleDeleteElement(headerSection.id, elementId);
-                      }}
-                      onSectionSelect={() => {
-                        setEditingSection(headerSection);
-                        setIsLeftPanelOpen(true);
-                        setActivePanel('editor');
-                        setActiveElementId(null);
-                        console.log("[Builder Debug] Header panel editor dibuka via Pensil");
-                      }}
-                      onSectionSelectOnly={() => {
-                        setEditingSection(headerSection);
-                        setActiveElementId(null);
-                        console.log("[Builder Debug] Header tersorot saja");
-                      }}
-                      onDeleteSection={undefined} // Header dilarang keras dihapus
-                      isActive={editingSection?.id === headerSection.id && !activeElementId}
-                      onAddElement={() => {
-                        setEditingSection(headerSection);
-                        setActivePanel('library');
-                      }}
-                      onElementContextMenu={undefined} // Context Menu dinonaktifkan sepenuhnya untuk elemen Header
-                      onAddElementClick={handleCanvasAddElementClick}
-                      newlyAddedElementId={newlyAddedElementId}
-                      onDropWidget={handleDropWidget}
-                      isDraggingWidget={isDraggingWidget}
+                      elements={headerElements}
+                      activeElementId={null}
+                      activeSubFocus={null}
+                      isActive={false}
                       isLeftPanelOpen={isLeftPanelOpen}
-                      onOpenEditPanel={(elementId) => {
-                        setEditingSection(headerSection);
-                        setActiveElementId(elementId);
-                        setIsLeftPanelOpen(true);
-                        setActivePanel('editor');
-                        console.log('[Builder] Pensil badge: Membuka panel edit untuk Header Element:', elementId);
-                      }}
+                      isDraggingWidget={isDraggingWidget}
+                      onElementSelect={() => {}}
+                      onSectionSelect={() => {}}
                     />
                   </div>
                 );
               })()}
 
+              {activeCanvas === 'homepage' && (
               <div className="flex-1 flex flex-col">
                 {sections.filter(s => s.type === "SECTION").map((section, index) => {
                   return (
@@ -415,9 +382,7 @@ function BuilderContent() {
                         onElementSelectOnly={(elementId) => {
                           setEditingSection(section);
                           setActiveElementId(elementId);
-                          setActivePanel('editor');
-                          setIsLeftPanelOpen(true);
-                          console.log("[Builder Debug] COLUMN tersorot dan editor panel dibuka otomatis untuk ID:", elementId);
+                          console.log("[Builder Debug] COLUMN tersorot (tanpa membuka panel) untuk ID:", elementId);
                         }}
                         onElementEdit={(elementId) => {
                           // Klik Pensil COLUMN menyorot dan membuka panel edit
@@ -574,9 +539,7 @@ function BuilderContent() {
                         onElementSelectOnly={(elementId) => {
                           setEditingSection(footerSection);
                           setActiveElementId(elementId);
-                          setActivePanel('editor');
-                          setIsLeftPanelOpen(true);
-                          console.log("[Builder Debug] Footer COLUMN tersorot dan editor panel dibuka otomatis untuk ID:", elementId);
+                          console.log("[Builder Debug] Footer COLUMN tersorot (tanpa membuka panel) untuk ID:", elementId);
                         }}
                         onElementEdit={(elementId) => {
                           // Klik Pensil COLUMN menyorot dan membuka panel edit
@@ -620,6 +583,43 @@ function BuilderContent() {
                   );
                 })()}
               </div>
+              )}
+              {activeCanvas === 'header' && (() => {
+                const headerSection = sections.find(s => s.type === "HEADER");
+                if (!headerSection) return null;
+                return (
+                  <HeaderCanvas
+                    headerSection={headerSection}
+                    editingSection={editingSection}
+                    activeElementId={activeElementId}
+                    activeSubFocus={activeSubFocus}
+                    setEditingSection={setEditingSection}
+                    setActiveElementId={setActiveElementId}
+                    setActivePanel={setActivePanel}
+                    setActiveSubFocus={setActiveSubFocus}
+                    setIsLeftPanelOpen={setIsLeftPanelOpen}
+                    handleDeleteElement={handleDeleteElement}
+                    handleDeleteSection={handleDeleteSection}
+                    handleCanvasAddElementClick={handleCanvasAddElementClick}
+                    newlyAddedElementId={newlyAddedElementId}
+                    handleDropWidget={handleDropWidget}
+                    isDraggingWidget={isDraggingWidget}
+                    isLeftPanelOpen={isLeftPanelOpen}
+                    setContextMenu={setContextMenu}
+                  />
+                );
+              })()}
+              {activeCanvas === 'footer' && (
+                <div className="flex-1 flex flex-col items-center justify-center">
+                  <div className="text-center space-y-3">
+                    <div className="w-16 h-16 mx-auto rounded-2xl bg-zinc-100 flex items-center justify-center">
+                      <span className="text-2xl">🦶</span>
+                    </div>
+                    <h3 className="text-sm font-black text-zinc-400 uppercase tracking-widest">Footer Canvas</h3>
+                    <p className="text-[10px] text-zinc-400 font-medium">Editor footer akan segera hadir</p>
+                  </div>
+                </div>
+              )}
             </StorefrontProvider>
           </div>
         </div>

@@ -1,0 +1,10 @@
+{
+  "ArtifactMetadata": "{\"ArtifactType\":\"other\",\"RequestFeedback\":false,\"Summary\":\"\"}",
+  "Description": "\"Add null check to EditorPanel\"",
+  "Instruction": "\"Add null check\"",
+  "ReplacementChunks": "[{\"AllowMultiple\":false,\"EndLine\":64,\"ReplacementContent\":\"    theme, updateLocalSection\\n  } = state;\\n\\n  if (!editingSection) return null;\\n\\n  return (\",\"StartLine\":62,\"TargetContent\":\"    theme, updateLocalSection\\n  } = state;\\n\\n  return (\"}]",
+  "TargetFile": "\"c:\\\\Users\\\\HYPE\\\\project\\\\villa-engine\\\\engine\\\\BACKUP-ENGINE\\\\BUILD\\\\stockysee\\\\app\\\\dashboard\\\\storefront\\\\builder\\\\panels\\\\EditorPanel.tsx\"",
+  "TargetLintErrorIds": "[]",
+  "toolAction": "\"Add null check to EditorPanel\"",
+  "toolSummary": "\"Add null check\""
+}

@@ -32,10 +32,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         ↓
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'vertical', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '100%', sizing: 'full', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'vertical', direction: 'col', gap: 16, align: 'stretch' },
+    columns: []
   },
   {
     name: "1 Kolom Horizontal",
@@ -45,10 +43,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         →
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'vertical', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '100%', sizing: 'full', layout: 'horizontal' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', direction: 'row', gap: 16, align: 'stretch' },
+    columns: []
   },
   {
     name: "2 Kolom Sama Rata (50/50)",
@@ -59,11 +55,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         <div className="h-full"></div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '50%', sizing: 'default', layout: 'vertical' },
-      { width: '50%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 2, rows: 1, gap: 16, align: 'stretch' },
+    columns: []
   },
   {
     name: "3 Kolom Sama Rata (33/33/33)",
@@ -75,12 +68,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         <div className="h-full"></div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '33.33%', sizing: 'default', layout: 'vertical' },
-      { width: '33.33%', sizing: 'default', layout: 'vertical' },
-      { width: '33.33%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 3, rows: 1, gap: 16, align: 'stretch' },
+    columns: []
   },
   {
     name: "4 Kolom Sama Rata (25/25/25/25)",
@@ -93,13 +82,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         <div className="h-full"></div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '25%', sizing: 'default', layout: 'vertical' },
-      { width: '25%', sizing: 'default', layout: 'vertical' },
-      { width: '25%', sizing: 'default', layout: 'vertical' },
-      { width: '25%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 4, rows: 1, gap: 16, align: 'stretch' },
+    columns: []
   },
   {
     name: "3 Kolom (25/50/25)",
@@ -111,12 +95,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         <div className="w-[25%] h-full"></div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '25%', sizing: 'default', layout: 'vertical' },
-      { width: '50%', sizing: 'default', layout: 'vertical' },
-      { width: '25%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 3, rows: 1, gap: 16, align: 'stretch', customGridColumns: '1fr 2fr 1fr' },
+    columns: []
   },
   {
     name: "Grid 2x2 (4 Kolom)",
@@ -133,13 +113,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         </div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '50%', sizing: 'default', layout: 'vertical' },
-      { width: '50%', sizing: 'default', layout: 'vertical' },
-      { width: '50%', sizing: 'default', layout: 'vertical' },
-      { width: '50%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 2, rows: 2, gap: 16, align: 'stretch' },
+    columns: []
   },
   {
     name: "2 Kolom (33/67)",
@@ -150,11 +125,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         <div className="w-[66.7%] h-full"></div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '33.33%', sizing: 'default', layout: 'vertical' },
-      { width: '66.67%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 2, rows: 1, gap: 16, align: 'stretch', customGridColumns: '1fr 2fr' },
+    columns: []
   },
   {
     name: "2 Kolom (67/33)",
@@ -165,11 +137,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         <div className="w-[33.3%] h-full"></div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '66.67%', sizing: 'default', layout: 'vertical' },
-      { width: '33.33%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 2, rows: 1, gap: 16, align: 'stretch', customGridColumns: '2fr 1fr' },
+    columns: []
   },
   {
     name: "Grid 3x2 (6 Kolom)",
@@ -188,15 +157,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         </div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '33.33%', sizing: 'default', layout: 'vertical' },
-      { width: '33.33%', sizing: 'default', layout: 'vertical' },
-      { width: '33.33%', sizing: 'default', layout: 'vertical' },
-      { width: '33.33%', sizing: 'default', layout: 'vertical' },
-      { width: '33.33%', sizing: 'default', layout: 'vertical' },
-      { width: '33.33%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 3, rows: 2, gap: 16, align: 'stretch' },
+    columns: []
   },
   {
     name: "Row (50/50) + Row (100%)",
@@ -210,12 +172,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         <div className="flex-1 h-full"></div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '50%', sizing: 'default', layout: 'vertical' },
-      { width: '50%', sizing: 'default', layout: 'vertical' },
-      { width: '100%', sizing: 'full', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 2, rows: 2, gap: 16, align: 'stretch', customGridClass: '[&>*:nth-child(3)]:col-span-2', placeholderCount: 3 },
+    columns: []
   },
   {
     name: "Row (100%) + Row (50/50)",
@@ -229,12 +187,8 @@ export const SECTION_STRUCTURE_TEMPLATES = [
         </div>
       </div>
     ),
-    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'horizontal', gap: 16, align: 'stretch' },
-    columns: [
-      { width: '100%', sizing: 'full', layout: 'vertical' },
-      { width: '50%', sizing: 'default', layout: 'vertical' },
-      { width: '50%', sizing: 'default', layout: 'vertical' }
-    ]
+    sectionConfig: { bgColor: 'transparent', maxWidth: '1200px', contentWidth: 'boxed', paddingTop: 48, paddingBottom: 48, paddingLeft: 40, paddingRight: 40, layout: 'grid', columns: 2, rows: 2, gap: 16, align: 'stretch', customGridClass: '[&>*:nth-child(1)]:col-span-2', placeholderCount: 3 },
+    columns: []
   }
 ];
 
@@ -334,36 +288,26 @@ const sanitizeSections = (secs: Section[]): Section[] => {
     sorted.splice(headerIdx, 1);
   }
 
-  // Pastikan BRANDING, MENU, CART ada dalam urutan kaku (branding, menu, cart)
-  const elements = headerSection.elements || [];
-  const branding = elements.find(el => el.type === 'BRANDING') || {
-    id: 'h-el-branding',
-    type: 'BRANDING',
-    config: { fontSize: 16, textColor: '#18181B', align: 'left' },
-    order: 0
-  };
-  const menu = elements.find(el => el.type === 'MENU') || {
-    id: 'h-el-menu',
-    type: 'MENU',
-    config: { fontSize: 13, textColor: '#18181B', align: 'center', fontFamily: 'Inter', hiddenMenus: [] },
-    order: 1
-  };
-  const cart = elements.find(el => el.type === 'CART') || {
-    id: 'h-el-cart',
-    type: 'CART',
-    config: { text: 'Keranjang', bgColor: '#18181B', textColor: '#FFFFFF', borderRadius: 8, align: 'right' },
-    order: 2
-  };
+  // Pastikan CART (Keranjang) wajib ada di header dan selalu di posisi terakhir
+  let headerElements = headerSection.elements || [];
+  const cartExists = headerElements.some(el => el.type === 'CART');
+  if (!cartExists) {
+    const cartElement: SectionElement = {
+      id: 'h-el-cart',
+      type: 'CART',
+      config: { text: 'Keranjang', bgColor: '#18181B', textColor: '#FFFFFF', borderRadius: 8, buttonType: 'Asali', iconType: 'none', iconPosition: 'before', iconSpacing: 8 },
+      order: headerElements.length
+    };
+    headerElements.push(cartElement);
+  }
 
-  // Kunci field order & id
-  branding.order = 0;
-  menu.order = 1;
-  cart.order = 2;
-
-  headerSection.elements = [branding, menu, cart];
+  // Urutkan: CART (Keranjang) selalu di posisi paling kanan/akhir
+  const nonCart = headerElements.filter(el => el.type !== 'CART').map((el, i) => ({ ...el, order: i }));
+  const cart = headerElements.find(el => el.type === 'CART');
+  headerSection.elements = cart ? [...nonCart, { ...cart, order: nonCart.length }] : nonCart;
   headerSection.order = -1;
 
-  console.log("[Builder Debug] Selesai melakukan sanitasi data sections. Header dikunci dengan 3 elemen kaku.");
+  console.log("[Builder Debug] Selesai melakukan sanitasi data sections. CART dipastikan ada di header.");
   return [headerSection, ...sorted];
 };
 
@@ -509,7 +453,8 @@ export function useBuilderState() {
     const activeEl = findElementRecursively(editingSection.elements || [], activeElementId);
     if (activeEl) {
       // Jika tipe elemen adalah salah satu dari custom elements yang konfigurasinya hanya didukung di layout tab
-      const isCustomWidgetOnlyLayout = ['BRANDING', 'MENU', 'CART', 'CATEGORY_LIST', 'PRODUCT_LIST'].includes(activeEl.type);
+      const isCustomWidgetOnlyLayout = ['BRANDING', 'MENU'].includes(activeEl.type);
+      console.log(`[EditorTab Sync Check] activeEl.type: "${activeEl.type}", isCustomWidgetOnlyLayout: ${isCustomWidgetOnlyLayout}, activeEditorTab: "${activeEditorTab}"`);
 
       if (isCustomWidgetOnlyLayout) {
         if (activeEditorTab !== 'layout') {
@@ -855,14 +800,20 @@ export function useBuilderState() {
 
     console.log("[Builder] Membuat layout baru untuk template:", template.name);
 
-    // Create column elements
-    const columnElements = template.columns.map((colConfig, idx) => {
-      const colId = `el-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    // Determine how many columns to create based on the grid layout
+    let numColumnsToCreate = 0;
+    if (template.sectionConfig.layout === 'grid') {
+      numColumnsToCreate = template.sectionConfig.placeholderCount || ((template.sectionConfig.columns || 1) * (template.sectionConfig.rows || 1));
+    }
+
+    // Create column elements if it's a grid (minimal 2 columns)
+    const columnElements = Array.from({ length: numColumnsToCreate }).map((_, idx) => {
+      const colId = `el-${Date.now()}-${Math.random().toString(36).substring(7)}-${idx}`;
       return {
         id: colId,
         type: 'COLUMN' as const,
         config: {
-          layout: colConfig.layout || 'vertical',
+          layout: 'vertical',
           gap: 16,
           align: 'left',
           paddingTop: 16,
@@ -871,9 +822,7 @@ export function useBuilderState() {
           paddingRight: 16,
           bgColor: 'transparent',
           borderRadius: 0,
-          sizing: colConfig.sizing || 'default',
-          width: colConfig.width || undefined,
-          customWidth: colConfig.sizing === 'custom' ? 100 : undefined
+          sizing: 'default',
         },
         children: [],
         order: idx
@@ -952,12 +901,6 @@ export function useBuilderState() {
 
   const handleDropWidget = (targetId: string, widgetType: string) => {
     console.log("[Drag & Drop] Drop widget:", widgetType, "ke target:", targetId);
-
-    if (targetId === 'global-header') {
-      console.warn("[Builder Security] Aksi ditolak: Tidak dapat menambah/drag elemen ke Header.");
-      showToast("Gagal: Struktur Header dikunci secara permanen sebagai template tetap.", "error");
-      return;
-    }
 
     // Jika widget type adalah GRID (Layout Horizontal)
     if (widgetType === 'GRID') {
@@ -1463,12 +1406,6 @@ export function useBuilderState() {
 
   // ── ELEMENT CRUD ──
   const handleAddElement = (targetId: string, elementType: string) => {
-    if (targetId === 'global-header' || sections.some(s => s.id === 'global-header' && (s.id === targetId || s.elements?.some(el => el.id === targetId)))) {
-      console.warn("[Builder Security] Aksi ditolak: Tidak dapat menambah elemen ke Header (Template Tetap).");
-      showToast("Gagal: Struktur Header dikunci secara permanen sebagai template tetap.", "error");
-      return;
-    }
-
     const meta = ELEMENT_TYPE_MAP[elementType];
     if (!meta) return;
 
@@ -1538,9 +1475,21 @@ export function useBuilderState() {
     const section = sections.find(s => s.id === sectionId);
     if (!section) return;
 
-    if (sectionId === 'global-header' || section.type === 'HEADER') {
-      console.warn("[Builder Security] Aksi ditolak: Tidak dapat menghapus elemen dari Header (Template Tetap).");
-      showToast("Gagal: Elemen Header dikunci secara permanen dan tidak boleh dihapus.", "error");
+    // Cari elemen yang akan dihapus untuk cek tipe
+    const findElementInList = (els: SectionElement[]): SectionElement | null => {
+      for (const el of els) {
+        if (el.id === elementId) return el;
+        if (el.children) {
+          const found = findElementInList(el.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    const targetEl = findElementInList(section.elements || []);
+    if (targetEl?.type === 'CART') {
+      console.warn("[Builder Security] Aksi ditolak: Tombol Keranjang (CART) wajib ada dan tidak boleh dihapus.");
+      showToast("Gagal: Tombol Keranjang adalah elemen wajib dan tidak boleh dihapus.", "error");
       return;
     }
 
@@ -1861,13 +1810,18 @@ export function useBuilderState() {
     const section = sections.find(s => s.id === sectionId);
     if (!section) return;
 
-    if (sectionId === 'global-header' || section.type === 'HEADER') {
-      console.warn("[Builder Security] Aksi ditolak: Tidak dapat mengubah urutan elemen di Header (Template Tetap).");
-      showToast("Gagal: Urutan elemen Header dikunci secara permanen sebagai template tetap.", "error");
-      return;
-    }
-
     const reorderedElements = newElements.map((el, i) => ({ ...el, order: i }));
+
+    // Jika section header, pastikan CART selalu di posisi terakhir
+    if (sectionId === 'global-header' || section.type === 'HEADER') {
+      const cartIdx = reorderedElements.findIndex(el => el.type === 'CART');
+      if (cartIdx >= 0 && cartIdx !== reorderedElements.length - 1) {
+        const cart = reorderedElements.splice(cartIdx, 1)[0];
+        reorderedElements.push({ ...cart, order: reorderedElements.length });
+        // Perbaiki order elemen lainnya
+        reorderedElements.forEach((el, i) => { el.order = i; });
+      }
+    }
 
     if (!parentElementId) {
       const updatedSection = { ...section, elements: reorderedElements };
@@ -2195,7 +2149,7 @@ export function useBuilderState() {
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
-                {section.id !== 'global-header' && (
+                {el.type !== 'CART' && (
                   <button
                     onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleDeleteElement(section.id, el.id); console.log('[Builder] Deleted Container:', el.id); }}
                     className="p-1 rounded text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -2240,7 +2194,7 @@ export function useBuilderState() {
       >
         {() => (
           <>
-            {section.id !== 'global-header' && (
+            {el.type !== 'CART' && (
               <MoveControls
                 canMoveUp={selfIndex > 0}
                 canMoveDown={selfIndex < siblingElements.length - 1}
@@ -2252,22 +2206,20 @@ export function useBuilderState() {
             <span className={`text-[12px] truncate ${isElActive ? 'text-blue-400 font-semibold' : 'text-zinc-300 group-hover:text-white'}`}>
               {el.config?.text ? `${meta?.label || el.type} – ${el.config.text.substring(0, 18)}...` : (meta?.label || el.type)}
             </span>
-            {section.id === 'global-header' ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  console.log("[Global Tree Debug] Edit (Pensil) diklik untuk elemen header:", el.id);
-                  setEditingSection(section);
-                  setActiveElementId(el.id);
-                  setActivePanel('editor');
-                }}
-                className="p-1 rounded text-amber-400 hover:text-amber-300 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
-                title="Edit Elemen Header"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-            ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setEditingSection(section);
+                setActiveElementId(el.id);
+                setActivePanel('editor');
+              }}
+              className="p-1 rounded text-amber-400 hover:text-amber-300 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"
+              title="Edit Elemen"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+            {el.type !== 'CART' && (
               <button
                 onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (parentId) { handleDeleteColumnChild(section.id, parentId, el.id); } else { handleDeleteElement(section.id, el.id); } console.log('[Builder] Deleted Element:', el.id); }}
                 className="p-1 rounded text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity ml-auto"

@@ -149,8 +149,12 @@ export function StorefrontProvider({
     const extractFromElements = (elements: any[]) => {
       if (!elements || !Array.isArray(elements)) return;
       elements.forEach(el => {
-        if (el.config?.fontFamily) {
-          fonts.add(el.config.fontFamily);
+        if (el.config) {
+          Object.keys(el.config).forEach(key => {
+            if (key.toLowerCase().includes('fontfamily') && el.config[key]) {
+              fonts.add(el.config[key]);
+            }
+          });
         }
         if (el.children) {
           extractFromElements(el.children);
@@ -159,8 +163,9 @@ export function StorefrontProvider({
     };
 
     allSections.forEach((sec: any) => {
-      if (sec.elements) {
-        extractFromElements(sec.elements);
+      const secElements = sec.elements || sec.config?.elements || [];
+      if (secElements.length > 0) {
+        extractFromElements(secElements);
       }
     });
 

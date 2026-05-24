@@ -79,6 +79,34 @@ body {
     scrollbar-width: auto;
     scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.03);
   }
+
+  /* Always visible thick scrollbar for canvas area */
+  .canvas-scrollbar::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+
+  .canvas-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 20px;
+  }
+
+  .canvas-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15); /* Gray visible on light background */
+    border-radius: 20px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    transition: background 0.3s ease;
+  }
+
+  .canvas-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  .canvas-scrollbar {
+    scrollbar-width: auto;
+    scrollbar-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.02);
+  }
 }
 
 /* Animations */

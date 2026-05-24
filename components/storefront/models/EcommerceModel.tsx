@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { HeroSection, FeaturesSection, CategoriesSection, ProductGridSection, BannerSection } from "../sections/DynamicSections";
+import SectionRenderer from "../SectionRenderer";
 import StorefrontHeader from "../StorefrontHeader";
 import ProductCard from "../ProductCard";
 import ProductModal from "../ProductModal";
@@ -43,6 +44,7 @@ export default function EcommerceModel() {
               case "PRODUCT_GRID": return <ProductGridSection key={section.id} config={section.config} />;
               case "BANNER": return <BannerSection key={section.id} config={section.config} />;
               case "TEXT": return null; // Move to about page
+              case "SECTION": return <SectionRenderer key={section.id} section={section} />;
               default: return null;
             }
           })}

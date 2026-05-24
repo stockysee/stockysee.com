@@ -1,0 +1,10 @@
+{
+  "ArtifactMetadata": "{\"ArtifactType\":\"other\",\"RequestFeedback\":false,\"Summary\":\"\"}",
+  "Description": "\"Fix SectionElement import in EditorPanel\"",
+  "Instruction": "\"Fix import\"",
+  "ReplacementChunks": "[{\"AllowMultiple\":false,\"EndLine\":14,\"ReplacementContent\":\"import { BuilderSidebarProps, Section } from \\\"../types\\\";\\nimport { SectionElement } from \\\"@/components/storefront/sections/BuilderSection\\\";\",\"StartLine\":14,\"TargetContent\":\"import { BuilderSidebarProps, Section, SectionElement } from \\\"../types\\\";\"}]",
+  "TargetFile": "\"c:\\\\Users\\\\HYPE\\\\project\\\\villa-engine\\\\engine\\\\BACKUP-ENGINE\\\\BUILD\\\\stockysee\\\\app\\\\dashboard\\\\storefront\\\\builder\\\\panels\\\\EditorPanel.tsx\"",
+  "TargetLintErrorIds": "[]",
+  "toolAction": "\"Fix SectionElement import\"",
+  "toolSummary": "\"Fix EditorPanel import\""
+}

@@ -34,9 +34,10 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
 
   // Dynamic configurations from the visual builder header elements
   const headerSection = (sections || []).find((s: any) => s.type === "HEADER");
-  const brandingElement = headerSection?.elements?.find((el: any) => el.type === "BRANDING");
-  const menuElement = headerSection?.elements?.find((el: any) => el.type === "MENU");
-  const cartElement = headerSection?.elements?.find((el: any) => el.type === "CART");
+  const headerElements = headerSection?.elements || headerSection?.config?.elements || [];
+  const brandingElement = headerElements.find((el: any) => el.type === "BRANDING");
+  const menuElement = headerElements.find((el: any) => el.type === "MENU");
+  const cartElement = headerElements.find((el: any) => el.type === "CART");
 
   // Determine hidden menus
   const hiddenMenus = menuElement?.config?.hiddenMenus || [];

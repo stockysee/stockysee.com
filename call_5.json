@@ -1,0 +1,8 @@
+{
+  "Description": "\"Import BackgroundStylingGroup in EditorPanel\"",
+  "Instruction": "\"Add the import statement for BackgroundStylingGroup\"",
+  "ReplacementChunks": "[{\"AllowMultiple\":false,\"EndLine\":16,\"ReplacementContent\":\"import { TextStylingGroup } from \\\"./TextStylingGroup\\\";\\nimport { BackgroundStylingGroup } from \\\"./BackgroundStylingGroup\\\";\",\"StartLine\":16,\"TargetContent\":\"import { TextStylingGroup } from \\\"./TextStylingGroup\\\";\"}]",
+  "TargetFile": "\"c:\\\\Users\\\\HYPE\\\\project\\\\villa-engine\\\\engine\\\\BACKUP-ENGINE\\\\BUILD\\\\stockysee\\\\app\\\\dashboard\\\\storefront\\\\builder\\\\panels\\\\EditorPanel.tsx\"",
+  "toolAction": "\"Import BackgroundStylingGroup\"",
+  "toolSummary": "\"Import BackgroundStylingGroup\""
+}

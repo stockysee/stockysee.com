@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grup Bintang Mengikuti Cursor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #030308; /* Hitam luar angkasa */
+            overflow: hidden;
+        }
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particlesArray = [];
+        const mouse = {
+            x: window.innerWidth / 2, // Posisi awal di tengah layar
+            y: window.innerHeight / 2,
+            radius: 80 // Radius efek dorongan di dalam grup
+        };
+
+        window.addEventListener('mousemove', function(event) {
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+        });
+
+        class Star {
+            constructor() {
+                // Berikan jarak acak (offset) dari pusat kursor saat pertama kali dibuat
+                this.offsetX = Math.random() * 150 - 75; 
+                this.offsetY = Math.random() * 150 - 75;
+                
+                // Koordinat target dinamis mengikuti kursor + offset
+                this.baseX = mouse.x + this.offsetX;
+                this.baseY = mouse.y + this.offsetY;
+                
+                this.x = this.baseX;
+                this.y = this.baseY;
+                
+                this.size = Math.random() * 2 + 0.5;
+                const colors = ['#ffffff', '#e0f2fe', '#bae6fd', '#fef08a', '#c084fc'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.opacity = Math.random() * 0.6 + 0.4;
+                this.density = (Math.random() * 20) + 5; 
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            update() {
+                // Perbarui posisi dasar bintang agar selalu mengikuti kursor
+                this.baseX = mouse.x + this.offsetX;
+                this.baseY = mouse.y + this.offsetY;
+
+                // Hitung interaksi gaya tolak dari kursor fisik
+                let dxMouse = mouse.x - this.x;
+                let dyMouse = mouse.y - this.y;
+                let distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+                
+                if (distMouse < mouse.radius) {
+                    let forceDirectionX = dxMouse / distMouse;
+                    let forceDirectionY = dyMouse / distMouse;
+                    let maxDistance = mouse.radius;
+                    let force = (maxDistance - distMouse) / maxDistance;
+                    
+                    // Dorong bintang keluar agar tidak menempel di kursor
+                    this.x -= forceDirectionX * force * this.density;
+                    this.y -= forceDirectionY * force * this.density;
+                } else {
+                    // Jika tidak terdorong kursor, buat bintang bergerak halus mengikuti posisi grupnya
+                    let dxBase = this.x - this.baseX;
+                    let dyBase = this.y - this.baseY;
+                    this.x -= dxBase / 15; 
+                    this.y -= dyBase / 15;
+                }
+            }
+        }
+
+        // Membuat grup bintang (misal: 150 bintang dalam satu kluster)
+        function init() {
+            particlesArray.length = 0;
+            for (let i = 0; i < 150; i++) {
+                particlesArray.push(new Star());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+    </script>
+</body>
+</html>
