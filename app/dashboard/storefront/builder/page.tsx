@@ -1,7 +1,7 @@
 // @ts-nocheck
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { 
   Plus, Trash2, Settings2, Sliders, Eye, Save, X, Layers, Box, LayoutTemplate, Palette, Settings, Link as LinkIcon, ArrowLeft, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Smartphone, Monitor, Type, Image as ImageIcon, Paintbrush, Globe, Upload, Loader2, ShoppingBag, ShieldCheck, Copy, Clipboard, CopyPlus, PlusCircle, Columns, Undo2, Redo2, LayoutGrid, AlignLeft, AlignCenter, AlignRight, AlignJustify, MousePointerClick, SeparatorHorizontal, Award, Pencil, Folder, Sparkles, Link2, RotateCcw, Bold, Italic, Underline, List, ListOrdered, Maximize2, Table, Strikethrough, HelpCircle, Eraser, Quote, Minus 
 } from "lucide-react";
@@ -15,6 +15,62 @@ import { LottiePanelTrigger } from "@/components/LottiePanelTrigger";
 // Import custom hook, sidebar UI, dan template struktur section
 import { useBuilderState, SECTION_STRUCTURE_TEMPLATES } from "./useBuilderState";
 import BuilderSidebar from "./BuilderSidebar";
+
+// Mini component agar bisa pakai useRef/ResizeObserver untuk spacer fixed header di canvas preview
+function CanvasHeaderPreview({ headerSection, isLeftPanelOpen, isDraggingWidget }: {
+  headerSection: any;
+  isLeftPanelOpen: boolean;
+  isDraggingWidget: boolean;
+}) {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const isFixed = headerSection.config?.position === 'fixed';
+  const isSticky = headerSection.config?.sticky === true || headerSection.config?.position === 'sticky';
+  const zVal = headerSection.config?.zIndex ?? 100;
+  const posClass = isFixed
+    ? 'fixed top-0 left-0 right-0'
+    : isSticky
+      ? 'sticky top-0'
+      : headerSection.config?.position === 'absolute'
+        ? 'absolute top-0 left-0 right-0'
+        : 'relative';
+
+  useEffect(() => {
+    if (!headerRef.current) return;
+    const ro = new ResizeObserver(entries => {
+      for (const entry of entries) setHeaderHeight(entry.contentRect.height);
+    });
+    ro.observe(headerRef.current);
+    return () => ro.disconnect();
+  }, [headerRef.current]);
+
+  const headerElements = headerSection.elements || [];
+  return (
+    <>
+      <div
+        ref={headerRef}
+        className={`relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none ${posClass}`}
+        style={{ zIndex: zVal, borderRadius: `${headerSection.config?.borderRadius ?? 0}px` }}
+      >
+        <BuilderSection
+          id={headerSection.id}
+          config={headerSection.config}
+          elements={headerElements}
+          activeElementId={null}
+          activeSubFocus={null}
+          isActive={false}
+          isLeftPanelOpen={isLeftPanelOpen}
+          isDraggingWidget={isDraggingWidget}
+          onElementSelect={() => {}}
+          onSectionSelect={() => {}}
+        />
+      </div>
+      {isFixed && headerHeight > 0 && (
+        <div style={{ height: headerHeight }} aria-hidden="true" />
+      )}
+    </>
+  );
+}
 
 function BuilderContent() {
   const state = useBuilderState();
@@ -327,39 +383,12 @@ function BuilderContent() {
                 if (!headerSection) return null;
                 // In header canvas mode, the HeaderCanvas component renders the header — skip inline preview
                 if (activeCanvas === 'header') return null;
-                const isSticky = headerSection.config?.sticky === true || headerSection.config?.position === 'sticky';
-                const isFixed = headerSection.config?.position === 'fixed';
-                const headerElements = headerSection.elements || [];
-                const posClass = isFixed
-                  ? 'fixed top-0 left-0 right-0'
-                  : isSticky
-                    ? 'sticky top-0'
-                    : headerSection.config?.position === 'absolute'
-                      ? 'absolute top-0 left-0 right-0'
-                      : 'relative';
-                const zVal = headerSection.config?.zIndex ?? 100;
-
                 return (
-                  <div
-                    className={`relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none ${posClass}`}
-                    style={{
-                      zIndex: zVal,
-                      borderRadius: `${headerSection.config?.borderRadius ?? 0}px`,
-                    }}
-                  >
-                    <BuilderSection
-                      id={headerSection.id}
-                      config={headerSection.config}
-                      elements={headerElements}
-                      activeElementId={null}
-                      activeSubFocus={null}
-                      isActive={false}
-                      isLeftPanelOpen={isLeftPanelOpen}
-                      isDraggingWidget={isDraggingWidget}
-                      onElementSelect={() => {}}
-                      onSectionSelect={() => {}}
-                    />
-                  </div>
+                  <CanvasHeaderPreview
+                    headerSection={headerSection}
+                    isLeftPanelOpen={isLeftPanelOpen}
+                    isDraggingWidget={isDraggingWidget}
+                  />
                 );
               })()}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useStorefront } from "./StorefrontProvider";
 import { ShoppingBag, ArrowLeft, Menu, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
@@ -13,6 +13,8 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
   const { client, cartCount, isCartOpen, setIsCartOpen, isMobileMenuOpen, setIsMobileMenuOpen, sections, categories, hasAbout } = useStorefront();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const headerRef = useRef<HTMLDivElement>(null);
 
   // LOGIKA PATH DINAMIS (PENTING!)
   // Jika diakses via stockysee.com/storefront/[slug], link harus diawali /storefront/[slug]
@@ -25,6 +27,17 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!headerRef.current) return;
+    const ro = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        setHeaderHeight(entry.contentRect.height);
+      }
+    });
+    ro.observe(headerRef.current);
+    return () => ro.disconnect();
+  }, [headerRef.current]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -81,26 +94,33 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
                 : 'relative';
           const showScrollEffect = (isFixed || isSticky) && isScrolled;
           return (
-            <div
-              className={`w-full transition-all duration-300 ${positionClass}${showScrollEffect ? " shadow-[0_1px_0_0_rgba(0,0,0,0.08)]" : ""}`}
-              style={{
-                zIndex: zVal,
-                borderRadius: `${headerSection.config?.borderRadius ?? 0}px`,
-                backdropFilter: showScrollEffect ? "blur(12px)" : undefined,
-                WebkitBackdropFilter: showScrollEffect ? "blur(12px)" : undefined,
-              }}
-            >
-          <BuilderSection
-            id={headerSection.id}
-            config={headerSection.config}
-            elements={headerElements}
-            activeElementId={null}
-            isActive={false}
-            readOnly={true}
-            onElementSelect={() => {}}
-            onSectionSelect={() => {}}
-          />
-            </div>
+            <>
+              <div
+                ref={headerRef}
+                className={`w-full transition-all duration-300 ${positionClass}${showScrollEffect ? " shadow-[0_1px_0_0_rgba(0,0,0,0.08)]" : ""}`}
+                style={{
+                  zIndex: zVal,
+                  borderRadius: `${headerSection.config?.borderRadius ?? 0}px`,
+                  backdropFilter: showScrollEffect ? "blur(12px)" : undefined,
+                  WebkitBackdropFilter: showScrollEffect ? "blur(12px)" : undefined,
+                }}
+              >
+            <BuilderSection
+              id={headerSection.id}
+              config={headerSection.config}
+              elements={headerElements}
+              activeElementId={null}
+              isActive={false}
+              readOnly={true}
+              onElementSelect={() => {}}
+              onSectionSelect={() => {}}
+            />
+              </div>
+              {/* Spacer: hanya saat fixed agar konten di bawah tidak tertimpa */}
+              {isFixed && headerHeight > 0 && (
+                <div style={{ height: headerHeight }} aria-hidden="true" />
+              )}
+            </>
           );
         })()
       ) : (false && (
