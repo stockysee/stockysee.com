@@ -1,3 +1,10 @@
+## Backend - Perbaikan Bug Reset Penyimpanan Header & Duplikasi Record (2026-05-26)
+- [x] Menyaring (filter) duplikat record header/footer non-suffix (`global-header` / `global-footer`) di API GET `/api/storefront/sections` jika record ber-suffix (`global-header-${clientId}` / `global-footer-${clientId}`) yang baru/berubah sudah ada di database.
+- [x] Menambahkan console.log debug premium saat mendeteksi record header dan memetakan datanya agar mendeteksi arah direksi layout untuk memudahkan pemantauan.
+- [x] Membersihkan record duplikat lama `global-header` (non-suffix) secara manual di database untuk client aktif.
+- File yang berubah:
+  - [app/api/storefront/sections/route.ts](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/app/api/storefront/sections/route.ts)
+
 ## Frontend - Relokasi Floating Section Navigator pada Header (2026-05-24)
 - [x] Memindahkan posisi floating Section Navigator (fuchsia badge) khusus untuk komponen `global-header` dari yang semula melayang di atas (`-top-3.5`) menjadi melayang di bawah (`-bottom-5`). Hal ini mencegah navigator terpotong atau menempel ke header panel visual builder atas.
 - [x] Menambahkan `useEffect` log untuk memantau status visual relokasi navigator header secara real-time.

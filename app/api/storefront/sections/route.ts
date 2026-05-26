@@ -12,16 +12,32 @@ export async function GET(req: NextRequest) {
       orderBy: { order: "asc" }
     });
 
-    const mappedSections = sections.map(s => {
+    const hasSuffixedHeader = sections.some(s => s.id === `global-header-${clientId}`);
+    const hasSuffixedFooter = sections.some(s => s.id === `global-footer-${clientId}`);
+
+    const filteredSections = sections.filter(s => {
+      if (s.id === "global-header" && hasSuffixedHeader) {
+        console.log(`[API GET Debug] Menyaring/mengabaikan duplikat header lama non-suffix untuk client ${clientId}`);
+        return false;
+      }
+      if (s.id === "global-footer" && hasSuffixedFooter) {
+        console.log(`[API GET Debug] Menyaring/mengabaikan duplikat footer lama non-suffix untuk client ${clientId}`);
+        return false;
+      }
+      return true;
+    });
+
+    const mappedSections = filteredSections.map(s => {
       // Ensure config is an object, not a string
       const config = typeof s.config === 'string' ? JSON.parse(s.config) : s.config;
       
       // Log if we're returning a HEADER section to debug
       if (s.type === 'HEADER' || s.id?.includes('header')) {
-        console.log(`[API GET] Returning HEADER section ${s.id}:`, {
+        console.log(`[API GET] Returning HEADER section ${s.id} (mapped from DB id: ${s.id}):`, {
           type: s.type,
           configHasElements: !!config?.elements,
-          elementCount: config?.elements?.length || 0
+          elementCount: config?.elements?.length || 0,
+          direction: config?.direction || 'default'
         });
       }
       
@@ -40,7 +56,7 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    console.log(`[API GET Debug] Berhasil memetakan ${sections.length} sections untuk client ${clientId}`);
+    console.log(`[API GET Debug] Berhasil memetakan ${mappedSections.length} sections untuk client ${clientId} (asal: ${sections.length})`);
     return NextResponse.json(mappedSections);
   } catch (error: any) {
     console.error("[API GET Error]", error);
