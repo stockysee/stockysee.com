@@ -749,10 +749,22 @@ export function useBuilderState() {
       } else {
         const parsed = initialSections.map((s: any) => {
           const cfg = typeof s.config === 'string' ? JSON.parse(s.config) : s.config;
+          const extractedElements = s.elements || cfg?.elements || [];
+          
+          // DEBUG: Log element extraction for HEADER sections
+          if (s.type === 'HEADER' || s.id?.includes('header')) {
+            console.log(`[Builder Init] HEADER section ${s.id} - Elements extraction:`, {
+              hasRootElements: !!s.elements,
+              hasConfigElements: !!cfg?.elements,
+              extractedCount: extractedElements.length,
+              types: extractedElements.map((e: any) => e.type)
+            });
+          }
+          
           return {
             ...s,
             config: cfg,
-            elements: s.elements || cfg?.elements || []
+            elements: extractedElements
           };
         });
         console.log("[Builder Init] Memuat global sections dari API. Hasil parsing dan pemetaan elements:", parsed);

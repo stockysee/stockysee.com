@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 // ── SANITIZE SECTIONS HELPER ──
-// FIX: Ensure header always has full-width in storefront
+// FIX: Ensure header always has full-width in storefront AND preserve elements
 const sanitizeStorefrontSections = (secs: any[]): any[] => {
   if (!secs || secs.length === 0) return secs;
   
@@ -12,20 +12,28 @@ const sanitizeStorefrontSections = (secs: any[]): any[] => {
     // Normalize header to always be 'global-header' with contentWidth: 'full'
     // Check both uppercase HEADER and different variations
     if (section.type === 'HEADER' || section.type?.toUpperCase() === 'HEADER' || section.id === 'global-header' || section.id?.includes('header')) {
+      // CRITICAL: Extract elements from either root level OR nested in config
+      const headerElements = section.elements || section.config?.elements || [];
+      
       const sanitized = {
         ...section,
         id: 'global-header',
         type: 'HEADER', // Ensure type is uppercase
+        elements: headerElements, // PRESERVE ELEMENTS!
         config: {
           ...section.config,
-          contentWidth: 'full' // Force header to full-width
+          contentWidth: 'full', // Force header to full-width
+          // Ensure elements are also in config for backward compatibility
+          elements: headerElements
         }
       };
       console.log("[StorefrontProvider DEBUG] Sanitized HEADER section:", {
         originalId: section.id,
         originalType: section.type,
         newId: sanitized.id,
-        contentWidth: sanitized.config.contentWidth
+        contentWidth: sanitized.config.contentWidth,
+        elementCount: headerElements.length,
+        elementTypes: headerElements.map((el: any) => el.type).join(', ')
       });
       return sanitized;
     }

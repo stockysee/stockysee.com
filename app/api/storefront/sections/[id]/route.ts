@@ -13,6 +13,14 @@ export async function PUT(
     const body = await req.json();
     const { id: bodyId, clientId: bodyClientId, ...updateData } = body;
 
+    console.log(`[API PUT Debug] Menerima request untuk section ${params.id}. Body:`, {
+      sectionType: body.type,
+      hasConfig: !!body.config,
+      configHasElements: body.config?.elements ? body.config.elements.length : 0,
+      order: body.order,
+      isActive: body.isActive
+    });
+
     // Tentukan target ID di database (mencegah tabrakan multi-tenant)
     let targetId = params.id;
     if (targetId === "global-header") {
@@ -33,9 +41,16 @@ export async function PUT(
       }
       section = await prisma.storefrontSection.update({
         where: { id: targetId },
-        data: updateData
+        data: {
+          type: body.type,
+          config: body.config,
+          order: body.order,
+          isActive: body.isActive
+        }
       });
-      console.log(`[API PUT Debug] Section ${targetId} berhasil di-update untuk client ${clientId}`);
+      console.log(`[API PUT Debug] Section ${targetId} berhasil di-update untuk client ${clientId}. Config elements:`, {
+        elementsInDb: body.config?.elements?.length || 0
+      });
     } else {
       section = await prisma.storefrontSection.create({
         data: {
@@ -49,6 +64,16 @@ export async function PUT(
       });
       console.log(`[API PUT Debug] Section ${targetId} belum ada di DB. Berhasil membuat baru via Upsert untuk client ${clientId}`);
     }
+
+    // Verify what's actually saved in DB
+    const verification = await prisma.storefrontSection.findUnique({
+      where: { id: targetId }
+    });
+
+    console.log(`[API PUT Verification] Data yang tersimpan di DB untuk ${targetId}:`, {
+      configPresent: !!verification?.config,
+      elementsInConfig: (verification?.config as any)?.elements?.length || 0
+    });
 
     // Kembalikan ID virtual global agar disukai oleh state editor frontend
     const responseSection = {
