@@ -49,7 +49,7 @@ function CanvasHeaderPreview({ headerSection, isLeftPanelOpen, isDraggingWidget 
     <>
       <div
         ref={headerRef}
-        className={`relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none ${posClass}`}
+        className="relative group transition-all duration-300 pointer-events-none [&_*]:pointer-events-none"
         style={{ zIndex: zVal, borderRadius: `${headerSection.config?.borderRadius ?? 0}px` }}
       >
         <BuilderSection

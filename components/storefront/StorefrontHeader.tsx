@@ -48,6 +48,7 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
   // Dynamic configurations from the visual builder header elements
   const resolvedSections = (sections && sections.length > 0) ? sections : (client?.sections || []);
   const headerSection = resolvedSections.find((s: any) => s.type === "HEADER");
+  // elements bisa ada di root (setelah builder mapping) ATAU di dalam config.elements (dari Prisma langsung)
   const headerElements = headerSection?.elements || headerSection?.config?.elements || [];
   const brandingElement = headerElements.find((el: any) => el.type === "BRANDING");
   const menuElement = headerElements.find((el: any) => el.type === "MENU");

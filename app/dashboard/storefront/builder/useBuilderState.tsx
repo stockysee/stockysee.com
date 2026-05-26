@@ -453,15 +453,10 @@ export function useBuilderState() {
     const activeEl = findElementRecursively(editingSection.elements || [], activeElementId);
     if (activeEl) {
       // Jika tipe elemen adalah salah satu dari custom elements yang konfigurasinya hanya didukung di layout tab
-      const isCustomWidgetOnlyLayout = ['BRANDING', 'MENU'].includes(activeEl.type);
+      const isCustomWidgetOnlyLayout = false;
       console.log(`[EditorTab Sync Check] activeEl.type: "${activeEl.type}", isCustomWidgetOnlyLayout: ${isCustomWidgetOnlyLayout}, activeEditorTab: "${activeEditorTab}"`);
 
-      if (isCustomWidgetOnlyLayout) {
-        if (activeEditorTab !== 'layout') {
-          setActiveEditorTab('layout');
-          console.log(`[EditorTab Sync] Mengubah otomatis activeEditorTab ke "layout" karena elemen kustom aktif ("${activeEl.type}") hanya mendukung tab Tata Letak.`);
-        }
-      } else if (activeSubFocus) {
+      if (activeSubFocus && !['BRANDING'].includes(activeEl.type)) {
         // Jika ada subFocus aktif pada elemen non-custom (misalnya category_title dll yang hanya ada di layout)
         if (activeEditorTab !== 'layout') {
           setActiveEditorTab('layout');

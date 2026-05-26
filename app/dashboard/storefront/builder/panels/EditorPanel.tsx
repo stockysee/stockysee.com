@@ -196,8 +196,7 @@ export function EditorPanel(props: EditorPanelProps) {
                                 type="button"
                                 onClick={() => {
                                   setActiveEditorTab(tab.id as any);
-                                  setActiveSubFocus(null);
-                                  console.log('[EditorTab] Tab sticky global diubah ke:', tab.id, 'dan activeSubFocus di-reset.');
+                                  console.log('[EditorTab] Tab sticky global diubah ke:', tab.id);
                                 }}
                                 className={`flex-1 py-1.5 flex flex-col items-center justify-center gap-0.5 text-[9px] font-bold uppercase transition-all rounded-lg ${isTabActive
                                   ? 'bg-zinc-900 text-white shadow-sm border border-zinc-800 relative after:absolute after:bottom-0 after:left-1/4 after:right-1/4 after:h-0.5 after:bg-white'
@@ -216,7 +215,7 @@ export function EditorPanel(props: EditorPanelProps) {
                           <div className="space-y-4">
                             {/* TATA LETAK TAB - ELEMEN KECIL */}
                             {activeElement.type !== 'COLUMN' && activeEditorTab === 'layout' && (
-                              <div className="space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                              <div key={`layout-${activeElement.id}`} className="space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
                                 {/* HEADING (Title) Editor Konten */}
                                 {activeElement.type === 'HEADING' && (
                                   <div className="space-y-4">
@@ -466,8 +465,8 @@ export function EditorPanel(props: EditorPanelProps) {
                                    </div>
                                  )}
 
-                                {/* Perataan Teks/Element (Non-BUTTON, Non-IMAGE, Non-HEADING) */}
-                                {activeElement.config.align !== undefined && activeElement.type !== 'BUTTON' && activeElement.type !== 'CART' && activeElement.type !== 'IMAGE' && activeElement.type !== 'HEADING' && (
+                                {/* Perataan Teks/Element (Non-BUTTON, Non-IMAGE, Non-HEADING, Non-BRANDING) */}
+                                {activeElement.config.align !== undefined && activeElement.type !== 'BUTTON' && activeElement.type !== 'CART' && activeElement.type !== 'IMAGE' && activeElement.type !== 'HEADING' && activeElement.type !== 'BRANDING' && (
                                   <div className="space-y-2">
                                     <span className="text-[9px] font-black uppercase tracking-widest text-zinc-200">Alignment</span>
                                     <div className="flex gap-2">
@@ -2926,130 +2925,272 @@ className="w-4 h-4 object-contain"
                             )}
 
                             {/* BRANDING editor */}
-                            {activeEditorTab === 'layout' && activeElement.type === 'BRANDING' && (
-                              <div className="space-y-4">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Styling Branding Toko</span>
+                            {activeEditorTab === 'layout' && activeElement.type === 'BRANDING' && (() => {
+                              const brandingSubFocus = (activeSubFocus === 'logo' || activeSubFocus === 'text') ? activeSubFocus : null;
+                              return (
+                              <div className="space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
 
-                                <div className="space-y-1">
-                                  <span className="text-[8px] font-bold uppercase text-zinc-500">Ukuran Font: {activeElement.config.fontSize ?? 30}px</span>
-                                  <input type="range" min="12" max="32" value={activeElement.config.fontSize ?? 30} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontSize: Number(e.target.value) })} className="w-full accent-blue-500 h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none" />
-                                </div>
-
-                                <div className="space-y-1">
-                                  <span className="text-[8px] font-bold uppercase text-zinc-500">Warna Nama Toko</span>
-                                  <input type="color" value={activeElement.config.textColor || '#18181B'} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { textColor: e.target.value })} className="w-full h-8 rounded-lg bg-zinc-950 border border-zinc-800 cursor-pointer p-0.5" />
-                                </div>
-
-                                <div className="space-y-1">
-                                  <span className="text-[8px] font-bold uppercase text-zinc-500">Perataan Visual</span>
-                                  <div className="flex gap-1">
-                                    {(['left', 'center', 'right'] as const).map(a => (
-                                      <button key={a} onClick={() => handleUpdateElement(editingSection.id, activeElement.id, { align: a })}
-                                        className={`flex-1 py-1.5 rounded-lg text-[8px] font-bold uppercase transition-all ${(activeElement.config.align || 'left') === a ? 'bg-blue-600 text-white' : 'bg-zinc-950 text-zinc-400 border border-zinc-800 hover:bg-zinc-900'}`}
-                                      >{a === 'left' ? 'Kiri' : a === 'center' ? 'Tengah' : 'Kanan'}</button>
-                                    ))}
+                                {/* Sub-fokus: null → pilih layer */}
+                                {brandingSubFocus === null && (
+                                  <div className="space-y-3 animate-in fade-in duration-200">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Pilih Bagian</span>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => { setActiveSubFocus('logo'); console.log('[Editor BRANDING] Memilih sub-focus: logo'); }}
+                                        className="flex flex-col items-center gap-2 p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-zinc-600 transition-all group"
+                                      >
+                                        <ImageIcon className="w-5 h-5 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+                                        <span className="text-[10px] font-bold uppercase text-zinc-400 group-hover:text-zinc-200 transition-colors">Logo</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => { setActiveSubFocus('text'); console.log('[Editor BRANDING] Memilih sub-focus: text'); }}
+                                        className="flex flex-col items-center gap-2 p-3 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-zinc-600 transition-all group"
+                                      >
+                                        <Type className="w-5 h-5 text-zinc-400 group-hover:text-zinc-200 transition-colors" />
+                                        <span className="text-[10px] font-bold uppercase text-zinc-400 group-hover:text-zinc-200 transition-colors">Teks</span>
+                                      </button>
+                                    </div>
                                   </div>
-                                </div>
+                                )}
+
+                                {/* Sub-fokus: logo */}
+                                {brandingSubFocus === 'logo' && (
+                                  <div className="space-y-5 animate-in fade-in duration-200">
+                                    <button
+                                      type="button"
+                                      onClick={() => { setActiveSubFocus(null); console.log('[Editor BRANDING] Kembali ke menu utama dari logo'); }}
+                                      className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-bold mb-1 transition-colors duration-150"
+                                    >
+                                      <ChevronLeft className="w-4 h-4" />
+                                      <span>Kembali</span>
+                                    </button>
+
+                                    {/* Preview Logo — mirip IMAGE preview */}
+                                    <div className="space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-zinc-300 font-semibold">Logo Toko</span>
+                                        <Sparkles className="w-3.5 h-3.5 text-zinc-500" />
+                                      </div>
+                                      {(() => {
+                                        const logoSize = activeElement.config.logoSize ?? 40;
+                                        const logoShape = activeElement.config.logoShape ?? 'circle';
+                                        const logoRadius = logoShape === 'circle' ? 9999 : logoShape === 'rounded' ? 8 : 0;
+                                        const logoBgColor = activeElement.config.logoBgColor;
+                                        const hasBg = logoBgColor && logoBgColor !== 'transparent';
+                                        const logoUrl = client?.logoUrl;
+                                        const logoName = client?.name || 'Toko';
+                                        return (
+                                          <div className="relative w-full aspect-[2/1] rounded-xl overflow-hidden border border-zinc-800/80 bg-[#1a1a1f] flex items-center justify-center group">
+                                            {/* Preview logo */}
+                                            <div
+                                              style={{
+                                                width: Math.min(logoSize * 1.5, 96),
+                                                height: Math.min(logoSize * 1.5, 96),
+                                                borderRadius: logoRadius,
+                                                backgroundColor: hasBg ? logoBgColor : undefined,
+                                                border: '1px solid rgba(228,228,231,0.2)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                overflow: 'hidden',
+                                                flexShrink: 0,
+                                              }}
+                                            >
+                                              {logoUrl ? (
+                                                <img
+                                                  src={logoUrl}
+                                                  alt={logoName}
+                                                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                                                />
+                                              ) : (
+                                                <div className="w-full h-full bg-indigo-500/10 flex items-center justify-center">
+                                                  <span className="text-indigo-400 text-lg font-black uppercase tracking-wider">
+                                                    {logoName.substring(0, 2)}
+                                                  </span>
+                                                </div>
+                                              )}
+                                            </div>
+                                            {/* Hover overlay — info */}
+                                            <div className="absolute inset-x-0 bottom-0 bg-black/85 border-t border-zinc-850 p-2 opacity-0 group-hover:opacity-100 flex items-center justify-between transition-all duration-200 z-20">
+                                              <span className="text-[10px] text-zinc-400 font-medium">Logo dari profil toko</span>
+                                              <a
+                                                href="/dashboard/storefront/design"
+                                                className="px-2 py-1 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[10px] text-zinc-300 hover:text-white rounded-md font-bold transition-all flex items-center gap-1"
+                                              >
+                                                <Settings2 className="w-3 h-3" />
+                                                <span>Ubah</span>
+                                              </a>
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
+                                      {/* Info permanen di bawah preview */}
+                                      <div className="flex items-center justify-between py-1 px-2.5 rounded-[4px] bg-[#1a1a1f] border border-zinc-800">
+                                        <span className="text-[10px] text-zinc-500">Logo diambil dari profil toko</span>
+                                        <a href="/dashboard/storefront/design" className="text-[10px] text-blue-400 hover:text-blue-300 font-semibold">
+                                          Ubah →
+                                        </a>
+                                      </div>
+                                    </div>
+
+                                    {/* Garis pemisah */}
+                                    <div className="h-px bg-zinc-800/80" />
+
+                                    {/* Ukuran Logo */}
+                                    <div className="space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-zinc-300 font-semibold">Ukuran Logo</span>
+                                        <span className="text-[10px] font-bold text-zinc-500 tabular-nums">{activeElement.config.logoSize ?? 40}px</span>
+                                      </div>
+                                      <div className="flex items-center gap-3">
+                                        <input
+                                          type="range" min="24" max="120"
+                                          value={activeElement.config.logoSize ?? 40}
+                                          onChange={(e) => {
+                                            console.log('[Editor BRANDING] logoSize diubah ke:', e.target.value);
+                                            handleUpdateElement(editingSection.id, activeElement.id, { logoSize: Number(e.target.value) });
+                                          }}
+                                          className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none"
+                                        />
+                                        <input
+                                          type="number" min="24" max="120"
+                                          value={activeElement.config.logoSize ?? 40}
+                                          onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoSize: Number(e.target.value) })}
+                                          className="w-14 h-7 text-xs bg-[#1a1a1f] border border-zinc-800 text-zinc-100 focus:border-zinc-700 outline-none text-center rounded-md font-bold"
+                                        />
+                                      </div>
+                                    </div>
+
+                                    {/* Bentuk Logo */}
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs text-zinc-300 font-semibold">Bentuk Logo</span>
+                                      <div className="flex border border-zinc-800 rounded-md overflow-hidden bg-zinc-950/20">
+                                        {([
+                                          { value: 'square', label: 'Kotak', r: '0px' },
+                                          { value: 'rounded', label: 'Tumpul', r: '6px' },
+                                          { value: 'circle', label: 'Bulat', r: '9999px' },
+                                        ] as const).map((s, idx) => {
+                                          const isActive = (activeElement.config.logoShape ?? 'circle') === s.value;
+                                          return (
+                                            <button key={s.value} type="button"
+                                              onClick={() => { console.log('[Editor BRANDING] logoShape:', s.value); handleUpdateElement(editingSection.id, activeElement.id, { logoShape: s.value }); }}
+                                              className={`flex items-center gap-1.5 px-2.5 h-7 transition-all text-[10px] font-bold ${idx !== 2 ? 'border-r border-zinc-800' : ''} ${isActive ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/20'}`}
+                                            >
+                                              <div className="w-3 h-3 bg-current shrink-0" style={{ borderRadius: s.r }} />
+                                              <span>{s.label}</span>
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Sub-fokus: text */}
+                                {brandingSubFocus === 'text' && (
+                                  <div className="space-y-4 animate-in fade-in duration-200">
+                                    <button
+                                      type="button"
+                                      onClick={() => { setActiveSubFocus(null); console.log('[Editor BRANDING] Kembali ke menu utama dari text'); }}
+                                      className="flex items-center gap-1.5 text-xs text-blue-400 hover:text-blue-300 font-bold mb-1 transition-colors duration-150"
+                                    >
+                                      <ChevronLeft className="w-4 h-4" />
+                                      <span>Kembali</span>
+                                    </button>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-300 block">Sunting: Teks Nama Toko</span>
+
+                                    {/* Nama toko read-only — tampilkan nilai client.name */}
+                                    <div className="rounded-[4px] bg-[#1a1a1f] border border-zinc-800 overflow-hidden">
+                                      <div className="px-2.5 py-1.5 flex items-center justify-between border-b border-zinc-800/60">
+                                        <span className="text-[10px] text-zinc-500 font-medium">Nama Toko</span>
+                                        <a href="/dashboard/storefront/design" className="text-[10px] text-blue-400 hover:text-blue-300 font-semibold transition-colors">
+                                          Ubah →
+                                        </a>
+                                      </div>
+                                      <div className="px-2.5 py-2 flex items-center gap-2">
+                                        <span className="text-xs font-bold text-zinc-200 truncate">{client?.name || '—'}</span>
+                                        <span className="text-[9px] text-zinc-600 font-medium shrink-0">• Read-only</span>
+                                      </div>
+                                    </div>
+
+                                    {/* Tag HTML */}
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs text-zinc-300 font-semibold">Tag HTML</span>
+                                      <select
+                                        value={activeElement.config.textTag || 'span'}
+                                        onChange={(e) => { console.log('[Editor BRANDING] textTag:', e.target.value); handleUpdateElement(editingSection.id, activeElement.id, { textTag: e.target.value }); }}
+                                        className="w-24 px-2 h-8 rounded-[4px] text-xs bg-zinc-900 text-zinc-100 border border-zinc-800 outline-none font-semibold cursor-pointer text-center uppercase focus:border-zinc-700"
+                                      >
+                                        <option value="span">span</option>
+                                        <option value="p">p</option>
+                                        <option value="h1">H1</option>
+                                        <option value="h2">H2</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                )}
+
                               </div>
-                            )}
+                              );
+                            })()}
 
                             {/* MENU editor */}
                             {activeEditorTab === 'layout' && activeElement.type === 'MENU' && (
-                              <div className="space-y-4">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Styling Menu Navigasi</span>
+                              <div className="space-y-5 animate-in fade-in slide-in-from-top-1 duration-200">
 
-                                <div className="space-y-1">
-                                  <span className="text-[8px] font-bold uppercase text-zinc-500">Ukuran Font: {activeElement.config.fontSize ?? 20}px</span>
-                                  <input type="range" min="10" max="24" value={activeElement.config.fontSize ?? 20} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontSize: Number(e.target.value) })} className="w-full accent-blue-500 h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none" />
+                                {/* Header section */}
+                                <div className="flex items-center gap-2 pb-1.5 border-b border-zinc-800">
+                                  <AlignLeft className="w-3.5 h-3.5 text-zinc-500" />
+                                  <span className="text-[10px] font-black uppercase tracking-wider text-zinc-300">Halaman yang Ditampilkan</span>
                                 </div>
 
-                                <div className="space-y-1">
-                                  <span className="text-[8px] font-bold uppercase text-zinc-500">Warna Font Navigasi</span>
-                                  <input type="color" value={activeElement.config.textColor || '#18181B'} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { textColor: e.target.value })} className="w-full h-8 rounded-lg bg-zinc-950 border border-zinc-800 cursor-pointer p-0.5" />
+                                {/* Toggle list halaman */}
+                                <div className="space-y-1.5">
+                                  {(() => {
+                                    const defaultTabs = [
+                                      { id: 'catalog', label: 'Katalog' },
+                                      { id: 'categories', label: 'Kategori' }
+                                    ];
+                                    const customTabs = ((allCustomPages as any)?.pages || []).map((p: any) => ({
+                                      id: p.slug || p.id,
+                                      label: p.title
+                                    }));
+                                    const allTabs = [...defaultTabs, ...customTabs];
+                                    const hidden = activeElement.config.hiddenMenus || [];
+
+                                    return allTabs.map(tab => {
+                                      const isVisible = !hidden.includes(tab.id);
+                                      return (
+                                        <div
+                                          key={tab.id}
+                                          className="flex items-center justify-between h-8 px-2.5 rounded-[4px] bg-[#1a1a1f] border border-zinc-800 hover:border-zinc-700 transition-all"
+                                        >
+                                          <span className="text-xs font-semibold text-zinc-300">{tab.label}</span>
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              const nextHidden = isVisible
+                                                ? [...hidden, tab.id]
+                                                : hidden.filter((id: string) => id !== tab.id);
+                                              console.log('[Editor MENU] Toggle halaman:', tab.id, '→', !isVisible ? 'tampil' : 'sembunyikan');
+                                              handleUpdateElement(editingSection.id, activeElement.id, { hiddenMenus: nextHidden });
+                                            }}
+                                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-zinc-700/50 transition-colors duration-200 ease-in-out p-0.5 ${isVisible ? 'bg-blue-600' : 'bg-zinc-800'}`}
+                                          >
+                                            <span className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition duration-200 ease-in-out ${isVisible ? 'translate-x-4' : 'translate-x-0'}`} />
+                                          </button>
+                                        </div>
+                                      );
+                                    });
+                                  })()}
                                 </div>
 
-                                <div className="space-y-1">
-                                  <span className="text-[8px] font-bold uppercase text-zinc-500">Model Font (Font Family)</span>
-                                  <select
-                                    value={activeElement.config.fontFamily || 'inherit'}
-                                    onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontFamily: e.target.value })}
-                                    className="w-full p-2 rounded-lg text-xs bg-zinc-950 text-zinc-100 border border-zinc-800 focus:border-blue-500 outline-none"
-                                  >
-                                    <option value="inherit">Default System</option>
-                                    {POPULAR_FONTS.map(cat => (
-                                      <optgroup key={cat.category} label={cat.category} className="bg-zinc-950 text-zinc-300 font-bold">
-                                        {cat.fonts.map(f => (
-                                          <option key={f.value} value={f.value} className="bg-zinc-900 text-zinc-100 font-normal">{f.label}</option>
-                                        ))}
-                                      </optgroup>
-                                    ))}
-                                  </select>
-                                </div>
+                                <p className="text-[10px] text-zinc-600 leading-relaxed">
+                                  Halaman custom otomatis muncul saat ditambahkan di Pages.
+                                </p>
 
-                                <div className="space-y-1">
-                                  <span className="text-[8px] font-bold uppercase text-zinc-500">Ketebalan Teks (Font Weight)</span>
-                                  <select
-                                    value={activeElement.config.fontWeight || '600'}
-                                    onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontWeight: e.target.value })}
-                                    className="w-full p-2 rounded-lg text-xs bg-zinc-950 text-zinc-100 border border-zinc-800 focus:border-blue-500 outline-none"
-                                  >
-                                    <option value="300">Light (300)</option>
-                                    <option value="400">Regular (400)</option>
-                                    <option value="500">Medium (500)</option>
-                                    <option value="600">Semibold (600)</option>
-                                    <option value="700">Bold (700)</option>
-                                    <option value="900">Black (900)</option>
-                                  </select>
-                                </div>
-
-                                <div className="space-y-1">
-                                  <span className="text-[8px] font-bold uppercase text-zinc-500">Perataan Menu</span>
-                                  <div className="flex gap-1">
-                                    {(['left', 'center', 'right'] as const).map(a => (
-                                      <button key={a} onClick={() => handleUpdateElement(editingSection.id, activeElement.id, { align: a })}
-                                        className={`flex-1 py-1.5 rounded-lg text-[8px] font-bold uppercase transition-all ${(activeElement.config.align || 'center') === a ? 'bg-blue-600 text-white border-transparent' : 'bg-zinc-950 text-zinc-400 border border-zinc-800 hover:bg-zinc-900'}`}
-                                      >{a === 'left' ? 'Kiri' : a === 'center' ? 'Tengah' : 'Kanan'}</button>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                <div className="space-y-2 border-t pt-3 border-zinc-800">
-                                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Sembunyikan Halaman dari Menu</span>
-                                  <div className="space-y-1.5">
-                                    {(() => {
-                                      const defaultTabs = [
-                                        { id: 'catalog', label: 'Katalog' },
-                                        { id: 'categories', label: 'Kategori' }
-                                      ];
-                                      const customTabs = ((allCustomPages as any)?.pages || []).map((p: any) => ({
-                                        id: p.slug || p.id,
-                                        label: p.title
-                                      }));
-                                      const allTabs = [...defaultTabs, ...customTabs];
-                                      const hidden = activeElement.config.hiddenMenus || [];
-
-                                      return allTabs.map(tab => {
-                                        const isHidden = hidden.includes(tab.id);
-                                        return (
-                                          <label key={tab.id} className="flex items-center gap-2 text-[11px] font-medium text-zinc-300 hover:text-white cursor-pointer transition-all">
-                                            <input
-                                              type="checkbox"
-                                              checked={isHidden}
-                                              onChange={(e) => {
-                                                const nextHidden = e.target.checked
-                                                  ? [...hidden, tab.id]
-                                                  : hidden.filter((id: string) => id !== tab.id);
-                                                handleUpdateElement(editingSection.id, activeElement.id, { hiddenMenus: nextHidden });
-                                              }}
-                                              className="rounded text-blue-600 bg-zinc-950 border-zinc-800 focus:ring-blue-500 focus:ring-offset-zinc-900 h-3.5 w-3.5 cursor-pointer"
-                                            />
-                                            {tab.label}
-                                          </label>
-                                        );
-                                      });
-                                    })()}
-                                  </div>
-                                </div>
                               </div>
                             )}
 
@@ -4024,7 +4165,7 @@ className="w-4 h-4 object-contain"
 
                             {/* UNIFIED GAYA TAB FOR SMALL ELEMENTS */}
                             {activeElement.type !== 'COLUMN' && activeEditorTab === 'style' && (
-                              <div className="space-y-4 animate-in fade-in duration-200">
+                              <div key={`style-${activeElement.id}`} className="space-y-4 animate-in fade-in duration-200">
                                 {activeElement.type === 'IMAGE' && (
                                   <div className="space-y-4">
                                     <div
@@ -8204,6 +8345,707 @@ className="w-4 h-4 object-contain"
                                     </div>
                                   </div>
                                 )}
+                                {/* BRANDING style tab */}
+                                {activeElement.type === 'BRANDING' && (() => {
+                                  const brandingSubFocus = (activeSubFocus === 'logo' || activeSubFocus === 'text') ? activeSubFocus : null;
+                                  return (
+                                  <div className="space-y-4 animate-in fade-in duration-200">
+
+                                    {/* Sub-fokus null → arahkan ke layer */}
+                                    {brandingSubFocus === null && (
+                                      <div className="py-6 flex flex-col items-center justify-center gap-3 text-center">
+                                        <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                                          <Layers className="w-4 h-4 text-zinc-500" />
+                                        </div>
+                                        <div className="space-y-1">
+                                          <p className="text-[10px] text-zinc-400 font-semibold leading-relaxed">
+                                            Pilih bagian di tab Konten
+                                          </p>
+                                          <p className="text-[9px] text-zinc-600 leading-relaxed">
+                                            Klik Logo atau Teks untuk melihat opsi gaya masing-masing.
+                                          </p>
+                                        </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => setActiveEditorTab('layout')}
+                                          className="text-[10px] text-blue-400 hover:text-blue-300 font-bold transition-colors flex items-center gap-1"
+                                        >
+                                          <ChevronLeft className="w-3 h-3" />
+                                          Buka tab Konten
+                                        </button>
+                                      </div>
+                                    )}
+
+                                    {/* Sub-fokus logo → identik IMAGE style tab */}
+                                    {brandingSubFocus === 'logo' && (
+                                      <div className="space-y-4 animate-in fade-in duration-200">
+                                        <div
+                                          onClick={() => setEditorCollapse(prev => ({ ...prev, brandingLogo: !(prev.brandingLogo ?? true) }))}
+                                          className="flex items-center justify-between border-b border-zinc-800 pb-2 cursor-pointer select-none"
+                                        >
+                                          <div className="flex items-center gap-1.5">
+                                            {(editorCollapse.brandingLogo ?? true) ? <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" /> : <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0" />}
+                                            <span className="text-[10px] font-black uppercase tracking-wider text-zinc-300">Logo</span>
+                                          </div>
+                                        </div>
+
+                                        {(editorCollapse.brandingLogo ?? true) && (
+                                          <div className="space-y-4 animate-in fade-in duration-200">
+
+                                            {/* Warna Latar Logo */}
+                                            <div className="flex items-center justify-between">
+                                              <span className="text-xs text-zinc-300 font-semibold">Warna Latar</span>
+                                              {(() => {
+                                                const hasBg = activeElement.config.logoBgColor && activeElement.config.logoBgColor !== 'transparent';
+                                                return (
+                                                  <div className="flex items-center gap-2">
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => {
+                                                        if (hasBg) {
+                                                          handleUpdateElement(editingSection.id, activeElement.id, { logoBgColor: 'transparent' });
+                                                        } else {
+                                                          handleUpdateElement(editingSection.id, activeElement.id, { logoBgColor: '#e5e7eb' });
+                                                        }
+                                                      }}
+                                                      className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-zinc-700/50 transition-colors duration-200 ease-in-out p-0.5 ${hasBg ? 'bg-blue-600' : 'bg-zinc-800'}`}
+                                                    >
+                                                      <span className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition duration-200 ease-in-out ${hasBg ? 'translate-x-4' : 'translate-x-0'}`} />
+                                                    </button>
+                                                    {hasBg && (
+                                                      <div className="relative w-8 h-8 rounded-[4px] border border-zinc-800 flex items-center justify-center bg-[#1a1a1f] hover:bg-zinc-800/30 cursor-pointer overflow-hidden animate-in fade-in duration-150">
+                                                        <input
+                                                          type="color"
+                                                          value={activeElement.config.logoBgColor}
+                                                          onChange={(e) => { console.log('[Editor BRANDING] logoBgColor:', e.target.value); handleUpdateElement(editingSection.id, activeElement.id, { logoBgColor: e.target.value }); }}
+                                                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                        />
+                                                        <div className="w-4 h-4 rounded-[2px] border border-zinc-700" style={{ backgroundColor: activeElement.config.logoBgColor }} />
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                );
+                                              })()}
+                                            </div>
+
+                                            {/* Keburaman (Opacity) */}
+                                            <div className="space-y-2">
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-300 font-semibold">Keburaman</span>
+                                                <Monitor className="w-3.5 h-3.5 text-zinc-500" />
+                                              </div>
+                                              <div className="flex items-center gap-3">
+                                                <input
+                                                  type="range" min="0" max="100"
+                                                  value={activeElement.config.logoOpacity !== undefined ? activeElement.config.logoOpacity : 100}
+                                                  onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoOpacity: Number(e.target.value) })}
+                                                  className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none"
+                                                />
+                                                <div className="relative flex items-center justify-end">
+                                                  <input
+                                                    type="number" min="0" max="100"
+                                                    value={activeElement.config.logoOpacity !== undefined ? activeElement.config.logoOpacity : 100}
+                                                    onChange={(e) => {
+                                                      const val = Math.max(0, Math.min(100, Number(e.target.value)));
+                                                      handleUpdateElement(editingSection.id, activeElement.id, { logoOpacity: val });
+                                                    }}
+                                                    className="w-14 h-7 pr-4 text-xs bg-[#1a1a1f] border border-zinc-800 text-zinc-100 focus:border-zinc-700 outline-none text-right rounded-md font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                  />
+                                                  <span className="absolute right-1.5 text-[10px] text-zinc-500 font-bold select-none">%</span>
+                                                </div>
+                                              </div>
+                                            </div>
+
+                                            {/* CSS Filters */}
+                                            <div className="relative space-y-2">
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-300 font-semibold">CSS Filters</span>
+                                                <div className="flex items-center gap-1.5">
+                                                  {((activeElement.config.logoBlur > 0) || (activeElement.config.logoBrightness !== undefined && activeElement.config.logoBrightness !== 100) || (activeElement.config.logoContrast !== undefined && activeElement.config.logoContrast !== 100) || (activeElement.config.logoSaturate !== undefined && activeElement.config.logoSaturate !== 100) || (activeElement.config.logoHueRotate > 0)) && (
+                                                    <button type="button"
+                                                      onClick={() => handleUpdateElement(editingSection.id, activeElement.id, { logoBlur: 0, logoBrightness: 100, logoContrast: 100, logoSaturate: 100, logoHueRotate: 0 })}
+                                                      className="p-1 rounded text-zinc-500 hover:text-zinc-300 transition-colors"
+                                                    >
+                                                      <RotateCcw className="w-3.5 h-3.5" />
+                                                    </button>
+                                                  )}
+                                                  <button type="button"
+                                                    onClick={(e) => { e.stopPropagation(); setActivePopover(activePopover === 'logoCssFilters' ? null : 'logoCssFilters'); }}
+                                                    className={`p-1 rounded transition-colors ${activePopover === 'logoCssFilters' ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                                  >
+                                                    <Pencil className="w-3.5 h-3.5" />
+                                                  </button>
+                                                </div>
+                                              </div>
+                                              {activePopover === 'logoCssFilters' && (
+                                                <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-full mt-2 w-64 bg-[#141417] border border-zinc-800 rounded-xl p-4 shadow-2xl z-50 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
+                                                  <div className="flex items-center justify-between border-b border-zinc-800/60 pb-2">
+                                                    <span className="text-xs font-bold text-zinc-300">CSS Filters</span>
+                                                    <div className="flex items-center gap-1.5">
+                                                      <button type="button" onClick={() => handleUpdateElement(editingSection.id, activeElement.id, { logoBlur: 0, logoBrightness: 100, logoContrast: 100, logoSaturate: 100, logoHueRotate: 0 })} className="p-1 rounded text-zinc-500 hover:text-zinc-300 transition-colors"><RotateCcw className="w-3.5 h-3.5" /></button>
+                                                      <button type="button" onClick={() => setActivePopover(null)} className="p-1 rounded bg-zinc-800 text-zinc-100 transition-colors"><X className="w-3.5 h-3.5" /></button>
+                                                    </div>
+                                                  </div>
+                                                  {[
+                                                    { key: 'logoBlur', label: 'Blur', min: 0, max: 20, unit: 'px', def: 0 },
+                                                    { key: 'logoBrightness', label: 'Kecerahan', min: 0, max: 200, unit: '%', def: 100 },
+                                                    { key: 'logoContrast', label: 'Kontras', min: 0, max: 200, unit: '%', def: 100 },
+                                                    { key: 'logoSaturate', label: 'Saturasi', min: 0, max: 200, unit: '%', def: 100 },
+                                                  ].map(({ key, label, min, max, unit, def }) => (
+                                                    <div key={key} className="space-y-1">
+                                                      <div className="flex justify-between items-center text-[10px] font-bold uppercase text-zinc-500">
+                                                        <span>{label}</span>
+                                                        <span>{activeElement.config[key] !== undefined ? activeElement.config[key] : def}{unit}</span>
+                                                      </div>
+                                                      <div className="flex items-center gap-2">
+                                                        <input type="range" min={min} max={max} value={activeElement.config[key] !== undefined ? activeElement.config[key] : def} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { [key]: Number(e.target.value) })} className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none" />
+                                                        <input type="number" min={min} max={max} value={activeElement.config[key] !== undefined ? activeElement.config[key] : def} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { [key]: Number(e.target.value) })} className="w-12 h-6 px-1 text-center text-[10px] bg-zinc-950 border border-zinc-800 text-zinc-200 rounded outline-none font-bold" />
+                                                      </div>
+                                                    </div>
+                                                  ))}
+                                                  <div className="space-y-1">
+                                                    <div className="flex justify-between items-center text-[10px] font-bold uppercase text-zinc-500">
+                                                      <span>Hue</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                      <input type="range" min="0" max="360" value={activeElement.config.logoHueRotate !== undefined ? activeElement.config.logoHueRotate : 0} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoHueRotate: Number(e.target.value) })} className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none" />
+                                                      <div className="relative flex items-center justify-end">
+                                                        <input type="number" min="0" max="360" value={activeElement.config.logoHueRotate !== undefined ? activeElement.config.logoHueRotate : 0} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoHueRotate: Math.max(0, Math.min(360, Number(e.target.value))) })} className="w-12 h-6 pr-4 text-[10px] bg-zinc-950 border border-zinc-800 text-zinc-200 rounded outline-none font-bold" />
+                                                        <span className="absolute right-1 text-[8px] text-zinc-600 font-bold select-none">°</span>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            {/* Border Type */}
+                                            <div className="relative space-y-2">
+                                              <span className="text-xs text-zinc-300 font-semibold">Border Type</span>
+                                              <div
+                                                onClick={(e) => { e.stopPropagation(); setActiveDropdown(activeDropdown?.field === 'logoBorderType' ? null : { field: 'logoBorderType' }); }}
+                                                className="w-full p-2 rounded-xl text-xs bg-[#1a1a1f] text-zinc-150 border border-zinc-800 flex items-center justify-between cursor-pointer hover:border-zinc-700 select-none font-bold"
+                                              >
+                                                <span>
+                                                  {activeElement.config.logoBorderStyle === 'none' || !activeElement.config.logoBorderStyle ? 'Asali' :
+                                                   activeElement.config.logoBorderStyle === 'solid' ? 'Solid' :
+                                                   activeElement.config.logoBorderStyle === 'double' ? 'Ganda' :
+                                                   activeElement.config.logoBorderStyle === 'dotted' ? 'Titik' :
+                                                   activeElement.config.logoBorderStyle === 'dashed' ? 'Garis' :
+                                                   activeElement.config.logoBorderStyle === 'groove' ? 'Groove' : 'Asali'}
+                                                </span>
+                                                <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                                              </div>
+                                              {activeDropdown?.field === 'logoBorderType' && (
+                                                <div className="absolute left-0 right-0 top-full mt-1.5 bg-[#141417] border border-zinc-800 rounded-xl shadow-2xl py-1 z-50 overflow-hidden">
+                                                  {[
+                                                    { label: 'Asali', value: 'none' },
+                                                    { label: 'Solid', value: 'solid' },
+                                                    { label: 'Ganda', value: 'double' },
+                                                    { label: 'Titik', value: 'dotted' },
+                                                    { label: 'Garis', value: 'dashed' },
+                                                    { label: 'Groove', value: 'groove' },
+                                                  ].map((opt) => {
+                                                    const isSelected = (activeElement.config.logoBorderStyle || 'none') === opt.value;
+                                                    return (
+                                                      <div key={opt.value}
+                                                        onClick={() => { handleUpdateElement(editingSection.id, activeElement.id, { logoBorderStyle: opt.value }); setActiveDropdown(null); }}
+                                                        className={`px-3 py-2 text-xs cursor-pointer flex items-center justify-between transition-colors ${isSelected ? 'bg-blue-600/90 text-white font-bold' : 'text-zinc-300 hover:bg-zinc-800/40'}`}
+                                                      >
+                                                        {opt.label}
+                                                      </div>
+                                                    );
+                                                  })}
+                                                </div>
+                                              )}
+                                            </div>
+
+                                            {/* Border Width + Color — tampil jika border aktif */}
+                                            {activeElement.config.logoBorderStyle && activeElement.config.logoBorderStyle !== 'none' && (
+                                              <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-150">
+                                                <div className="space-y-1.5">
+                                                  <div className="flex items-center justify-between">
+                                                    <span className="text-xs text-zinc-300 font-semibold">Lebar Border</span>
+                                                    <select
+                                                      value={activeElement.config.logoBorderWidthUnit || 'px'}
+                                                      onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoBorderWidthUnit: e.target.value })}
+                                                      className="px-1.5 py-0.5 rounded text-[10px] bg-[#1a1a1f] text-zinc-100 border border-zinc-800 outline-none cursor-pointer font-bold"
+                                                    >
+                                                      <option value="px">px</option>
+                                                      <option value="em">em</option>
+                                                    </select>
+                                                  </div>
+                                                  <div className="flex items-center gap-3">
+                                                    <input type="range" min="0" max="20"
+                                                      value={parseInt(String(activeElement.config.logoBorderWidth || '1')) || 1}
+                                                      onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoBorderWidth: `${e.target.value}${activeElement.config.logoBorderWidthUnit || 'px'}` })}
+                                                      className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none"
+                                                    />
+                                                    <input type="number" min="0" max="20"
+                                                      value={parseInt(String(activeElement.config.logoBorderWidth || '1')) || 1}
+                                                      onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoBorderWidth: `${e.target.value}${activeElement.config.logoBorderWidthUnit || 'px'}` })}
+                                                      className="w-14 h-7 text-xs bg-[#1a1a1f] border border-zinc-800 text-zinc-100 focus:border-zinc-700 outline-none text-center rounded-md font-bold"
+                                                    />
+                                                  </div>
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                  <span className="text-xs text-zinc-300 font-semibold">Warna Border</span>
+                                                  <div className="relative w-8 h-8 rounded-[4px] border border-zinc-800 flex items-center justify-center bg-[#1a1a1f] hover:bg-zinc-800/30 cursor-pointer overflow-hidden">
+                                                    <input type="color"
+                                                      value={activeElement.config.logoBorderColor || '#e4e4e7'}
+                                                      onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoBorderColor: e.target.value })}
+                                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    />
+                                                    <div className="w-4 h-4 rounded-[2px] border border-zinc-700" style={{ backgroundColor: activeElement.config.logoBorderColor || '#e4e4e7' }} />
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            )}
+
+                                            {/* Border Radius */}
+                                            <div className="space-y-2">
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-300 font-semibold">Border Radius</span>
+                                                <select
+                                                  value={activeElement.config.logoBorderRadiusUnit || 'px'}
+                                                  onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoBorderRadiusUnit: e.target.value })}
+                                                  className="px-1.5 py-0.5 rounded text-[10px] bg-[#1a1a1f] text-zinc-100 border border-zinc-800 outline-none cursor-pointer font-bold"
+                                                >
+                                                  <option value="px">px</option>
+                                                  <option value="%">%</option>
+                                                </select>
+                                              </div>
+                                              <div className="flex items-center overflow-hidden rounded-[4px] border border-zinc-800 bg-[#1a1a1f] h-8">
+                                                {[
+                                                  { key: 'logoBorderRadiusTop', label: 'TL' },
+                                                  { key: 'logoBorderRadiusRight', label: 'TR' },
+                                                  { key: 'logoBorderRadiusBottom', label: 'BR' },
+                                                  { key: 'logoBorderRadiusLeft', label: 'BL' },
+                                                ].map(({ key, label }, idx) => (
+                                                  <React.Fragment key={key}>
+                                                    {idx > 0 && <div className="w-px h-4 bg-zinc-800/80 shrink-0" />}
+                                                    <input
+                                                      type="number" min="0"
+                                                      value={activeElement.config[key] ?? activeElement.config.logoBorderRadius ?? 0}
+                                                      onChange={(e) => {
+                                                        const val = Number(e.target.value);
+                                                        handleUpdateElement(editingSection.id, activeElement.id, { [key]: val });
+                                                      }}
+                                                      title={label}
+                                                      className="w-full text-center text-xs text-zinc-100 bg-transparent outline-none font-bold [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                    />
+                                                  </React.Fragment>
+                                                ))}
+                                              </div>
+                                              <div className="grid grid-cols-4 text-center text-[9px] text-zinc-500 font-bold select-none">
+                                                <span>Atas-Ki</span><span>Atas-Ka</span><span>Bwh-Ka</span><span>Bwh-Ki</span>
+                                              </div>
+                                            </div>
+
+                                            {/* Box Shadow */}
+                                            <div className="relative space-y-2">
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-300 font-semibold">Box Shadow</span>
+                                                <div className="flex items-center gap-1.5">
+                                                  {activeElement.config.logoBoxShadowType === 'custom' && (
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => handleUpdateElement(editingSection.id, activeElement.id, { logoBoxShadowType: 'none', logoBoxShadow: 'none' })}
+                                                      className="p-1 rounded text-zinc-500 hover:text-zinc-300 transition-colors"
+                                                    >
+                                                      <RotateCcw className="w-3.5 h-3.5" />
+                                                    </button>
+                                                  )}
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); setActivePopover(activePopover === 'logoBoxShadow' ? null : 'logoBoxShadow'); }}
+                                                    className={`p-1 rounded transition-colors ${activePopover === 'logoBoxShadow' ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'}`}
+                                                  >
+                                                    <Pencil className="w-3.5 h-3.5" />
+                                                  </button>
+                                                </div>
+                                              </div>
+                                              {activePopover === 'logoBoxShadow' && (
+                                                <div
+                                                  onClick={(e) => e.stopPropagation()}
+                                                  className="absolute right-0 top-full mt-2 w-64 bg-[#141417] border border-zinc-800 rounded-xl p-4 shadow-2xl z-50 space-y-4 animate-in fade-in slide-in-from-top-1 duration-200"
+                                                >
+                                                  <div className="flex items-center justify-between border-b border-zinc-800/60 pb-2">
+                                                    <span className="text-xs font-bold text-zinc-300">Box Shadow</span>
+                                                    <div className="flex items-center gap-1.5">
+                                                      <button
+                                                        type="button"
+                                                        onClick={() => handleUpdateElement(editingSection.id, activeElement.id, { logoBoxShadowType: 'none', logoBoxShadow: 'none' })}
+                                                        className="p-1 rounded text-zinc-500 hover:text-zinc-300 transition-colors"
+                                                      >
+                                                        <RotateCcw className="w-3.5 h-3.5" />
+                                                      </button>
+                                                      <button
+                                                        type="button"
+                                                        onClick={() => setActivePopover(null)}
+                                                        className="p-1 rounded bg-zinc-800 text-zinc-100 transition-colors"
+                                                      >
+                                                        <X className="w-3.5 h-3.5" />
+                                                      </button>
+                                                    </div>
+                                                  </div>
+
+                                                  {/* Shadow Color */}
+                                                  <div className="space-y-1.5">
+                                                    <span className="text-[10px] font-bold uppercase text-zinc-500">Warna</span>
+                                                    <div className="flex gap-2">
+                                                      <input
+                                                        type="color"
+                                                        value={activeElement.config.logoShadowColor ? (activeElement.config.logoShadowColor.startsWith('rgba') ? '#000000' : activeElement.config.logoShadowColor) : '#000000'}
+                                                        onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowColor: e.target.value, logoBoxShadowType: 'custom' })}
+                                                        className="w-10 h-7 rounded bg-zinc-950 border border-zinc-800 cursor-pointer p-0.5"
+                                                      />
+                                                      <input
+                                                        type="text"
+                                                        value={activeElement.config.logoShadowColor || 'rgba(0,0,0,0.5)'}
+                                                        onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowColor: e.target.value, logoBoxShadowType: 'custom' })}
+                                                        placeholder="rgba(0,0,0,0.5)"
+                                                        className="flex-1 px-2 h-7 rounded text-[10px] bg-zinc-950 text-zinc-100 border border-zinc-800 focus:border-zinc-700 outline-none font-bold"
+                                                      />
+                                                    </div>
+                                                  </div>
+
+                                                  {/* Offset X */}
+                                                  <div className="space-y-1">
+                                                    <div className="flex justify-between items-center text-[10px] font-bold uppercase text-zinc-500">
+                                                      <span>Mendatar</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                      <input
+                                                        type="range" min="-50" max="50"
+                                                        value={activeElement.config.logoShadowOffsetX !== undefined ? activeElement.config.logoShadowOffsetX : 0}
+                                                        onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowOffsetX: Number(e.target.value), logoBoxShadowType: 'custom' })}
+                                                        className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none"
+                                                      />
+                                                      <div className="relative flex items-center justify-end">
+                                                        <input
+                                                          type="number" min="-50" max="50"
+                                                          value={activeElement.config.logoShadowOffsetX !== undefined ? activeElement.config.logoShadowOffsetX : 0}
+                                                          onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowOffsetX: Math.max(-50, Math.min(50, Number(e.target.value))), logoBoxShadowType: 'custom' })}
+                                                          className="w-12 h-6 pr-4 text-[10px] bg-zinc-950 border border-zinc-800 text-zinc-200 focus:border-zinc-700 outline-none text-right rounded font-bold"
+                                                        />
+                                                        <span className="absolute right-1 text-[8px] text-zinc-500 font-bold select-none">px</span>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+
+                                                  {/* Offset Y */}
+                                                  <div className="space-y-1">
+                                                    <div className="flex justify-between items-center text-[10px] font-bold uppercase text-zinc-500">
+                                                      <span>Vertikal</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                      <input
+                                                        type="range" min="-50" max="50"
+                                                        value={activeElement.config.logoShadowOffsetY !== undefined ? activeElement.config.logoShadowOffsetY : 4}
+                                                        onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowOffsetY: Number(e.target.value), logoBoxShadowType: 'custom' })}
+                                                        className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none"
+                                                      />
+                                                      <div className="relative flex items-center justify-end">
+                                                        <input
+                                                          type="number" min="-50" max="50"
+                                                          value={activeElement.config.logoShadowOffsetY !== undefined ? activeElement.config.logoShadowOffsetY : 4}
+                                                          onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowOffsetY: Math.max(-50, Math.min(50, Number(e.target.value))), logoBoxShadowType: 'custom' })}
+                                                          className="w-12 h-6 pr-4 text-[10px] bg-zinc-950 border border-zinc-800 text-zinc-200 focus:border-zinc-700 outline-none text-right rounded font-bold"
+                                                        />
+                                                        <span className="absolute right-1 text-[8px] text-zinc-500 font-bold select-none">px</span>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+
+                                                  {/* Blur */}
+                                                  <div className="space-y-1">
+                                                    <div className="flex justify-between items-center text-[10px] font-bold uppercase text-zinc-500">
+                                                      <span>Buram</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                      <input
+                                                        type="range" min="0" max="100"
+                                                        value={activeElement.config.logoShadowBlur !== undefined ? activeElement.config.logoShadowBlur : 2}
+                                                        onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowBlur: Number(e.target.value), logoBoxShadowType: 'custom' })}
+                                                        className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none"
+                                                      />
+                                                      <div className="relative flex items-center justify-end">
+                                                        <input
+                                                          type="number" min="0" max="100"
+                                                          value={activeElement.config.logoShadowBlur !== undefined ? activeElement.config.logoShadowBlur : 2}
+                                                          onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowBlur: Math.max(0, Math.min(100, Number(e.target.value))), logoBoxShadowType: 'custom' })}
+                                                          className="w-12 h-6 pr-4 text-[10px] bg-zinc-950 border border-zinc-800 text-zinc-200 focus:border-zinc-700 outline-none text-right rounded font-bold"
+                                                        />
+                                                        <span className="absolute right-1 text-[8px] text-zinc-500 font-bold select-none">px</span>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+
+                                                  {/* Spread */}
+                                                  <div className="space-y-1">
+                                                    <div className="flex justify-between items-center text-[10px] font-bold uppercase text-zinc-500">
+                                                      <span>Menyebar</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                      <input
+                                                        type="range" min="-50" max="50"
+                                                        value={activeElement.config.logoShadowSpread !== undefined ? activeElement.config.logoShadowSpread : 0}
+                                                        onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowSpread: Number(e.target.value), logoBoxShadowType: 'custom' })}
+                                                        className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none"
+                                                      />
+                                                      <div className="relative flex items-center justify-end">
+                                                        <input
+                                                          type="number" min="-50" max="50"
+                                                          value={activeElement.config.logoShadowSpread !== undefined ? activeElement.config.logoShadowSpread : 0}
+                                                          onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { logoShadowSpread: Math.max(-50, Math.min(50, Number(e.target.value))), logoBoxShadowType: 'custom' })}
+                                                          className="w-12 h-6 pr-4 text-[10px] bg-zinc-950 border border-zinc-800 text-zinc-200 focus:border-zinc-700 outline-none text-right rounded font-bold"
+                                                        />
+                                                        <span className="absolute right-1 text-[8px] text-zinc-500 font-bold select-none">px</span>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div>
+
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {/* Sub-fokus text → typography lengkap */}
+                                    {brandingSubFocus === 'text' && (
+                                      <div className="space-y-4 animate-in fade-in duration-200">
+                                        <div className="flex items-center gap-2 pb-1.5 border-b border-zinc-800">
+                                          <Type className="w-3.5 h-3.5 text-zinc-500" />
+                                          <span className="text-[10px] font-black uppercase tracking-wider text-zinc-300">Gaya Teks Nama Toko</span>
+                                        </div>
+
+                                        {/* Perataan */}
+                                        <div className="flex items-center justify-between">
+                                          <div className="flex items-center gap-1.5">
+                                            <span className="text-xs text-zinc-300 font-semibold">Perataan</span>
+                                            <Monitor className="w-3.5 h-3.5 text-zinc-500" />
+                                          </div>
+                                          <div className="flex border border-zinc-800 rounded-[4px] overflow-hidden bg-zinc-950/20">
+                                            {(['left', 'center', 'right'] as const).map((a, idx) => {
+                                              const isActive = (activeElement.config.textAlign || 'left') === a;
+                                              const Icon = a === 'left' ? AlignLeft : a === 'center' ? AlignCenter : AlignRight;
+                                              return (
+                                                <button key={a} type="button"
+                                                  onClick={() => { console.log('[Editor BRANDING] textAlign:', a); handleUpdateElement(editingSection.id, activeElement.id, { textAlign: a }); }}
+                                                  className={`p-2 transition-all flex items-center justify-center cursor-pointer ${idx !== 2 ? 'border-r border-zinc-800' : ''} ${isActive ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/20'}`}
+                                                >
+                                                  <Icon className="w-3.5 h-3.5" />
+                                                </button>
+                                              );
+                                            })}
+                                          </div>
+                                        </div>
+
+                                        {/* Penulisan (Typography Popover) */}
+                                        <div className="flex items-center justify-between relative">
+                                          <span className="text-xs text-zinc-300 font-semibold">Penulisan</span>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); console.log('[Editor BRANDING] Toggle popover penulisan'); setActiveDropdown(activeDropdown?.field === 'branding_penulisan' ? null : { field: 'branding_penulisan' }); }}
+                                            className={`w-8 h-8 rounded-[4px] border border-zinc-800 flex items-center justify-center transition-all ${activeDropdown?.field === 'branding_penulisan' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'}`}
+                                          >
+                                            <Pencil className="w-3.5 h-3.5" />
+                                          </button>
+                                          {activeDropdown?.field === 'branding_penulisan' && (
+                                            <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-full mt-2 w-[280px] bg-[#18181b] border border-zinc-800 rounded-[4px] p-3 z-50 shadow-2xl space-y-3.5 text-left animate-in fade-in slide-in-from-top-2 duration-150">
+                                              <div className="flex items-center justify-between border-b border-zinc-800 pb-1.5">
+                                                <span className="text-xs font-bold text-zinc-200">Penulisan</span>
+                                                <button type="button" onClick={() => { console.log('[Editor BRANDING] Reset penulisan'); handleUpdateElement(editingSection.id, activeElement.id, { fontFamily: 'inherit', fontSize: 16, fontWeight: '600', fontStyle: 'normal', textTransform: 'none', letterSpacing: '0px', lineHeight: '1.2px' }); }} className="text-zinc-500 hover:text-zinc-300"><RotateCcw className="w-3.5 h-3.5" /></button>
+                                              </div>
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-400">Family</span>
+                                                <select value={activeElement.config.fontFamily || 'inherit'} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontFamily: e.target.value })} className="w-36 px-2 h-7 rounded-[4px] text-xs bg-zinc-900 text-zinc-100 border border-zinc-800 outline-none cursor-pointer font-bold">
+                                                  <option value="inherit">Default</option>
+                                                  {POPULAR_FONTS.map(cat => (<optgroup key={cat.category} label={cat.category} className="bg-zinc-950 text-zinc-300 font-bold">{cat.fonts.map(f => (<option key={f.value} value={f.value} className="bg-zinc-900 text-zinc-100 font-normal">{f.label}</option>))}</optgroup>))}
+                                                </select>
+                                              </div>
+                                              <div className="space-y-1.5">
+                                                <div className="flex items-center justify-between">
+                                                  <span className="text-xs text-zinc-400">Ukuran</span>
+                                                  <Monitor className="w-3 h-3 text-zinc-500" />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                  <input type="range" min="8" max="72" value={Number(activeElement.config.fontSize) || 16} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontSize: Number(e.target.value) })} className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none" />
+                                                  <input type="number" value={Number(activeElement.config.fontSize) || 16} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontSize: Number(e.target.value) })} className="w-12 h-6 px-1 text-center text-xs bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-[4px] outline-none font-bold" />
+                                                </div>
+                                              </div>
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-400">Ketebalan</span>
+                                                <select value={activeElement.config.fontWeight || '600'} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontWeight: e.target.value })} className="w-40 px-2 h-7 rounded-[4px] text-xs bg-zinc-900 text-zinc-100 border border-zinc-800 outline-none cursor-pointer font-bold">
+                                                  <option value="100">100 (Thin)</option>
+                                                  <option value="300">300 (Light)</option>
+                                                  <option value="400">400 (Normal)</option>
+                                                  <option value="500">500 (Medium)</option>
+                                                  <option value="600">600 (Semi Bold)</option>
+                                                  <option value="700">700 (Bold)</option>
+                                                  <option value="900">900 (Black)</option>
+                                                </select>
+                                              </div>
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-400">Gaya</span>
+                                                <select value={activeElement.config.fontStyle || 'normal'} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontStyle: e.target.value })} className="w-36 px-2 h-7 rounded-[4px] text-xs bg-zinc-900 text-zinc-100 border border-zinc-800 outline-none cursor-pointer font-bold">
+                                                  <option value="normal">Normal</option>
+                                                  <option value="italic">Miring</option>
+                                                </select>
+                                              </div>
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-400">Transformasi</span>
+                                                <select value={activeElement.config.textTransform || 'none'} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { textTransform: e.target.value })} className="w-36 px-2 h-7 rounded-[4px] text-xs bg-zinc-900 text-zinc-100 border border-zinc-800 outline-none cursor-pointer font-bold">
+                                                  <option value="none">Asali</option>
+                                                  <option value="uppercase">KAPITAL</option>
+                                                  <option value="lowercase">huruf kecil</option>
+                                                  <option value="capitalize">Kapitalisasi</option>
+                                                </select>
+                                              </div>
+                                              <div className="space-y-1.5">
+                                                <span className="text-xs text-zinc-400">Letter Spacing</span>
+                                                <div className="flex items-center gap-2">
+                                                  <input type="range" min="-5" max="20" value={parseInt(String(activeElement.config.letterSpacing || '0')) || 0} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { letterSpacing: `${e.target.value}px` })} className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none" />
+                                                  <input type="number" value={parseInt(String(activeElement.config.letterSpacing || '0')) || 0} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { letterSpacing: `${e.target.value}px` })} className="w-12 h-6 px-1 text-center text-xs bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-[4px] outline-none font-bold" />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {/* Warna Teks */}
+                                        <div className="flex items-center justify-between">
+                                          <span className="text-xs text-zinc-300 font-semibold">Warna Teks</span>
+                                          <div className="relative w-8 h-8 rounded-[4px] border border-zinc-800 flex items-center justify-center bg-[#1a1a1f] hover:bg-zinc-800/30 cursor-pointer overflow-hidden">
+                                            <input
+                                              type="color"
+                                              value={activeElement.config.textColor || '#18181B'}
+                                              onChange={(e) => { console.log('[Editor BRANDING] textColor:', e.target.value); handleUpdateElement(editingSection.id, activeElement.id, { textColor: e.target.value }); }}
+                                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                            />
+                                            {activeElement.config.textColor && activeElement.config.textColor !== 'transparent' ? (
+                                              <div className="w-4 h-4 rounded-[2px] border border-zinc-700" style={{ backgroundColor: activeElement.config.textColor }} />
+                                            ) : (
+                                              <div className="w-4 h-4 rounded-[2px] border border-zinc-700 relative overflow-hidden bg-zinc-950">
+                                                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(45deg, transparent 47%, #ef4444 47%, #ef4444 53%, transparent 53%)' }} />
+                                              </div>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                  </div>
+                                  );
+                                })()}
+
+                                {/* MENU style tab */}
+                                {activeElement.type === 'MENU' && (
+                                  <div className="space-y-4 animate-in fade-in duration-200">
+
+                                    <div className="flex items-center gap-2 pb-1.5 border-b border-zinc-800">
+                                      <AlignLeft className="w-3.5 h-3.5 text-zinc-500" />
+                                      <span className="text-[10px] font-black uppercase tracking-wider text-zinc-300">Navigasi</span>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                      {/* Perataan */}
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-xs text-zinc-300 font-semibold">Perataan</span>
+                                          <Monitor className="w-3.5 h-3.5 text-zinc-500" />
+                                        </div>
+                                        <div className="flex border border-zinc-800 rounded-[4px] overflow-hidden bg-zinc-950/20">
+                                          {(['left', 'center', 'right'] as const).map((a, idx) => {
+                                            const isActive = (activeElement.config.align || 'center') === a;
+                                            const Icon = a === 'left' ? AlignLeft : a === 'center' ? AlignCenter : AlignRight;
+                                            return (
+                                              <button key={a} type="button"
+                                                onClick={() => { console.log('[Editor MENU] align:', a); handleUpdateElement(editingSection.id, activeElement.id, { align: a }); }}
+                                                className={`p-2 transition-all flex items-center justify-center cursor-pointer ${idx !== 2 ? 'border-r border-zinc-800' : ''} ${isActive ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/20'}`}
+                                              >
+                                                <Icon className="w-3.5 h-3.5" />
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+
+                                      {/* Penulisan (Typography Popover) */}
+                                      <div className="flex items-center justify-between relative">
+                                        <span className="text-xs text-zinc-300 font-semibold">Penulisan</span>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); console.log('[Editor MENU] Toggle popover penulisan'); setActiveDropdown(activeDropdown?.field === 'menu_penulisan' ? null : { field: 'menu_penulisan' }); }}
+                                          className={`w-8 h-8 rounded-[4px] border border-zinc-800 flex items-center justify-center transition-all ${activeDropdown?.field === 'menu_penulisan' ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/50'}`}
+                                        >
+                                          <Pencil className="w-3.5 h-3.5" />
+                                        </button>
+                                        {activeDropdown?.field === 'menu_penulisan' && (
+                                          <div onClick={(e) => e.stopPropagation()} className="absolute right-0 top-full mt-2 w-[280px] bg-[#18181b] border border-zinc-800 rounded-[4px] p-3 z-50 shadow-2xl space-y-3.5 text-left animate-in fade-in slide-in-from-top-2 duration-150">
+                                            <div className="flex items-center justify-between border-b border-zinc-800 pb-1.5">
+                                              <span className="text-xs font-bold text-zinc-200">Penulisan</span>
+                                              <button type="button" onClick={() => { console.log('[Editor MENU] Reset penulisan'); handleUpdateElement(editingSection.id, activeElement.id, { fontFamily: 'inherit', fontSize: 14, fontWeight: '600' }); }} className="text-zinc-500 hover:text-zinc-300"><RotateCcw className="w-3.5 h-3.5" /></button>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                              <span className="text-xs text-zinc-400">Family</span>
+                                              <select value={activeElement.config.fontFamily || 'inherit'} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontFamily: e.target.value })} className="w-36 px-2 h-7 rounded-[4px] text-xs bg-zinc-900 text-zinc-100 border border-zinc-800 outline-none cursor-pointer font-bold">
+                                                <option value="inherit">Default</option>
+                                                {POPULAR_FONTS.map(cat => (<optgroup key={cat.category} label={cat.category} className="bg-zinc-950 text-zinc-300 font-bold">{cat.fonts.map(f => (<option key={f.value} value={f.value} className="bg-zinc-900 text-zinc-100 font-normal">{f.label}</option>))}</optgroup>))}
+                                              </select>
+                                            </div>
+                                            <div className="space-y-1.5">
+                                              <div className="flex items-center justify-between">
+                                                <span className="text-xs text-zinc-400">Ukuran</span>
+                                                <Monitor className="w-3 h-3 text-zinc-500" />
+                                              </div>
+                                              <div className="flex items-center gap-2">
+                                                <input type="range" min="8" max="32" value={Number(activeElement.config.fontSize) || 14} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontSize: Number(e.target.value) })} className="flex-1 accent-white h-1 bg-zinc-800 rounded-lg cursor-pointer appearance-none" />
+                                                <input type="number" value={Number(activeElement.config.fontSize) || 14} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontSize: Number(e.target.value) })} className="w-12 h-6 px-1 text-center text-xs bg-zinc-900 border border-zinc-800 text-zinc-100 rounded-[4px] outline-none font-bold" />
+                                              </div>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                              <span className="text-xs text-zinc-400">Ketebalan</span>
+                                              <select value={activeElement.config.fontWeight || '600'} onChange={(e) => handleUpdateElement(editingSection.id, activeElement.id, { fontWeight: e.target.value })} className="w-40 px-2 h-7 rounded-[4px] text-xs bg-zinc-900 text-zinc-100 border border-zinc-800 outline-none cursor-pointer font-bold">
+                                                <option value="300">300 (Light)</option>
+                                                <option value="400">400 (Normal)</option>
+                                                <option value="500">500 (Medium)</option>
+                                                <option value="600">600 (Semi Bold)</option>
+                                                <option value="700">700 (Bold)</option>
+                                                <option value="900">900 (Black)</option>
+                                              </select>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+
+                                      {/* Warna Teks */}
+                                      <div className="flex items-center justify-between">
+                                        <span className="text-xs text-zinc-300 font-semibold">Warna Teks</span>
+                                        <div className="relative w-8 h-8 rounded-[4px] border border-zinc-800 flex items-center justify-center bg-[#1a1a1f] hover:bg-zinc-800/30 cursor-pointer overflow-hidden">
+                                          <input
+                                            type="color"
+                                            value={activeElement.config.textColor || '#18181B'}
+                                            onChange={(e) => { console.log('[Editor MENU] textColor:', e.target.value); handleUpdateElement(editingSection.id, activeElement.id, { textColor: e.target.value }); }}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                          />
+                                          {activeElement.config.textColor && activeElement.config.textColor !== 'transparent' ? (
+                                            <div className="w-4 h-4 rounded-[2px] border border-zinc-700" style={{ backgroundColor: activeElement.config.textColor }} />
+                                          ) : (
+                                            <div className="w-4 h-4 rounded-[2px] border border-zinc-700 relative overflow-hidden bg-zinc-950">
+                                              <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(45deg, transparent 47%, #ef4444 47%, #ef4444 53%, transparent 53%)' }} />
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                  </div>
+                                )}
+
                                 {activeElement.type === 'CATEGORY_LIST' || activeElement.type === 'PRODUCT_LIST' ? (
                                   renderStyleTabContent(
                                     { ...editingSection, config: activeElement.config || {} },
@@ -8219,7 +9061,7 @@ className="w-4 h-4 object-contain"
                                     },
                                     { editorCollapse, setEditorCollapse, sectionBgTab, setSectionBgTab, sectionBorderTab, setSectionBorderTab, activePopover, setActivePopover, bgBorderWidthLink, setBgBorderWidthLink, bgBorderRadiusLink, setBgBorderRadiusLink, openMediaModal, handleDeleteImage }
                                   )
-                                ) : activeElement.type !== 'IMAGE' && activeElement.type !== 'HEADING' && activeElement.type !== 'BUTTON' && activeElement.type !== 'CART' && activeElement.type !== 'TEXT' && activeElement.type !== 'GALLERY' && (
+                                ) : activeElement.type !== 'IMAGE' && activeElement.type !== 'HEADING' && activeElement.type !== 'BUTTON' && activeElement.type !== 'CART' && activeElement.type !== 'TEXT' && activeElement.type !== 'GALLERY' && activeElement.type !== 'BRANDING' && activeElement.type !== 'MENU' && (
                                   <div className="space-y-3">
                                     <div className="bg-[#18181b]/60 border border-zinc-800/80 rounded-xl p-3.5 space-y-4">
                                       <div className="flex items-center gap-1.5 border-b border-zinc-800 pb-2">
@@ -8607,7 +9449,7 @@ className="w-4 h-4 object-contain"
 
                             {/* UNIFIED LANJUTAN TAB FOR SMALL ELEMENTS */}
                             {activeElement.type !== 'COLUMN' && activeEditorTab === 'advanced' && (
-                              <div className="space-y-4 animate-in fade-in duration-200">
+                              <div key={`advanced-${activeElement.id}`} className="space-y-4 animate-in fade-in duration-200">
                                 {/* Accordion: Tata Letak */}
                                 <div className="space-y-3">
                                   <button

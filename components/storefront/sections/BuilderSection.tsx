@@ -867,7 +867,16 @@ const BadgeElement = ({ config }: { config: any }) => (
 );
 
 // ── BRANDING ELEMENT (Logo & Toko) ──
-const BrandingElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) => {
+interface BrandingElementProps {
+  config: any;
+  readOnly?: boolean;
+  onElementSelect?: (id: string, subFocus?: string | null) => void;
+  elementId?: string;
+  activeSubFocus?: string | null;
+  isActive?: boolean;
+}
+
+const BrandingElement = ({ config, readOnly, onElementSelect, elementId, activeSubFocus, isActive }: BrandingElementProps) => {
   const sf = useStorefront();
   const name = sf?.client?.name || "Nama Toko";
   const logo = sf?.client?.logoUrl;
@@ -876,10 +885,65 @@ const BrandingElement = ({ config, readOnly }: { config: any; readOnly?: boolean
   const isPathMode = pathname?.includes(`/storefront/${sf?.client?.slug}`);
   const baseLink = isPathMode ? `/storefront/${sf?.client?.slug}` : "";
 
+  const showBuilderUI = !readOnly;
+
+  const handleContainerClick = (e: React.MouseEvent) => {
+    if (!showBuilderUI || !onElementSelect || !elementId) return;
+    e.stopPropagation();
+    onElementSelect(elementId, null);
+  };
+
+  const handleSubFocusClick = (e: React.MouseEvent, focusType: string) => {
+    if (!showBuilderUI || !onElementSelect || !elementId) return;
+    e.stopPropagation();
+    onElementSelect(elementId, focusType);
+  };
+
+  const hoverLogoClass = !readOnly ? 'hover:outline-dashed hover:outline-2 hover:outline-blue-500/40 hover:scale-105 transition-all' : '';
+  const hoverTextClass = !readOnly ? 'hover:outline-dashed hover:outline-1 hover:outline-blue-500/40 rounded px-1 transition-all' : '';
+
   // Debug log untuk Aturan 8
   useEffect(() => {
     console.log("[BrandingElement Debug] Loaded:", { name, logo, readOnly });
   }, [name, logo, readOnly]);
+
+  // Baca config logo
+  const logoSize = config.logoSize ?? 40;
+  const logoShape = config.logoShape ?? 'circle';
+  const logoRadius = logoShape === 'circle' ? 9999 : logoShape === 'rounded' ? 8 : 0;
+  const logoBgColor = config.logoBgColor || 'transparent';
+
+  // Config gaya baru (identik IMAGE)
+  const logoOpacity = config.logoOpacity !== undefined ? config.logoOpacity / 100 : 1;
+  const logoCssFilter = [
+    config.logoBlur > 0 ? `blur(${config.logoBlur}px)` : '',
+    config.logoBrightness !== undefined && config.logoBrightness !== 100 ? `brightness(${config.logoBrightness}%)` : '',
+    config.logoContrast !== undefined && config.logoContrast !== 100 ? `contrast(${config.logoContrast}%)` : '',
+    config.logoSaturate !== undefined && config.logoSaturate !== 100 ? `saturate(${config.logoSaturate}%)` : '',
+    config.logoHueRotate > 0 ? `hue-rotate(${config.logoHueRotate}deg)` : '',
+  ].filter(Boolean).join(' ') || undefined;
+
+  const logoBorderRadius = (() => {
+    const unit = config.logoBorderRadiusUnit || 'px';
+    const tl = config.logoBorderRadiusTop ?? config.logoBorderRadius ?? logoRadius;
+    const tr = config.logoBorderRadiusRight ?? config.logoBorderRadius ?? logoRadius;
+    const br = config.logoBorderRadiusBottom ?? config.logoBorderRadius ?? logoRadius;
+    const bl = config.logoBorderRadiusLeft ?? config.logoBorderRadius ?? logoRadius;
+    // Jika ada key radius per-sudut diset, gunakan shorthand per-sudut; jika tidak, pakai logoRadius (dari logoShape)
+    const hasCustomRadius = config.logoBorderRadiusTop !== undefined || config.logoBorderRadius !== undefined;
+    if (!hasCustomRadius) return logoRadius;
+    return `${tl}${unit} ${tr}${unit} ${br}${unit} ${bl}${unit}`;
+  })();
+
+  const logoBoxShadow = config.logoBoxShadowType === 'custom'
+    ? `${config.logoShadowOffsetX ?? 0}px ${config.logoShadowOffsetY ?? 4}px ${config.logoShadowBlur ?? 2}px ${config.logoShadowSpread ?? 0}px ${config.logoShadowColor || 'rgba(0,0,0,0.5)'}`
+    : (config.logoBoxShadow && config.logoBoxShadow !== 'none' ? config.logoBoxShadow : (config.logoBorderStyle && config.logoBorderStyle !== 'none' ? undefined : '0 1px 2px 0 rgba(0,0,0,0.05)'));
+  const logoBorder = config.logoBorderStyle && config.logoBorderStyle !== 'none'
+    ? `${parseInt(String(config.logoBorderWidth || '1')) || 1}${config.logoBorderWidthUnit || 'px'} ${config.logoBorderStyle} ${config.logoBorderColor || '#e4e4e7'}`
+    : '1px solid rgba(228,228,231,0.8)';
+
+  // Tag HTML untuk nama toko
+  const TextTag = (config.textTag || 'span') as keyof JSX.IntrinsicElements;
 
   const content = (
     <div
@@ -887,28 +951,74 @@ const BrandingElement = ({ config, readOnly }: { config: any; readOnly?: boolean
       style={{
         justifyContent: config.align === 'center' ? 'center' : config.align === 'right' ? 'flex-end' : 'flex-start',
       }}
+      onClick={showBuilderUI ? handleContainerClick : undefined}
     >
       {logo ? (
         <img
           src={logo}
           alt={name}
-          className="h-10 w-10 object-contain rounded-full border border-zinc-200/80 shadow-sm"
+          className={`cursor-pointer transition-all duration-200 ${
+            isActive && activeSubFocus === 'logo'
+              ? 'outline outline-2 outline-blue-500/60 scale-105 shadow-md'
+              : hoverLogoClass
+          }`}
+          style={{
+            width: logoSize,
+            height: logoSize,
+            borderRadius: logoBorderRadius,
+            backgroundColor: logoBgColor,
+            objectFit: 'contain',
+            border: logoBorder,
+            boxShadow: logoBoxShadow,
+            opacity: logoOpacity,
+            filter: logoCssFilter,
+            flexShrink: 0,
+          }}
+          onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'logo') : undefined}
         />
       ) : (
-        <div className="h-10 w-10 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 shadow-sm">
+        <div
+          style={{
+            width: logoSize,
+            height: logoSize,
+            borderRadius: logoBorderRadius,
+            backgroundColor: logoBgColor !== 'transparent' ? logoBgColor : undefined,
+            border: logoBorder,
+            boxShadow: logoBoxShadow,
+            opacity: logoOpacity,
+            filter: logoCssFilter,
+            flexShrink: 0,
+          }}
+          className={`bg-indigo-500/10 flex items-center justify-center shadow-sm cursor-pointer transition-all duration-200 ${
+            isActive && activeSubFocus === 'logo'
+              ? 'outline outline-2 outline-blue-500/60 scale-105 shadow-md'
+              : hoverLogoClass
+          }`}
+          onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'logo') : undefined}
+        >
           <span className="text-indigo-600 text-sm font-black uppercase tracking-wider">{name.substring(0, 2)}</span>
         </div>
       )}
-      <span
-        className="font-extrabold tracking-tight transition-all duration-200"
+      <TextTag
+        className={`font-extrabold tracking-tight transition-all duration-200 cursor-pointer ${
+          isActive && activeSubFocus === 'text'
+            ? 'outline outline-2 outline-blue-500/60 bg-blue-500/10 rounded px-1 scale-105 shadow-sm'
+            : hoverTextClass
+        }`}
         style={{
-          fontSize: `${config.fontSize ?? 16}px`,
+          fontSize: config.fontSize ? `${config.fontSize}px` : '16px',
           color: config.textColor || '#18181B',
-          fontFamily: config.fontFamily || 'inherit'
+          fontFamily: config.fontFamily || 'inherit',
+          fontWeight: config.fontWeight || undefined,
+          fontStyle: config.fontStyle || undefined,
+          textTransform: config.textTransform as any || undefined,
+          letterSpacing: config.letterSpacing || undefined,
+          textAlign: config.textAlign as any || undefined,
         }}
+        onClick={showBuilderUI ? (e) => handleSubFocusClick(e, 'text') : undefined}
       >
         {name}
-      </span>
+      </TextTag>
     </div>
   );
 
@@ -2849,7 +2959,7 @@ const ElementWrapper = ({
 
       {/* Element Content */}
       <div
-        className={`${(element.type === 'COLUMN' || element.type === 'CATEGORY_LIST' || element.type === 'PRODUCT_LIST') ? '' : 'pointer-events-none'} ${element.config?.customClass || ''} transition-all`}
+        className={`${(element.type === 'COLUMN' || element.type === 'CATEGORY_LIST' || element.type === 'PRODUCT_LIST' || element.type === 'BRANDING') ? '' : 'pointer-events-none'} ${element.config?.customClass || ''} transition-all`}
         style={contentStyle}
       >
         {element.type === 'HEADING' && <HeadingElement config={element.config} />}
@@ -2860,7 +2970,16 @@ const ElementWrapper = ({
         {element.type === 'SPACER' && <SpacerElement config={element.config} />}
         {element.type === 'DIVIDER' && <DividerElement config={element.config} />}
         {element.type === 'BADGE' && <BadgeElement config={element.config} />}
-        {element.type === 'BRANDING' && <BrandingElement config={element.config} readOnly={readOnly} />}
+        {element.type === 'BRANDING' && (
+          <BrandingElement
+            config={element.config}
+            onElementSelect={onElementSelect}
+            elementId={element.id}
+            activeSubFocus={activeSubFocus}
+            isActive={isActive}
+            readOnly={readOnly}
+          />
+        )}
         {element.type === 'MENU' && <MenuElement config={element.config} readOnly={readOnly} />}
         {element.type === 'CART' && <CartElement config={element.config} readOnly={readOnly} />}
         {element.type === 'CATEGORY_LIST' && (

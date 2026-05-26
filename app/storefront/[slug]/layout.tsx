@@ -42,13 +42,18 @@ export default async function StorefrontLayout({
 
   if (client.sections) {
     client.sections = client.sections.map((s: any) => {
-      if (s.id === `global-header-${client.id}`) {
-        return { ...s, id: "global-header" };
-      }
-      if (s.id === `global-footer-${client.id}`) {
-        return { ...s, id: "global-footer" };
-      }
-      return s;
+      // Normalize id
+      let id = s.id;
+      if (id === `global-header-${client.id}`) id = "global-header";
+      if (id === `global-footer-${client.id}`) id = "global-footer";
+
+      // Normalize config: Prisma Json field bisa string atau object
+      const cfg = typeof s.config === "string" ? JSON.parse(s.config) : (s.config || {});
+
+      // Normalize elements: bisa ada di root (jarang) atau di dalam config
+      const elements = s.elements || cfg?.elements || [];
+
+      return { ...s, id, config: cfg, elements };
     });
   }
 
