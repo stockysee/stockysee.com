@@ -13,18 +13,37 @@ export async function GET(req: NextRequest) {
     });
 
     const mappedSections = sections.map(s => {
-      if (s.id === `global-header-${clientId}`) {
-        return { ...s, id: "global-header" };
+      // Ensure config is an object, not a string
+      const config = typeof s.config === 'string' ? JSON.parse(s.config) : s.config;
+      
+      // Log if we're returning a HEADER section to debug
+      if (s.type === 'HEADER' || s.id?.includes('header')) {
+        console.log(`[API GET] Returning HEADER section ${s.id}:`, {
+          type: s.type,
+          configHasElements: !!config?.elements,
+          elementCount: config?.elements?.length || 0
+        });
       }
-      if (s.id === `global-footer-${clientId}`) {
-        return { ...s, id: "global-footer" };
+      
+      // Normalize ID
+      let id = s.id;
+      if (id === `global-header-${clientId}`) {
+        id = "global-header";
+      } else if (id === `global-footer-${clientId}`) {
+        id = "global-footer";
       }
-      return s;
+      
+      return { 
+        ...s, 
+        id,
+        config // Ensure config is always an object
+      };
     });
 
     console.log(`[API GET Debug] Berhasil memetakan ${sections.length} sections untuk client ${clientId}`);
     return NextResponse.json(mappedSections);
   } catch (error: any) {
+    console.error("[API GET Error]", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

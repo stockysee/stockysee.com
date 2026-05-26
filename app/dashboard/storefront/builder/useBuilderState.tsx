@@ -260,10 +260,18 @@ function MoveControls({ canMoveUp, canMoveDown, onMoveUp, onMoveDown }: MoveCont
 const sanitizeSections = (secs: Section[]): Section[] => {
   console.log("[Builder Debug] Memulai sanitasi data sections. Jumlah input:", secs.length);
   let sorted = [...secs].sort((a, b) => a.order - b.order);
-  let headerIdx = sorted.findIndex(s => s.type === 'HEADER');
+  
+  // More robust header detection - check type AND id variations
+  let headerIdx = sorted.findIndex(s => 
+    s.type === 'HEADER' || 
+    s.type?.toUpperCase() === 'HEADER' ||
+    s.id === 'global-header' ||
+    s.id?.includes('header')
+  );
 
   let headerSection: Section;
   if (headerIdx === -1) {
+    console.warn("[Builder Debug] ⚠️ Header tidak ditemukan, menginjeksi header bawaan baru. sections:", secs);
     headerSection = {
       id: 'global-header',
       type: 'HEADER',
@@ -283,10 +291,14 @@ const sanitizeSections = (secs: Section[]): Section[] => {
       order: -1,
       isActive: true
     };
-    console.log("[Builder Debug] Header tidak ditemukan, menginjeksi header bawaan baru.");
   } else {
     headerSection = { ...sorted[headerIdx] };
     sorted.splice(headerIdx, 1);
+    console.log("[Builder Debug] Header DITEMUKAN:", {
+      id: headerSection.id,
+      type: headerSection.type,
+      elementCount: (headerSection.elements || []).length
+    });
   }
   
   // FIX 1: Normalize header ID selalu menjadi 'global-header'
@@ -2070,7 +2082,7 @@ export function useBuilderState() {
         } else {
           showToast("Perubahan berhasil disimpan", "success");
           setHasChanges(false);
-          setSections(sanitizeSections(savedSections));
+          // DON'T sanitize here - just reload from API to get fresh data with everything intact
           refreshSections();
         }
       }
