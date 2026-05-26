@@ -26,6 +26,7 @@ interface HeaderCanvasProps {
   isDraggingWidget: boolean;
   isLeftPanelOpen: boolean;
   setContextMenu: (menu: any) => void;
+  panelWidth?: number;
 }
 
 export default function HeaderCanvas({
@@ -46,6 +47,7 @@ export default function HeaderCanvas({
   isDraggingWidget,
   isLeftPanelOpen,
   setContextMenu,
+  panelWidth,
 }: HeaderCanvasProps) {
   // Di canvas builder, TIDAK pakai ResizeObserver/spacer — tidak ada fixed layout di canvas.
   const pos = headerSection.config?.position;
@@ -58,7 +60,7 @@ export default function HeaderCanvas({
   // elements: dari root (setelah builder map) atau dari config.elements (Prisma raw)
   const headerElements = headerSection.elements || (headerSection.config?.elements as SectionElement[] | undefined) || [];
 
-  console.log("[HeaderCanvas] Render - pos:", pos, "elements:", headerElements.length);
+  console.log("[HeaderCanvas] Render - pos:", pos, "elements:", headerElements.length, "isLeftPanelOpen:", isLeftPanelOpen, "panelWidth:", panelWidth);
 
   return (
     <div className="w-full">
@@ -134,6 +136,7 @@ export default function HeaderCanvas({
           onDropWidget={handleDropWidget}
           isDraggingWidget={isDraggingWidget}
           isLeftPanelOpen={isLeftPanelOpen}
+          panelWidth={panelWidth}
           onOpenEditPanel={(elementId) => {
             setEditingSection(headerSection);
             setActiveElementId(elementId);

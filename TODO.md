@@ -1,3 +1,11 @@
+## Frontend - Optimalisasi Layout Fixed Header Canvas saat Sidebar Expand (2026-05-26)
+- [x] Mengirimkan properti `panelWidth` ke komponen `HeaderCanvas` agar lebar fixed header di editor canvas disesuaikan secara dinamis ketika panel edit samping (sidebar) aktif/expand.
+- [x] Menghubungkan properti `panelWidth` ke `BuilderSection` di dalam `HeaderCanvas.tsx` sehingga fixed header diatur dengan lebar `auto`, `left: panelWidth` dan `right: 0` agar tidak terdorong keluar layar ("tembus layar") dan menutupi tombol Cart.
+- [x] Menambahkan log visual debug premium (`console.log`) pada runtime `HeaderCanvas` dan `BuilderSection` untuk melacak sinkronisasi lebar panel dan status penyesuaian tata letak fixed header secara real-time.
+- File yang berubah:
+  - [components/storefront/sections/HeaderCanvas.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/sections/HeaderCanvas.tsx)
+  - [app/dashboard/storefront/builder/page.tsx](file:///c:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/app/dashboard/storefront/builder/page.tsx)
+
 ## Backend - Perbaikan Bug Reset Penyimpanan Header & Duplikasi Record (2026-05-26)
 - [x] Menyaring (filter) duplikat record header/footer non-suffix (`global-header` / `global-footer`) di API GET `/api/storefront/sections` jika record ber-suffix (`global-header-${clientId}` / `global-footer-${clientId}`) yang baru/berubah sudah ada di database.
 - [x] Menambahkan console.log debug premium saat mendeteksi record header dan memetakan datanya agar mendeteksi arah direksi layout untuk memudahkan pemantauan.

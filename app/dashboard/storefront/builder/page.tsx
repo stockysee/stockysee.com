@@ -17,10 +17,11 @@ import { useBuilderState, SECTION_STRUCTURE_TEMPLATES } from "./useBuilderState"
 import BuilderSidebar from "./BuilderSidebar";
 
 // Mini component agar bisa pakai useRef/ResizeObserver untuk spacer fixed header di canvas preview
-function CanvasHeaderPreview({ headerSection, isLeftPanelOpen, isDraggingWidget }: {
+function CanvasHeaderPreview({ headerSection, isLeftPanelOpen, isDraggingWidget, panelWidth }: {
   headerSection: any;
   isLeftPanelOpen: boolean;
   isDraggingWidget: boolean;
+  panelWidth: number;
 }) {
   const headerRef = useRef<HTMLDivElement>(null);
   const [headerHeight, setHeaderHeight] = useState(0);
@@ -61,6 +62,7 @@ function CanvasHeaderPreview({ headerSection, isLeftPanelOpen, isDraggingWidget 
           isActive={false}
           isLeftPanelOpen={isLeftPanelOpen}
           isDraggingWidget={isDraggingWidget}
+          panelWidth={panelWidth}
           onElementSelect={() => {}}
           onSectionSelect={() => {}}
         />
@@ -388,6 +390,7 @@ function BuilderContent() {
                     headerSection={headerSection}
                     isLeftPanelOpen={isLeftPanelOpen}
                     isDraggingWidget={isDraggingWidget}
+                    panelWidth={panelWidth}
                   />
                 );
               })()}
@@ -648,6 +651,7 @@ function BuilderContent() {
                     isDraggingWidget={isDraggingWidget}
                     isLeftPanelOpen={isLeftPanelOpen}
                     setContextMenu={setContextMenu}
+                    panelWidth={panelWidth}
                   />
                 );
               })()}

@@ -3108,6 +3108,7 @@ export const BuilderSection = ({
   activeSubFocus,
   isLeftPanelOpen,
   onOpenEditPanel,
+  panelWidth,
   readOnly = false,
 }: {
   id: string;
@@ -3133,6 +3134,7 @@ export const BuilderSection = ({
   onOpenEditPanel?: (elementId: string) => void;
   onOpenNavigatorPanel?: () => void;
   isNavigatorPanelOpen?: boolean;
+  panelWidth?: number;
   readOnly?: boolean;
 }) => {
   const [hoveredElementId, setHoveredElementId] = useState<string | null>(null);
@@ -3145,8 +3147,9 @@ export const BuilderSection = ({
       id,
       contentWidth: config?.contentWidth,
       maxWidth: config?.maxWidth,
-      paddingLeft: config?.paddingLeft,
-      paddingRight: config?.paddingRight,
+      position: config?.position,
+      isLeftPanelOpen,
+      panelWidth,
       readOnly
     });
   }
@@ -3365,12 +3368,16 @@ export const BuilderSection = ({
         marginTop: formatStyleValue(config.marginTop, 0),
         marginBottom: formatStyleValue(config.marginBottom, 0),
         maxWidth: config.contentWidth === 'full' ? '100%' : (config.maxWidth || '1200px'),
-        width: '100%',
+        width: id === 'global-header' && !readOnly && config.position === 'fixed' ? 'auto' : '100%',
         minHeight: isGrid ? '200px' : undefined,
 
         // ── Position & Stacking ──
         position: (config.position || 'relative') as any,
         zIndex: config.zIndex !== undefined ? config.zIndex : undefined,
+        ...(id === 'global-header' && !readOnly && config.position === 'fixed' ? {
+          left: isLeftPanelOpen ? `${panelWidth ?? 320}px` : '0px',
+          right: '0px'
+        } : {}),
 
         // ── Transition (aktif jika ada hover setting apapun) ──
         transition: config.hoverTransitionDuration !== undefined
