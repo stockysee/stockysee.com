@@ -10,15 +10,24 @@ const sanitizeStorefrontSections = (secs: any[]): any[] => {
   
   return secs.map(section => {
     // Normalize header to always be 'global-header' with contentWidth: 'full'
-    if (section.type === 'HEADER') {
-      return {
+    // Check both uppercase HEADER and different variations
+    if (section.type === 'HEADER' || section.type?.toUpperCase() === 'HEADER' || section.id === 'global-header' || section.id?.includes('header')) {
+      const sanitized = {
         ...section,
         id: 'global-header',
+        type: 'HEADER', // Ensure type is uppercase
         config: {
           ...section.config,
           contentWidth: 'full' // Force header to full-width
         }
       };
+      console.log("[StorefrontProvider DEBUG] Sanitized HEADER section:", {
+        originalId: section.id,
+        originalType: section.type,
+        newId: sanitized.id,
+        contentWidth: sanitized.config.contentWidth
+      });
+      return sanitized;
     }
     return section;
   });

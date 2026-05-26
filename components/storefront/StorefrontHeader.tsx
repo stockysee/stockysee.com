@@ -15,6 +15,11 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
   const [isScrolled, setIsScrolled] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const headerRef = useRef<HTMLDivElement>(null);
+  
+  // DEBUG: Log all sections received from context
+  useEffect(() => {
+    console.log("[StorefrontHeader] Received sections from context:", sections?.length || 0, sections?.map((s: any) => ({ id: s.id, type: s.type, contentWidth: s.config?.contentWidth })));
+  }, [sections]);
 
   // LOGIKA PATH DINAMIS (PENTING!)
   // Jika diakses via stockysee.com/storefront/[slug], link harus diawali /storefront/[slug]
@@ -38,6 +43,21 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
     ro.observe(headerRef.current);
     return () => ro.disconnect();
   }, [headerRef.current]);
+  
+  // DEBUG: Log header element dimensions
+  useEffect(() => {
+    if (headerRef.current && headerSection) {
+      const rect = headerRef.current.getBoundingClientRect();
+      const computed = window.getComputedStyle(headerRef.current);
+      console.log("[StorefrontHeader SIZE DEBUG] Header element computed:", {
+        width: rect.width,
+        computedWidth: computed.width,
+        computedMaxWidth: computed.maxWidth,
+        builderId: headerSection?.id,
+        configContentWidth: headerSection?.config?.contentWidth
+      });
+    }
+  }, [headerSection]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -48,6 +68,20 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
   // Dynamic configurations from the visual builder header elements
   const resolvedSections = (sections && sections.length > 0) ? sections : (client?.sections || []);
   const headerSection = resolvedSections.find((s: any) => s.type === "HEADER");
+  
+  // DEBUG: Log resolved header section
+  useEffect(() => {
+    if (headerSection) {
+      console.log("[StorefrontHeader] Found headerSection:", {
+        id: headerSection.id,
+        type: headerSection.type,
+        configContentWidth: headerSection.config?.contentWidth,
+        hasElements: !!(headerSection.elements || headerSection.config?.elements)
+      });
+    } else {
+      console.warn("[StorefrontHeader] NO headerSection found! sections.length:", resolvedSections.length);
+    }
+  }, [headerSection]);
   // elements bisa ada di root (setelah builder mapping) ATAU di dalam config.elements (dari Prisma langsung)
   const headerElements = headerSection?.elements || headerSection?.config?.elements || [];
   const brandingElement = headerElements.find((el: any) => el.type === "BRANDING");
@@ -70,6 +104,10 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
   // Debug log to fulfill Aturan 8
   useEffect(() => {
     console.log("[StorefrontHeader Layout Debug] Header Section loaded:", !!headerSection, {
+      id: headerSection?.id,
+      contentWidth: headerSection?.config?.contentWidth,
+      paddingLeft: headerSection?.config?.paddingLeft,
+      paddingRight: headerSection?.config?.paddingRight,
       branding: brandingElement?.config,
       menu: menuElement?.config,
       cart: cartElement?.config,

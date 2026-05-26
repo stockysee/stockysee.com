@@ -3138,6 +3138,18 @@ export const BuilderSection = ({
   const [hoveredElementId, setHoveredElementId] = useState<string | null>(null);
   const [isSectionHovered, setIsSectionHovered] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+  
+  // DEBUG: Log section config for header
+  if (id === 'global-header' || id?.includes('header')) {
+    console.log("[BuilderSection DEBUG] Header section received:", {
+      id,
+      contentWidth: config?.contentWidth,
+      maxWidth: config?.maxWidth,
+      paddingLeft: config?.paddingLeft,
+      paddingRight: config?.paddingRight,
+      readOnly
+    });
+  }
   const [isLocalNavigatorOpen, setIsLocalNavigatorOpen] = useState(false);
 
   // Sync local state dengan event global
