@@ -27,6 +27,31 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
   const isPathMode = pathname?.includes(`/storefront/${client.slug}`);
   const baseLink = isPathMode ? `/storefront/${client.slug}` : "";
   
+  const isKatalogLabel = categories && categories.length > 0;
+
+  // Dynamic configurations from the visual builder header elements
+  const resolvedSections = (sections && sections.length > 0) ? sections : (client?.sections || []);
+  const headerSection = resolvedSections.find((s: any) => s.type === "HEADER");
+  
+  // elements bisa ada di root (setelah builder mapping) ATAU di dalam config.elements (dari Prisma langsung)
+  const headerElements = headerSection?.elements || headerSection?.config?.elements || [];
+  const brandingElement = headerElements.find((el: any) => el.type === "BRANDING");
+  const menuElement = headerElements.find((el: any) => el.type === "MENU");
+  const cartElement = headerElements.find((el: any) => el.type === "CART");
+
+  // Section-level config from visual builder header
+  const headerConfig = headerSection?.config || {};
+  const headerBgColor = headerConfig.bgColor || (isScrolled ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.8)');
+  const headerTextColor = headerConfig.textColor || '#18181B';
+  const headerPaddingTop = headerConfig.paddingTop ?? 16;
+  const headerPaddingBottom = headerConfig.paddingBottom ?? 16;
+
+  // Determine hidden menus
+  const hiddenMenus = menuElement?.config?.hiddenMenus || [];
+  const showCatalog = !hiddenMenus.includes("catalog");
+  const showCategories = isKatalogLabel && !hiddenMenus.includes("categories");
+  const showAbout = hasAbout && !hiddenMenus.includes("about");
+  
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
@@ -63,12 +88,6 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
-  const isKatalogLabel = categories && categories.length > 0;
-
-  // Dynamic configurations from the visual builder header elements
-  const resolvedSections = (sections && sections.length > 0) ? sections : (client?.sections || []);
-  const headerSection = resolvedSections.find((s: any) => s.type === "HEADER");
-  
   // DEBUG: Log resolved header section
   useEffect(() => {
     if (headerSection) {
@@ -82,24 +101,6 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
       console.warn("[StorefrontHeader] NO headerSection found! sections.length:", resolvedSections.length);
     }
   }, [headerSection]);
-  // elements bisa ada di root (setelah builder mapping) ATAU di dalam config.elements (dari Prisma langsung)
-  const headerElements = headerSection?.elements || headerSection?.config?.elements || [];
-  const brandingElement = headerElements.find((el: any) => el.type === "BRANDING");
-  const menuElement = headerElements.find((el: any) => el.type === "MENU");
-  const cartElement = headerElements.find((el: any) => el.type === "CART");
-
-  // Section-level config from visual builder header
-  const headerConfig = headerSection?.config || {};
-  const headerBgColor = headerConfig.bgColor || (isScrolled ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.8)');
-  const headerTextColor = headerConfig.textColor || '#18181B';
-  const headerPaddingTop = headerConfig.paddingTop ?? 16;
-  const headerPaddingBottom = headerConfig.paddingBottom ?? 16;
-
-  // Determine hidden menus
-  const hiddenMenus = menuElement?.config?.hiddenMenus || [];
-  const showCatalog = !hiddenMenus.includes("catalog");
-  const showCategories = isKatalogLabel && !hiddenMenus.includes("categories");
-  const showAbout = hasAbout && !hiddenMenus.includes("about");
 
   // Debug log to fulfill Aturan 8
   useEffect(() => {
