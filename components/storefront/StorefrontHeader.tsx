@@ -55,7 +55,11 @@ export default function StorefrontHeader({ backLink = "/", showBack = false }: {
   const cartElement = headerElements.find((el: any) => el.type === "CART");
 
   // Section-level config from visual builder header
-  const headerConfig = headerSection?.config || {};
+  // FIX 3: Pastikan contentWidth default ke 'full' untuk header
+  const headerConfig = {
+    contentWidth: 'full', // Override: header selalu full-width
+    ...headerSection?.config
+  };
   const headerBgColor = headerConfig.bgColor || (isScrolled ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.8)');
   const headerTextColor = headerConfig.textColor || '#18181B';
   const headerPaddingTop = headerConfig.paddingTop ?? 16;

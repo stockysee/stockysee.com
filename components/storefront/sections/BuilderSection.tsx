@@ -3234,7 +3234,7 @@ export const BuilderSection = ({
       `}</style>}
       <div
         id={`section-${id}`}
-        className={`relative transition-all mx-auto w-full ${!readOnly && isActive
+        className={`relative transition-all ${id === 'global-header' ? 'w-full' : 'mx-auto w-full'} ${!readOnly && isActive
         ? 'after:absolute after:inset-0 after:border-2 after:border-blue-600 after:pointer-events-none after:z-[50] after:rounded-[inherit]'
         : !readOnly ? 'hover:after:absolute hover:after:inset-0 hover:after:border-2 hover:after:border-blue-500/30 hover:after:pointer-events-none hover:after:z-[50] hover:after:rounded-[inherit]'
         : ''

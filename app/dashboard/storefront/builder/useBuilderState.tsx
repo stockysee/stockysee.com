@@ -276,7 +276,8 @@ const sanitizeSections = (secs: Section[]): Section[] => {
         paddingTop: 16,
         paddingBottom: 16,
         paddingLeft: 40,
-        paddingRight: 40
+        paddingRight: 40,
+        contentWidth: 'full' // FIX 1: Header harus selalu full-width
       },
       elements: [],
       order: -1,
@@ -286,6 +287,14 @@ const sanitizeSections = (secs: Section[]): Section[] => {
   } else {
     headerSection = { ...sorted[headerIdx] };
     sorted.splice(headerIdx, 1);
+  }
+  
+  // FIX 1: Pastikan header config selalu punya contentWidth: 'full'
+  if (!headerSection.config) {
+    headerSection.config = {};
+  }
+  if (!headerSection.config.contentWidth) {
+    headerSection.config.contentWidth = 'full';
   }
 
   // Pastikan CART (Keranjang) wajib ada di header dan selalu di posisi terakhir
