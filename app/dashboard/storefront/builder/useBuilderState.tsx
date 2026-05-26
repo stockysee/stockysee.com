@@ -289,13 +289,14 @@ const sanitizeSections = (secs: Section[]): Section[] => {
     sorted.splice(headerIdx, 1);
   }
   
+  // FIX 1: Normalize header ID selalu menjadi 'global-header'
+  headerSection.id = 'global-header';
+  
   // FIX 1: Pastikan header config selalu punya contentWidth: 'full'
   if (!headerSection.config) {
     headerSection.config = {};
   }
-  if (!headerSection.config.contentWidth) {
-    headerSection.config.contentWidth = 'full';
-  }
+  headerSection.config.contentWidth = 'full'; // Force full-width untuk header
 
   // Pastikan CART (Keranjang) wajib ada di header dan selalu di posisi terakhir
   let headerElements = headerSection.elements || [];

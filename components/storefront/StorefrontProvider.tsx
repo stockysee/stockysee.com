@@ -3,6 +3,27 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
+// ── SANITIZE SECTIONS HELPER ──
+// FIX: Ensure header always has full-width in storefront
+const sanitizeStorefrontSections = (secs: any[]): any[] => {
+  if (!secs || secs.length === 0) return secs;
+  
+  return secs.map(section => {
+    // Normalize header to always be 'global-header' with contentWidth: 'full'
+    if (section.type === 'HEADER') {
+      return {
+        ...section,
+        id: 'global-header',
+        config: {
+          ...section.config,
+          contentWidth: 'full' // Force header to full-width
+        }
+      };
+    }
+    return section;
+  });
+};
+
 // ... (rest of the interfaces)
 
 interface CartItem {
@@ -184,13 +205,16 @@ export function StorefrontProvider({
   }, [sections, client?.sections]);
 
   const resolvedSections = (sections && sections.length > 0) ? sections : (client?.sections || []);
+  
+  // FIX: Apply section sanitization to ensure header has contentWidth: 'full'
+  const sanitizedSections = sanitizeStorefrontSections(resolvedSections);
 
   return (
     <StorefrontContext.Provider value={{ 
       client, 
       products, 
       categories: categories || [],
-      sections: resolvedSections,
+      sections: sanitizedSections,
       customPages: customPages || [],
       hasAbout,
       cart, 
