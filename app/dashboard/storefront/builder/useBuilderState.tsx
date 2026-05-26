@@ -305,10 +305,13 @@ const sanitizeSections = (secs: Section[]): Section[] => {
   headerSection.id = 'global-header';
   
   // FIX 1: Pastikan header config selalu punya contentWidth: 'full'
+  // Hanya set contentWidth jika belum ada — jangan timpa config yang sudah ada
   if (!headerSection.config) {
     headerSection.config = {};
   }
-  headerSection.config.contentWidth = 'full'; // Force full-width untuk header
+  if (!headerSection.config.contentWidth) {
+    headerSection.config.contentWidth = 'full';
+  }
 
   // Pastikan CART (Keranjang) wajib ada di header dan selalu di posisi terakhir
   let headerElements = headerSection.elements || [];
@@ -338,7 +341,7 @@ export function useBuilderState() {
   const searchParams = useSearchParams();
   const pageId = searchParams?.get("pageId");
 
-  const { data: initialSections, loading: loadingSections, refresh: refreshSections } = useCacheFetch<Section[]>(pageId ? null : "/api/storefront/sections", "storefront_sections", 300000);
+  const { data: initialSections, loading: loadingSections, refresh: refreshSections } = useCacheFetch<Section[]>(pageId ? null : "/api/storefront/sections", "storefront_sections", 0);
   const { data: customPage, loading: loadingPage, refresh: refreshPage } = useCacheFetch<any>(pageId ? `/api/storefront/pages/${pageId}` : null, `storefront_page_${pageId}`, 0);
   const { data: allCustomPages } = useCacheFetch<any[]>("/api/storefront/pages", "storefront_pages_list", 300000);
 
@@ -787,10 +790,9 @@ export function useBuilderState() {
   }, [initialSections, customPage, pageId]);
 
   const saveHistory = (newSections: Section[]) => {
-    const sanitized = sanitizeSections(newSections);
     setPast(prev => [...prev, sections].slice(-20)); // Limit to 20 states
     setFuture([]);
-    setSections(sanitized);
+    setSections(newSections);
     setHasChanges(true);
   };
 
@@ -2038,6 +2040,7 @@ export function useBuilderState() {
               body: JSON.stringify({
                 type: section.type,
                 config: configWithElements,
+                elements: section.elements || [],
                 order: index,
                 isActive: true
               })
@@ -2049,6 +2052,7 @@ export function useBuilderState() {
               body: JSON.stringify({
                 type: section.type,
                 config: configWithElements,
+                elements: section.elements || [],
                 order: index,
                 isActive: section.isActive
               })
@@ -2082,7 +2086,10 @@ export function useBuilderState() {
         } else {
           showToast("Perubahan berhasil disimpan", "success");
           setHasChanges(false);
-          // DON'T sanitize here - just reload from API to get fresh data with everything intact
+          // Paksa invalidate sessionStorage cache agar data fresh dari server
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('storefront_sections');
+          }
           refreshSections();
         }
       }

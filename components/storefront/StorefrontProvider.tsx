@@ -13,18 +13,21 @@ const sanitizeStorefrontSections = (secs: any[]): any[] => {
     // Check both uppercase HEADER and different variations
     if (section.type === 'HEADER' || section.type?.toUpperCase() === 'HEADER' || section.id === 'global-header' || section.id?.includes('header')) {
       // CRITICAL: Extract elements from either root level OR nested in config
-      const headerElements = section.elements || section.config?.elements || [];
+      // Use length check to avoid empty array `[]` (truthy) overriding config.elements
+      const rootEls = (section.elements && Array.isArray(section.elements) && section.elements.length > 0) ? section.elements : null;
+      const configEls = (section.config?.elements && Array.isArray(section.config.elements) && section.config.elements.length > 0) ? section.config.elements : null;
+      const headerElements = rootEls || configEls || [];
       
       const sanitized = {
         ...section,
         id: 'global-header',
         type: 'HEADER', // Ensure type is uppercase
-        elements: headerElements, // PRESERVE ELEMENTS!
+        elements: headerElements.length > 0 ? headerElements : (section.elements || []),
         config: {
           ...section.config,
           contentWidth: 'full', // Force header to full-width
           // Ensure elements are also in config for backward compatibility
-          elements: headerElements
+          elements: headerElements.length > 0 ? headerElements : (section.config?.elements || [])
         }
       };
       console.log("[StorefrontProvider DEBUG] Sanitized HEADER section:", {
