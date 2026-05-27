@@ -1,3 +1,21 @@
+## Frontend - Integrasi Setelan Sorotan (Hover) Elemen Deskripsi dan Menu Navigasi (2026-05-27)
+- [x] Menambahkan kontrol input Warna Teks Sorotan (`hoverTextColor`) pada tab Sorotan elemen deskripsi (`TEXT`) di editor panel samping.
+- [x] Menyempurnakan setelan tab Normal / Sorotan pada elemen Menu Navigasi (`MENU`) untuk mengubah warna sorotan (`hoverTextColor`) dan durasi transisi (`transitionDuration`).
+- [x] Memperbarui `MenuElement` di storefront kanvas agar menerima `elementId`, menghasilkan `finalId` secara dinamis, dan menyuntikkan tag `<style>` lokal untuk menangani transisi hover dan override warna hover menggunakan `:hover` dan `!important`.
+- [x] Menambahkan console.log untuk melacak runtime perubahan setelan hover deskripsi dan menu navigasi.
+- File yang berubah:
+  - [app/dashboard/storefront/builder/panels/EditorPanel.tsx](file:///C:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/app/dashboard/storefront/builder/panels/EditorPanel.tsx)
+  - [components/storefront/sections/BuilderSection.tsx](file:///C:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/sections/BuilderSection.tsx)
+
+## Frontend - Penyempurnaan Setelan Teks dan Layout Elemen Menu Navigasi (2026-05-27)
+- [x] Menghapus opsi pengaturan Perataan/Alignment (Kiri, Tengah, Kanan) dari tab Konten (layout) pada elemen Menu Navigasi di visual builder header.
+- [x] Mengganti dropdown popover setelan Penulisan (`menu_penulisan`) pada tab Gaya elemen Menu Navigasi dengan opsi setelan typography yang komprehensif milik elemen Title (HEADING). Ini mencakup unit dinamis untuk ukuran teks, ketebalan, transformasi, gaya, dekorasi, line height, letter spacing, dan word spacing.
+- [x] Memperbarui elemen renderer storefront `MenuElement` agar menerapkan semua opsi gaya penulisan baru secara dinamis menggunakan helper `formatStyleValue`.
+- [x] Menambahkan console log debug yang mendetail untuk melacak pembaruan config penulisan Menu Navigasi secara real-time.
+- File yang berubah:
+  - [app/dashboard/storefront/builder/panels/EditorPanel.tsx](file:///C:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/app/dashboard/storefront/builder/panels/EditorPanel.tsx)
+  - [components/storefront/sections/BuilderSection.tsx](file:///C:/Users/HYPE/project/villa-engine/engine/BACKUP-ENGINE/BUILD/stockysee/components/storefront/sections/BuilderSection.tsx)
+
 ## Frontend - Optimalisasi Layout Fixed Header Canvas saat Sidebar Expand (2026-05-26)
 - [x] Mengirimkan properti `panelWidth` ke komponen `HeaderCanvas` agar lebar fixed header di editor canvas disesuaikan secara dinamis ketika panel edit samping (sidebar) aktif/expand.
 - [x] Menghubungkan properti `panelWidth` ke `BuilderSection` di dalam `HeaderCanvas.tsx` sehingga fixed header diatur dengan lebar `auto`, `left: panelWidth` dan `right: 0` agar tidak terdorong keluar layar ("tembus layar") dan menutupi tombol Cart.

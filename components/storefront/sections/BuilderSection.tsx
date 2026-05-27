@@ -1034,7 +1034,7 @@ const BrandingElement = ({ config, readOnly, onElementSelect, elementId, activeS
 };
 
 // ── MENU ELEMENT ──
-const MenuElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) => {
+const MenuElement = ({ config, readOnly, elementId }: { config: any; readOnly?: boolean; elementId?: string }) => {
   const sf = useStorefront();
   const defaultTabs = [
     { id: 'catalog', label: 'Katalog', url: '/category/all' },
@@ -1055,8 +1055,23 @@ const MenuElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) 
 
   // Debug log untuk Aturan 8
   useEffect(() => {
-    console.log("[MenuElement Debug] Loaded:", { allTabsCount: allTabs.length, readOnly });
-  }, [allTabs, readOnly]);
+    console.log("[MenuElement Debug] Loaded/Updated with Typography settings:", {
+      allTabsCount: allTabs.length,
+      readOnly,
+      fontFamily: config.fontFamily || 'inherit',
+      fontSize: config.fontSize ?? 13,
+      fontWeight: config.fontWeight || '600',
+      textTransform: config.textTransform || 'none',
+      fontStyle: config.fontStyle || 'normal',
+      textDecoration: config.textDecoration || 'none',
+      lineHeight: config.lineHeight || '1.2em',
+      letterSpacing: config.letterSpacing || '0px',
+      wordSpacing: config.wordSpacing || '0px',
+      textColor: config.textColor || '#18181B',
+      hoverTextColor: config.hoverTextColor || '#18181B',
+      transitionDuration: config.transitionDuration ?? 0.3
+    });
+  }, [allTabs, readOnly, config]);
 
   const handleHamburgerClick = (e: React.MouseEvent) => {
     if (readOnly && sf?.setIsMobileMenuOpen) {
@@ -1067,10 +1082,21 @@ const MenuElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) 
     }
   };
 
+  const finalId = elementId ? `menu-el-${elementId}` : `menu-el-${Math.random().toString(36).substr(2, 9)}`;
+
   return (
     <>
+      <style>{`
+        #${finalId} a, #${finalId} span {
+          transition: color ${config.transitionDuration ?? 0.3}s ease !important;
+        }
+        #${finalId} a:hover, #${finalId} span:hover {
+          color: ${config.hoverTextColor || config.textColor || '#18181B'} !important;
+        }
+      `}</style>
       {/* Desktop Menu */}
       <div
+        id={finalId}
         className={`${readOnly ? "hidden md:flex" : "flex"} items-center flex-wrap gap-5 md:gap-7`}
         style={{
           justifyContent: config.align === 'center' ? 'center' : config.align === 'right' ? 'flex-end' : 'flex-start',
@@ -1089,9 +1115,15 @@ const MenuElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) 
                   href={href}
                   style={{
                     color: config.textColor || '#18181B',
-                    fontSize: `${config.fontSize ?? 13}px`,
+                    fontSize: formatStyleValue(config.fontSize, 13),
                     fontFamily: config.fontFamily || 'inherit',
-                    fontWeight: config.fontWeight || '600'
+                    fontWeight: config.fontWeight || '600',
+                    textTransform: config.textTransform || 'none',
+                    fontStyle: config.fontStyle || 'normal',
+                    textDecoration: config.textDecoration || 'none',
+                    lineHeight: config.lineHeight || '1.2em',
+                    letterSpacing: config.letterSpacing || '0px',
+                    wordSpacing: config.wordSpacing || '0px'
                   }}
                   className="hover:opacity-75 transition-opacity"
                 >
@@ -1105,9 +1137,15 @@ const MenuElement = ({ config, readOnly }: { config: any; readOnly?: boolean }) 
                 key={tab.id}
                 style={{
                   color: config.textColor || '#18181B',
-                  fontSize: `${config.fontSize ?? 13}px`,
+                  fontSize: formatStyleValue(config.fontSize, 13),
                   fontFamily: config.fontFamily || 'inherit',
-                  fontWeight: config.fontWeight || '600'
+                  fontWeight: config.fontWeight || '600',
+                  textTransform: config.textTransform || 'none',
+                  fontStyle: config.fontStyle || 'normal',
+                  textDecoration: config.textDecoration || 'none',
+                  lineHeight: config.lineHeight || '1.2em',
+                  letterSpacing: config.letterSpacing || '0px',
+                  wordSpacing: config.wordSpacing || '0px'
                 }}
                 className="cursor-default hover:opacity-75 transition-opacity"
               >
@@ -2980,7 +3018,7 @@ const ElementWrapper = ({
             readOnly={readOnly}
           />
         )}
-        {element.type === 'MENU' && <MenuElement config={element.config} readOnly={readOnly} />}
+        {element.type === 'MENU' && <MenuElement config={element.config} readOnly={readOnly} elementId={element.id} />}
         {element.type === 'CART' && <CartElement config={element.config} readOnly={readOnly} />}
         {element.type === 'CATEGORY_LIST' && (
           <CategoryListElement

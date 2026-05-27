@@ -6017,6 +6017,43 @@ className="w-4 h-4 object-contain"
                                        </>
                                      ) : (
                                        <div className="space-y-4">
+                                          {/* Warna Teks Hover */}
+                                          <div className="flex justify-between items-center">
+                                            <span className="text-xs text-zinc-300 font-semibold">Warna Teks Sorotan</span>
+                                            <div className="flex items-center gap-1">
+                                              {activeElement.config.hoverTextColor && (
+                                                <button
+                                                  type="button"
+                                                  onClick={() => {
+                                                    console.log('[Editor TEXT Debug] Warna teks hover direset');
+                                                    handleUpdateElement(editingSection.id, activeElement.id, { hoverTextColor: undefined });
+                                                  }}
+                                                  className="p-1 rounded hover:bg-zinc-800 transition-colors"
+                                                  title="Reset Warna Teks Sorotan"
+                                                >
+                                                  <RotateCcw className="w-3 h-3 text-zinc-500 hover:text-zinc-300" />
+                                                </button>
+                                              )}
+                                              <div className="flex items-center bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden h-7">
+                                                <div className="relative w-8 h-full flex items-center justify-center p-1 cursor-pointer hover:bg-zinc-900/40">
+                                                  <div 
+                                                    className="w-full h-full rounded-md border border-zinc-800/80" 
+                                                    style={{ backgroundColor: activeElement.config.hoverTextColor || '#4b5563' }}
+                                                  />
+                                                  <input
+                                                    type="color"
+                                                    value={activeElement.config.hoverTextColor || '#4b5563'}
+                                                    onChange={(e) => {
+                                                      console.log('[Editor TEXT] Hover Text Color diubah ke:', e.target.value);
+                                                      handleUpdateElement(editingSection.id, activeElement.id, { hoverTextColor: e.target.value });
+                                                    }}
+                                                    className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                                                  />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
                                          {/* Warna Tautan Hover */}
                                          <div className="flex justify-between items-center">
                                            <span className="text-xs text-zinc-300 font-semibold">Warna Tautan</span>
