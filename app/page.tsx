@@ -40,6 +40,7 @@ export default function LandingPage() {
   const [latency, setLatency] = useState(15);
   const [activeLog, setActiveLog] = useState(0);
   const [timeStr, setTimeStr] = useState("00:00:00:000");
+  const [showProgressPopup, setShowProgressPopup] = useState(true);
   const toolkitRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -144,6 +145,31 @@ export default function LandingPage() {
     <div className="min-h-screen bg-[#050505] text-white selection:bg-blue-600/30 overflow-x-hidden antialiased">
       {/* IMPORT GOOGLE FONTS: Outfit */}
       <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+      {/* PROGRESS POPUP */}
+      <div
+        className={`fixed top-[72px] right-2 md:right-4 z-[999] max-w-[280px] md:max-w-sm transition-all duration-500 ease-out ${
+          showProgressPopup ? "translate-x-0 opacity-100" : "translate-x-[120%] opacity-0"
+        }`}
+      >
+        <div className="bg-red-600/90 backdrop-blur-md border border-red-400/30 rounded-xl md:rounded-2xl px-3 py-2.5 md:px-5 md:py-4 shadow-2xl shadow-red-600/30">
+          <button
+            onClick={() => setShowProgressPopup(false)}
+            className="absolute -top-2 -right-2 w-5 h-5 md:w-6 md:h-6 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-black/60 transition-colors border border-white/10"
+          >
+            <X className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" strokeWidth={3} />
+          </button>
+          <div className="flex items-start space-x-2 md:space-x-3">
+            <div className="w-2 h-2 bg-red-300 rounded-full animate-pulse mt-1 flex-shrink-0 shadow-[0_0_8px_rgba(252,165,165,0.5)]"></div>
+            <div>
+              <h4 className="text-white font-black text-[10px] md:text-xs uppercase tracking-widest">On Progress</h4>
+              <p className="text-red-200 text-[9px] md:text-[10px] font-medium mt-0.5 md:mt-1 leading-relaxed">
+                Website ini masih dalam tahap pengembangan. Beberapa fitur mungkin belum berfungsi secara optimal.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* MOBILE MENU OVERLAY (Moved to root to avoid stacking context issues with navbar filters) */}
       <div className={`fixed inset-0 z-[300] md:hidden transition-all duration-500 overflow-hidden ${mobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}>
@@ -598,6 +624,100 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* MASKOT SECTION */}
+      <section className="relative py-16 md:py-24 overflow-hidden">
+        {/* GRADIENT PEMISAH DARI HERO */}
+        <div className="absolute top-0 left-0 right-0 h-32 md:h-40 pointer-events-none" style={{
+          background: 'linear-gradient(to bottom, rgba(5,5,5,0) 0%, rgba(5,5,5,1) 100%)'
+        }}></div>
+
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="flex flex-col md:hidden items-center gap-6">
+            {/* MOBILE: 2 GIF JEJER */}
+            <div className="flex flex-row items-center justify-center gap-4">
+              <div className="w-32">
+                <img
+                  src="/maskot-gif.gif"
+                  alt="Stockysee Maskot"
+                  className="w-full h-auto drop-shadow-2xl"
+                />
+              </div>
+              <div className="w-32">
+                <img
+                  src="/maskot-gif-cw.gif"
+                  alt="Stockysee Maskot"
+                  className="w-full h-auto drop-shadow-2xl"
+                />
+              </div>
+            </div>
+            {/* MOBILE: TEKS DIBAWAH */}
+            <div className="text-center max-w-lg">
+              <h2 className="text-2xl font-black tracking-tighter mb-4">
+                Siap <span className="text-blue-500">Membangun</span> Bisnismu?
+              </h2>
+              <p className="text-zinc-500 text-[10px] uppercase tracking-[0.2em] font-bold mb-6">
+                Bersama Stockysee, semua jadi lebih mudah
+              </p>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Platform all-in-one yang dirancang untuk membantu kamu mengelola,
+                mengembangkan, dan menskalakan bisnis secara otomatis.
+              </p>
+              <Link
+                href="/register"
+                className="inline-block mt-8 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-wider transition-all"
+              >
+                Mulai Sekarang
+              </Link>
+            </div>
+          </div>
+
+          {/* DESKTOP: 3 KOLOM */}
+          <div className="hidden md:flex flex-row items-center justify-center gap-12">
+            <div className="w-56 flex-shrink-0">
+              <img
+                src="/maskot-gif.gif"
+                alt="Stockysee Maskot"
+                className="w-full h-auto drop-shadow-2xl"
+              />
+            </div>
+            <div className="flex-1 text-center max-w-lg">
+              <h2 className="text-4xl font-black tracking-tighter mb-4">
+                Siap <span className="text-blue-500">Membangun</span> Bisnismu?
+              </h2>
+              <p className="text-zinc-500 text-xs uppercase tracking-[0.2em] font-bold mb-6">
+                Bersama Stockysee, semua jadi lebih mudah
+              </p>
+              <p className="text-zinc-400 text-base leading-relaxed">
+                Platform all-in-one yang dirancang untuk membantu kamu mengelola,
+                mengembangkan, dan menskalakan bisnis secara otomatis.
+              </p>
+              <Link
+                href="/register"
+                className="inline-block mt-8 bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-full font-black text-[11px] uppercase tracking-wider transition-all"
+              >
+                Mulai Sekarang
+              </Link>
+            </div>
+            <div className="w-56 flex-shrink-0">
+              <img
+                src="/maskot-gif-cw.gif"
+                alt="Stockysee Maskot"
+                className="w-full h-auto drop-shadow-2xl"
+              />
+            </div>
+          </div>
+
+          {/* DIAGRAM PRODUK */}
+          <div className="mt-12 md:mt-20 flex justify-center">
+            <img
+              src="/diagram-produk.gif"
+              alt="Diagram Produk"
+              className="w-full max-w-4xl h-auto rounded-2xl drop-shadow-2xl"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ACTIVE USERS SECTION (SOCIAL PROOF) */}
       <section className="relative py-12 md:py-16 bg-blue-600/5 border-y border-white/5 overflow-hidden">
         {/* GLOW DECORATION */}
@@ -700,7 +820,15 @@ export default function LandingPage() {
       </section>
 
       {/* PLATFORM ARCHITECTURE SECTION */}
-      <section className="py-20 md:py-32 relative overflow-visible bg-[#050505]">
+      <section className="py-20 md:py-32 relative overflow-visible bg-[#050505]"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(59,130,246,0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59,130,246,0.12) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px'
+        }}
+      >
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-16 md:mb-20">
             <h2 className="text-3xl md:text-5xl font-black tracking-tighter mb-4">
