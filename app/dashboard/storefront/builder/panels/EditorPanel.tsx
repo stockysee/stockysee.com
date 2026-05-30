@@ -10,7 +10,7 @@ import {
   CopyPlus, PlusCircle, Columns, Undo2, Redo2, LayoutGrid, AlignLeft, AlignCenter, 
   AlignRight, AlignJustify, MousePointerClick, SeparatorHorizontal, Award, Pencil, 
   Folder, Sparkles, Link2, RotateCcw, Bold, Italic, Underline, List, ListOrdered, 
-  Maximize2, Table, Strikethrough, HelpCircle, Eraser, Quote, Minus, Move, Video
+  Maximize2, Table, Strikethrough, HelpCircle, Eraser, Quote, Minus, Move, Video, GripVertical
 } from "lucide-react";
 import { BuilderSidebarProps, Section } from "../types";
 import { SectionElement } from "@/components/storefront/sections/BuilderSection";
@@ -466,7 +466,7 @@ export function EditorPanel(props: EditorPanelProps) {
                                  )}
 
                                 {/* Perataan Teks/Element (Non-BUTTON, Non-IMAGE, Non-HEADING, Non-BRANDING) */}
-                                {activeElement.config.align !== undefined && activeElement.type !== 'BUTTON' && activeElement.type !== 'CART' && activeElement.type !== 'IMAGE' && activeElement.type !== 'HEADING' && activeElement.type !== 'BRANDING' && (
+                                {activeElement.config.align !== undefined && activeElement.type !== 'BUTTON' && activeElement.type !== 'CART' && activeElement.type !== 'IMAGE' && activeElement.type !== 'HEADING' && activeElement.type !== 'BRANDING' && activeElement.type !== 'MENU' && (
                                   <div className="space-y-2">
                                     <span className="text-[9px] font-black uppercase tracking-widest text-zinc-200">Alignment</span>
                                     <div className="flex gap-2">
@@ -3157,33 +3157,77 @@ className="w-4 h-4 object-contain"
                                       id: p.slug || p.id,
                                       label: p.title
                                     }));
-                                    const allTabs = [...defaultTabs, ...customTabs];
+                                    const baseTabs = [...defaultTabs, ...customTabs];
+                                    const orderedTabs = activeElement.config.menuOrder
+                                      ? [...baseTabs].sort((a, b) => {
+                                          const indexA = activeElement.config.menuOrder.indexOf(a.id);
+                                          const indexB = activeElement.config.menuOrder.indexOf(b.id);
+                                          if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                                          if (indexA !== -1) return -1;
+                                          if (indexB !== -1) return 1;
+                                          return 0;
+                                        })
+                                      : baseTabs;
                                     const hidden = activeElement.config.hiddenMenus || [];
 
-                                    return allTabs.map(tab => {
-                                      const isVisible = !hidden.includes(tab.id);
-                                      return (
-                                        <div
-                                          key={tab.id}
-                                          className="flex items-center justify-between h-8 px-2.5 rounded-[4px] bg-[#1a1a1f] border border-zinc-800 hover:border-zinc-700 transition-all"
-                                        >
-                                          <span className="text-xs font-semibold text-zinc-300">{tab.label}</span>
-                                          <button
-                                            type="button"
-                                            onClick={() => {
-                                              const nextHidden = isVisible
-                                                ? [...hidden, tab.id]
-                                                : hidden.filter((id: string) => id !== tab.id);
-                                              console.log('[Editor MENU] Toggle halaman:', tab.id, '→', !isVisible ? 'tampil' : 'sembunyikan');
-                                              handleUpdateElement(editingSection.id, activeElement.id, { hiddenMenus: nextHidden });
-                                            }}
-                                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-zinc-700/50 transition-colors duration-200 ease-in-out p-0.5 ${isVisible ? 'bg-blue-600' : 'bg-zinc-800'}`}
-                                          >
-                                            <span className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition duration-200 ease-in-out ${isVisible ? 'translate-x-4' : 'translate-x-0'}`} />
-                                          </button>
-                                        </div>
-                                      );
-                                    });
+                                    return (
+                                      <div className="space-y-1.5">
+                                        {orderedTabs.map((tab, idx) => {
+                                          const isVisible = !hidden.includes(tab.id);
+                                          const canMoveUp = idx > 0;
+                                          const canMoveDown = idx < orderedTabs.length - 1;
+                                          return (
+                                            <div
+                                              key={tab.id}
+                                              className="flex items-center justify-between h-8 px-2.5 rounded-[4px] bg-[#1a1a1f] border border-zinc-800 hover:border-zinc-700 transition-all"
+                                            >
+                                              <div className="flex items-center gap-2">
+                                                <div className="flex flex-col gap-0.5 mr-1">
+                                                  <button
+                                                    type="button"
+                                                    disabled={!canMoveUp}
+                                                    onClick={() => {
+                                                      const newOrder = orderedTabs.map(t => t.id);
+                                                      [newOrder[idx - 1], newOrder[idx]] = [newOrder[idx], newOrder[idx - 1]];
+                                                      handleUpdateElement(editingSection.id, activeElement.id, { menuOrder: newOrder });
+                                                    }}
+                                                    className="p-0.5 text-zinc-500 hover:text-zinc-300 disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
+                                                  >
+                                                    <ChevronUp className="w-3 h-3" />
+                                                  </button>
+                                                  <button
+                                                    type="button"
+                                                    disabled={!canMoveDown}
+                                                    onClick={() => {
+                                                      const newOrder = orderedTabs.map(t => t.id);
+                                                      [newOrder[idx], newOrder[idx + 1]] = [newOrder[idx + 1], newOrder[idx]];
+                                                      handleUpdateElement(editingSection.id, activeElement.id, { menuOrder: newOrder });
+                                                    }}
+                                                    className="p-0.5 text-zinc-500 hover:text-zinc-300 disabled:opacity-30 disabled:hover:text-zinc-500 transition-colors"
+                                                  >
+                                                    <ChevronDown className="w-3 h-3" />
+                                                  </button>
+                                                </div>
+                                                <span className="text-xs font-semibold text-zinc-300">{tab.label}</span>
+                                              </div>
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  const nextHidden = isVisible
+                                                    ? [...hidden, tab.id]
+                                                    : hidden.filter((id: string) => id !== tab.id);
+                                                  console.log('[Editor MENU] Toggle halaman:', tab.id, '→', !isVisible ? 'tampil' : 'sembunyikan');
+                                                  handleUpdateElement(editingSection.id, activeElement.id, { hiddenMenus: nextHidden });
+                                                }}
+                                                className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border border-zinc-700/50 transition-colors duration-200 ease-in-out p-0.5 ${isVisible ? 'bg-blue-600' : 'bg-zinc-800'}`}
+                                              >
+                                                <span className={`pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition duration-200 ease-in-out ${isVisible ? 'translate-x-4' : 'translate-x-0'}`} />
+                                              </button>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    );
                                   })()}
                                 </div>
 

@@ -517,7 +517,18 @@ export const HeaderSection = ({ config }: { config: any }) => {
     url: `/p/${p.slug}`
   }));
 
-  const allTabs = [...defaultTabs, ...customTabs].filter(tab => !hiddenMenus.includes(tab.id));
+  const baseTabs = [...defaultTabs, ...customTabs];
+  const orderedTabs = config.menuOrder
+    ? [...baseTabs].sort((a, b) => {
+        const indexA = config.menuOrder.indexOf(a.id);
+        const indexB = config.menuOrder.indexOf(b.id);
+        if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        return 0;
+      })
+    : baseTabs;
+  const allTabs = orderedTabs.filter((tab: any) => !hiddenMenus.includes(tab.id));
   const baseLink = useDynamicLink();
 
   return (
